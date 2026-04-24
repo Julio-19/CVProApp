@@ -17,6 +17,14 @@ const { width } = Dimensions.get('window');
 
 export default function SavedScreen() {
   const cv = useCVStore();
+  useEffect(() => {
+  console.log('=== CV STORE ===');
+  console.log('PRENOM:', cv.prenom);
+  console.log('NOM:', cv.nom);
+  console.log('EMAIL:', cv.email);
+  console.log('TITRE:', cv.titre);
+  console.log('===============');
+}, []);
   const [loading, setLoading]         = useState(false);
   const [saving, setSaving]           = useState(false);
   const [pdfUri, setPdfUri]           = useState<string | null>(null);
