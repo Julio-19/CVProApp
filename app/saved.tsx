@@ -108,7 +108,75 @@ export default function SavedScreen() {
     } catch (e) { console.error(e); }
   };
 
-  
+  // Ajoutez cet état en haut du composant
+const [cvIdActuel, setCvIdActuel] = useState<string | null>(null);
+
+const handleSauvegarder = async () => {
+  try {
+    setSaving(true);
+
+    // Vérifier que le store a bien des données
+    console.log('=== SAUVEGARDE ===');
+    console.log('PRENOM:', cv.prenom);
+    console.log('NOM:', cv.nom);
+    console.log('EMAIL:', cv.email);
+
+    if (!cv.prenom && !cv.nom) {
+      Alert.alert(
+        'CV incomplet',
+        'Votre CV ne contient pas de nom. Remplissez d\'abord vos informations.',
+        [{ text: 'Remplir', onPress: () => router.push('/cv/step1-profil') }]
+      );
+      return;
+    }
+
+    let photoURL = cv.photo;
+    if (cv.photo && !cv.photo.startsWith('https') && !cv.photo.startsWith('data:')) {
+      photoURL = await uploaderPhoto(cv.photo);
+    }
+
+    // Si un CV a déjà été sauvegardé dans cette session, demander
+    if (cvIdActuel) {
+      Alert.alert(
+        'Mettre à jour ou créer ?',
+        'Voulez-vous mettre à jour ce CV ou en créer un nouveau ?',
+        [
+          {
+            text: 'Mettre à jour',
+            onPress: async () => {
+              const id = await sauvegarderCV({ ...cv, photo: photoURL }, cvIdActuel);
+              setCvIdActuel(id);
+              await notifCVSauvegarde();
+              Alert.alert('✅ Mis à jour !', 'Votre CV a été mis à jour.');
+            },
+          },
+          {
+            text: 'Nouveau CV',
+            onPress: async () => {
+              const id = await sauvegarderCV({ ...cv, photo: photoURL });
+              setCvIdActuel(id);
+              await notifCVSauvegarde();
+              Alert.alert('✅ Nouveau CV créé !', 'Disponible dans "Mes CVs".');
+            },
+          },
+          { text: 'Annuler', style: 'cancel' },
+        ]
+      );
+    } else {
+      // Premier enregistrement
+      const id = await sauvegarderCV({ ...cv, photo: photoURL });
+      setCvIdActuel(id);
+      await notifCVSauvegarde();
+      Alert.alert('✅ Sauvegardé !', 'Votre CV est disponible dans "Mes CVs".');
+    }
+
+  } catch (error: any) {
+    console.error('Erreur sauvegarde:', error.message);
+    Alert.alert('Erreur', error.message);
+  } finally {
+    setSaving(false);
+  }
+};
   // ── Composant InfoRow ─────────────────────────────────────────────────────
   const InfoRow = ({
     label, value, color
