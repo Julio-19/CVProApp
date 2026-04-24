@@ -41,7 +41,56 @@ export default function MesCVsScreen() {
 
   useEffect(() => { chargerCVs(); }, []);
 
+const chargerCVs = async () => {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) { router.replace('/login'); return; }
 
+    console.log('📂 Chargement CVs pour user:', user.id);
+
+    const { data, error } = await supabase
+      .from('cvs')
+      .select(`
+        id,
+        prenom,
+        nom,
+        titre,
+        template_id,
+        created_at,
+        updated_at,
+        experiences,
+        formations,
+        competences
+      `)
+      .eq('user_id', user.id)
+      .order('updated_at', { ascending: false });
+
+    if (error) {
+      console.error('Erreur CVs:', error.message);
+      Alert.alert('Erreur', error.message);
+      return;
+    }
+
+    console.log('✅ CVs trouvés:', data?.length ?? 0);
+    data?.forEach((cv, i) => {
+      console.log(`CV ${i+1}: ${cv.prenom} ${cv.nom} | ${cv.titre} | ${cv.template_id}`);
+    });
+
+    setCvs(data ?? []);
+
+    Animated.parallel([
+      Animated.timing(fadeAnim,  { toValue: 1, duration: 400, useNativeDriver: true }),
+      Animated.spring(slideAnim, { toValue: 0, tension: 80, friction: 8, useNativeDriver: true }),
+    ]).start();
+
+  } catch (error: any) {
+    console.error('Erreur:', error.message);
+    Alert.alert('Erreur', error.message);
+  } finally {
+    setLoading(false);
+    setRefreshing(false);
+  }
+};
   const onRefresh = () => { setRefreshing(true); chargerCVs(); };
 
   const ouvrirCV = async (cv: CVSauvegarde) => {
