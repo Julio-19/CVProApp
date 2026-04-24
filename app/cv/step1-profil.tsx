@@ -32,6 +32,25 @@ export default function Step1() {
         { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }
       ]}>
         <ScrollView contentContainerStyle={styles.content}>
+          // Et les InputField correspondants
+<InputField
+  label="Prénom *"
+  placeholder="Jean"
+  value={prenom}
+  onChangeText={(v) => setField('prenom', v)}
+/>
+<InputField
+  label="Nom *"
+  placeholder="Dupont"
+  value={nom}
+  onChangeText={(v) => setField('nom', v)}
+/>
+<InputField
+  label="Email *"
+  placeholder="jean@email.com"
+  value={email}
+  onChangeText={(v) => setField('email', v)}
+/>  
           <InputField
             label="Titre du poste visé"
             placeholder="Ex : Développeur Web, Comptable..."
