@@ -24,12 +24,6 @@ export default function SavedScreen() {
   const [pdfUri, setPdfUri]           = useState<string | null>(null);
   const [photoBase64, setPhotoBase64] = useState<string | null>(null);
   const [activeTab, setActiveTab]     = useState<'apercu' | 'actions'>('apercu');
-
-  const [loading, setLoading]       = useState(false);
-  const [saving, setSaving]         = useState(false);
-  const [pdfUri, setPdfUri]         = useState<string | null>(null);
-  const [photoBase64, setPhotoBase64] = useState<string | null>(null);
-  const [activeTab, setActiveTab]   = useState<'apercu' | 'actions'>('apercu');
   const [cvIdActuel, setCvIdActuel] = useState<string | null>(null); 
 
   useEffect(() => {
