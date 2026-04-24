@@ -8,8 +8,11 @@ import { useCVStore } from '../../store/cvStore';
 import { Colors } from '../../constants/colors';
 
 export default function Step1() {
-  const { titre, objectif, telephone, ville, prenom, nom, email, setField } = useCVStore();
-  //const { titre, objectif, telephone, ville, setField } = useCVStore();
+  const {
+    prenom, nom, email,         // ← ajoutés
+    titre, objectif, telephone, ville,
+    setField
+  } = useCVStore();
 
   const fadeAnim  = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(20)).current;
@@ -32,7 +35,6 @@ export default function Step1() {
         { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }
       ]}>
         <ScrollView contentContainerStyle={styles.content}>
-          // Et les InputField correspondants
           <InputField
             label="Prénom *"
             placeholder="Jean"
@@ -50,7 +52,7 @@ export default function Step1() {
             placeholder="jean@email.com"
             value={email}
             onChangeText={(v) => setField('email', v)}
-          /> 
+          />
           <InputField
             label="Titre du poste visé"
             placeholder="Ex : Développeur Web, Comptable..."
