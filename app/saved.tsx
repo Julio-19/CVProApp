@@ -13,6 +13,7 @@ import { Colors } from '../constants/colors';
 import { generateCVHTML } from '../services/templateService';
 import { notifCVSauvegarde, notifPDFGenere } from '../services/notificationService';
 
+const [cvIdActuel, setCvIdActuel] = useState<string | null>(null);
 const { width } = Dimensions.get('window');
 
 export default function SavedScreen() {
@@ -107,23 +108,7 @@ export default function SavedScreen() {
     } catch (e) { console.error(e); }
   };
 
-  const handleSauvegarder = async () => {
-    try {
-      setSaving(true);
-      let photoURL = cv.photo;
-      if (cv.photo && !cv.photo.startsWith('https')) {
-        photoURL = await uploaderPhoto(cv.photo);
-      }
-      await sauvegarderCV({ ...cv, photo: photoURL });
-      await notifCVSauvegarde();
-      Alert.alert('✅ Sauvegardé !', 'Votre CV est disponible dans "Mes CVs".');
-    } catch (error: any) {
-      Alert.alert('Erreur', error.message);
-    } finally {
-      setSaving(false);
-    }
-  };
-
+  
   // ── Composant InfoRow ─────────────────────────────────────────────────────
   const InfoRow = ({
     label, value, color
