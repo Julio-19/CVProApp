@@ -26,7 +26,7 @@ export default function SavedScreen() {
   const [activeTab, setActiveTab]     = useState<'apercu' | 'actions'>('apercu');
   const [cvIdActuel, setCvIdActuel] = useState<string | null>(null); 
 
-  const fadeAnim  = useRef(new Animated.Value(0)).current;
+    const fadeAnim  = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(30)).current;
   const scaleAnim = useRef(new Animated.Value(0.95)).current;
 
