@@ -30,6 +30,8 @@ export default function SavedScreen() {
   const slideAnim = useRef(new Animated.Value(30)).current;
   const scaleAnim = useRef(new Animated.Value(0.95)).current;
 
+  
+
   useEffect(() => {
   console.log('=== CV STORE ===');
   console.log('PRENOM:', cv.prenom);
