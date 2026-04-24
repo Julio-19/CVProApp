@@ -108,8 +108,7 @@ export default function SavedScreen() {
     } catch (e) { console.error(e); }
   };
 
-  // Ajoutez cet état en haut du composant
-const [cvIdActuel, setCvIdActuel] = useState<string | null>(null);
+  
 
 const handleSauvegarder = async () => {
   try {
