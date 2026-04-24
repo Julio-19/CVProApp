@@ -18,6 +18,20 @@ const { width } = Dimensions.get('window');
 
 export default function SavedScreen() {
   const cv = useCVStore();
+
+  const [loading, setLoading]         = useState(false);
+  const [saving, setSaving]           = useState(false);
+  const [pdfUri, setPdfUri]           = useState<string | null>(null);
+  const [photoBase64, setPhotoBase64] = useState<string | null>(null);
+  const [activeTab, setActiveTab]     = useState<'apercu' | 'actions'>('apercu');
+
+  const [loading, setLoading]       = useState(false);
+  const [saving, setSaving]         = useState(false);
+  const [pdfUri, setPdfUri]         = useState<string | null>(null);
+  const [photoBase64, setPhotoBase64] = useState<string | null>(null);
+  const [activeTab, setActiveTab]   = useState<'apercu' | 'actions'>('apercu');
+  const [cvIdActuel, setCvIdActuel] = useState<string | null>(null); 
+
   useEffect(() => {
   console.log('=== CV STORE ===');
   console.log('PRENOM:', cv.prenom);
@@ -26,11 +40,7 @@ export default function SavedScreen() {
   console.log('TITRE:', cv.titre);
   console.log('===============');
 }, []);
-  const [loading, setLoading]         = useState(false);
-  const [saving, setSaving]           = useState(false);
-  const [pdfUri, setPdfUri]           = useState<string | null>(null);
-  const [photoBase64, setPhotoBase64] = useState<string | null>(null);
-  const [activeTab, setActiveTab]     = useState<'apercu' | 'actions'>('apercu');
+  
 
   const fadeAnim  = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(30)).current;
