@@ -41,40 +41,6 @@ export default function MesCVsScreen() {
 
   useEffect(() => { chargerCVs(); }, []);
 
-  const chargerCVs = async () => {
-  try {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) { router.replace('/login'); return; }
-
-    const { data, error } = await supabase
-      .from('cvs')
-      .select(`
-        id, prenom, nom, titre, template_id,
-        created_at, updated_at,
-        experiences, formations, competences
-      `)
-      .eq('user_id', user.id)
-      .order('updated_at', { ascending: false });
-
-    if (error) {
-      console.error('Erreur CVs:', error.message);
-      throw error;
-    }
-
-    console.log('CVs chargés:', data?.length);
-    setCvs(data ?? []);
-
-    Animated.parallel([
-      Animated.timing(fadeAnim,  { toValue: 1, duration: 400, useNativeDriver: true }),
-      Animated.spring(slideAnim, { toValue: 0, tension: 80, friction: 8, useNativeDriver: true }),
-    ]).start();
-  } catch (error: any) {
-    Alert.alert('Erreur', error.message);
-  } finally {
-    setLoading(false);
-    setRefreshing(false);
-  }
-};
 
   const onRefresh = () => { setRefreshing(true); chargerCVs(); };
 
