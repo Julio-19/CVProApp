@@ -8,7 +8,6 @@ export const uploaderPhoto = async (uri: string): Promise<string> => {
     const user = (await supabase.auth.getUser()).data.user;
     if (!user) throw new Error('Non connecté');
 
-    // Si c'est déjà du base64 ou une URL https, retourner directement
     if (uri.startsWith('https') || uri.startsWith('data:image')) return uri;
 
     const base64 = await FileSystem.readAsStringAsync(uri, {
@@ -32,86 +31,72 @@ export const uploaderPhoto = async (uri: string): Promise<string> => {
 
     return data.publicUrl;
   } catch (error: any) {
-    console.log('Erreur upload photo (ignorée):', error.message);
-    return uri; // retourner l'URI originale si échec
+    console.log('Erreur upload photo:', error.message);
+    return uri;
   }
 };
 
-// ── Sauvegarder CV (insert ou update) ────────────────────────────────────────
-export const sauvegarderCV = async (cvData: any): Promise<string> => {
+// ── Sauvegarder CV — TOUJOURS créer un nouveau ───────────────────────────────
+export const sauvegarderCV = async (cvData: any, cvId?: string): Promise<string> => {
   const user = (await supabase.auth.getUser()).data.user;
   if (!user) throw new Error('Non connecté');
 
-  console.log('💾 Sauvegarde CV:', cvData.prenom, cvData.nom);
+  console.log('💾 Sauvegarde CV:', cvData.prenom, cvData.nom, '| cvId:', cvId);
 
   const cvToSave = {
     user_id:        user.id,
-    prenom:         cvData.prenom        ?? '',
-    nom:            cvData.nom           ?? '',
-    titre:          cvData.titre         ?? '',
-    objectif:       cvData.objectif      ?? '',
-    email:          cvData.email         ?? '',
-    telephone:      cvData.telephone     ?? '',
-    ville:          cvData.ville         ?? '',
-    photo_url:      cvData.photo         ?? null,
-    experiences:    cvData.experiences   ?? [],
-    formations:     cvData.formations    ?? [],
-    competences:    cvData.competences   ?? [],
-    langues:        cvData.langues       ?? [],
-    loisirs:        cvData.loisirs       ?? [],
-    reseaux:        cvData.reseaux       ?? [],
+    prenom:         cvData.prenom         ?? '',
+    nom:            cvData.nom            ?? '',
+    titre:          cvData.titre          ?? '',
+    objectif:       cvData.objectif       ?? '',
+    email:          cvData.email          ?? '',
+    telephone:      cvData.telephone      ?? '',
+    ville:          cvData.ville          ?? '',
+    photo_url:      cvData.photo          ?? null,
+    experiences:    cvData.experiences    ?? [],
+    formations:     cvData.formations     ?? [],
+    competences:    cvData.competences    ?? [],
+    langues:        cvData.langues        ?? [],
+    loisirs:        cvData.loisirs        ?? [],
+    reseaux:        cvData.reseaux        ?? [],
     certifications: cvData.certifications ?? [],
-    projets:        cvData.projets       ?? [],
-    template_id:    cvData.templateId    ?? 'sidebar_bleu',
+    projets:        cvData.projets        ?? [],
+    template_id:    cvData.templateId     ?? 'sidebar_bleu',
     updated_at:     new Date().toISOString(),
   };
 
-  // Vérifier si un CV existe déjà pour cet utilisateur
-  const { data: existant } = await supabase
-    .from('cvs')
-    .select('id')
-    .eq('user_id', user.id)
-    .order('updated_at', { ascending: false })
-    .limit(1)
-    .single();
-
-  let cvId: string;
-
-  if (existant?.id) {
-    // ── Mettre à jour le CV existant ──────────────────────────────────────
-    console.log('📝 Mise à jour CV existant:', existant.id);
+  // Si cvId fourni → mettre à jour ce CV spécifique
+  if (cvId) {
+    console.log('📝 Mise à jour CV:', cvId);
     const { error } = await supabase
       .from('cvs')
       .update(cvToSave)
-      .eq('id', existant.id);
+      .eq('id', cvId)
+      .eq('user_id', user.id); // sécurité
 
-    if (error) {
-      console.error('Erreur update:', error.message);
-      throw new Error(error.message);
-    }
-    cvId = existant.id;
-  } else {
-    // ── Créer un nouveau CV ───────────────────────────────────────────────
-    console.log('✨ Création nouveau CV');
-    const { data, error } = await supabase
-      .from('cvs')
-      .insert(cvToSave)
-      .select('id')
-      .single();
-
-    if (error) {
-      console.error('Erreur insert:', error.message);
-      throw new Error(error.message);
-    }
-    cvId = data.id;
+    if (error) throw new Error(error.message);
+    return cvId;
   }
 
-  console.log('✅ CV sauvegardé avec ID:', cvId);
-  return cvId;
+  // Sinon → toujours créer un NOUVEAU CV
+  console.log('✨ Création nouveau CV');
+  const { data, error } = await supabase
+    .from('cvs')
+    .insert(cvToSave)
+    .select('id')
+    .single();
+
+  if (error) throw new Error(error.message);
+
+  console.log('✅ Nouveau CV créé:', data.id);
+  return data.id;
 };
 
-// ── Mettre à jour un CV spécifique ───────────────────────────────────────────
+// ── Mettre à jour un CV spécifique par ID ────────────────────────────────────
 export const mettreAJourCV = async (cvId: string, cvData: any) => {
+  const user = (await supabase.auth.getUser()).data.user;
+  if (!user) throw new Error('Non connecté');
+
   const { error } = await supabase
     .from('cvs')
     .update({
@@ -134,12 +119,13 @@ export const mettreAJourCV = async (cvId: string, cvData: any) => {
       template_id:    cvData.templateId     ?? 'sidebar_bleu',
       updated_at:     new Date().toISOString(),
     })
-    .eq('id', cvId);
+    .eq('id', cvId)
+    .eq('user_id', user.id);
 
   if (error) throw new Error(error.message);
 };
 
-// ── Récupérer tous les CVs de l'utilisateur ───────────────────────────────────
+// ── Récupérer TOUS les CVs de l'utilisateur ───────────────────────────────────
 export const recupererMesCVs = async () => {
   const user = (await supabase.auth.getUser()).data.user;
   if (!user) throw new Error('Non connecté');
@@ -151,15 +137,19 @@ export const recupererMesCVs = async () => {
     .order('updated_at', { ascending: false });
 
   if (error) throw new Error(error.message);
-  return data;
+  return data ?? [];
 };
 
 // ── Supprimer un CV ───────────────────────────────────────────────────────────
 export const supprimerCV = async (cvId: string) => {
+  const user = (await supabase.auth.getUser()).data.user;
+  if (!user) throw new Error('Non connecté');
+
   const { error } = await supabase
     .from('cvs')
     .delete()
-    .eq('id', cvId);
+    .eq('id', cvId)
+    .eq('user_id', user.id);
 
   if (error) throw new Error(error.message);
 };
