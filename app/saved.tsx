@@ -41,9 +41,6 @@ export default function SavedScreen() {
   console.log('===============');
 }, []);
   
-
- 
-
   useEffect(() => {
     setPdfUri(null);
     setPhotoBase64(null);
