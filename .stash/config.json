@@ -1,0 +1,9 @@
+{
+  "connections": {
+    "origin": {
+      "provider": "github",
+      "repo": ""
+    }
+  },
+  "allow-git": true
+}
