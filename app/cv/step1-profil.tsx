@@ -8,6 +8,7 @@ import { useCVStore } from '../../store/cvStore';
 import { Colors } from '../../constants/colors';
 
 export default function Step1() {
+  const { titre, objectif, telephone, ville, prenom, nom, email, setField } = useCVStore();
   const { titre, objectif, telephone, ville, setField } = useCVStore();
 
   const fadeAnim  = useRef(new Animated.Value(0)).current;
