@@ -14,6 +14,15 @@ Notifications.setNotificationHandler({
   }),
 });
 
+Notifications.setNotificationHandler({
+  handleNotification: async (_notification) => ({
+    shouldShowBanner: true,  // ← nouveau
+    shouldShowList:   true,  // ← nouveau
+    shouldPlaySound:  true,
+    shouldSetBadge:   false,
+  }),
+});
+
 // ── Push token ────────────────────────────────────────────────────────────────
 export const registerForPushNotifications = async (): Promise<string | null> => {
   if (!Device.isDevice) {
