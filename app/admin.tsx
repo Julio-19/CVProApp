@@ -11,7 +11,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { supabase } from "../../config/supabase";
+import { supabase } from "../config/supabase";
 
 // ⚠️ Remplacez par votre email admin
 const ADMIN_EMAIL = "sounoujulio@gmail.com";
