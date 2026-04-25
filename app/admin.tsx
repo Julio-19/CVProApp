@@ -11,7 +11,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { supabase } from "../config/supabase";
+import { supabase } from "../../config/supabase";
 
 // ⚠️ Remplacez par votre email admin
 const ADMIN_EMAIL = "sounoujulio@gmail.com";
@@ -63,40 +63,33 @@ export default function AdminDashboard() {
   }, []);
 
   const verifierAdmin = async () => {
-  try {
-    const { data: { user }, error } = await supabase.auth.getUser();
-
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+    
     console.log('=== ADMIN CHECK ===');
     console.log('USER EMAIL:', user?.email);
     console.log('ADMIN EMAIL:', ADMIN_EMAIL);
-    console.log('ERREUR AUTH:', error?.message);
     console.log('MATCH:', user?.email === ADMIN_EMAIL);
     console.log('==================');
-
-    if (!user) {
-      Alert.alert('Non connecté', 'Veuillez vous connecter.');
-      router.replace('/login');
-      return;
-    }
-
-    if (user.email !== ADMIN_EMAIL) {
-      Alert.alert(
-        'Accès refusé',
-        `Votre email: ${user.email}\n\nEmail admin requis: ${ADMIN_EMAIL}`
-      );
+    
+    if (!user || user.email !== ADMIN_EMAIL) {
+      Alert.alert('Accès refusé', `Email: ${user?.email}\nAdmin requis: ${ADMIN_EMAIL}`);
       router.replace('/');
       return;
     }
-
-    setIsAdmin(true);
-    await chargerDonnees();
-    Animated.timing(fadeAnim, { toValue: 1, duration: 400, useNativeDriver: true }).start();
-  } catch (e: any) {
-    Alert.alert('Erreur', e.message);
-  } finally {
-    setLoading(false);
-  }
-};
+      setIsAdmin(true);
+      await chargerDonnees();
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 400,
+        useNativeDriver: true,
+      }).start();
+    } catch (e: any) {
+      Alert.alert("Erreur", e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const chargerDonnees = async () => {
     await Promise.all([chargerStats(), chargerTransactions(), chargerUsers()]);
