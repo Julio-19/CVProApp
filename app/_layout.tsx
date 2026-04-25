@@ -25,7 +25,7 @@ export default function RootLayout() {
       <Stack.Screen name="cv/edit-projets" />
       <Stack.Screen name="historique-paiements" />
       <Stack.Screen name="notifications-settings" />
-      <Stack.Screen name="admin/index" />
+      <Stack.Screen name="admin" />
     </Stack>
   );
 }
