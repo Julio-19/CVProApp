@@ -59,7 +59,7 @@ export default function LoginScreen() {
       const { data: { user } } = await supabase.auth.getUser();
       console.log('USER APRÈS LOGIN:', user?.email);
 
-      router.replace('/');
+      router.replace('/cv/step1-profil');
 
     } catch (error: any) {
       Alert.alert('Erreur', error.message);
