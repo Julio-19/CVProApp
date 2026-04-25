@@ -19,7 +19,18 @@ export default function SplashScreen() {
   const slideAnim = useRef(new Animated.Value(30)).current;
   const scaleAnim = useRef(new Animated.Value(0.9)).current;
 
-  useEffect(() => { checkSession(); }, []);
+  useEffect(() => {
+  let mounted = true;
+
+  const init = async () => {
+    if (!mounted) return;
+    await checkSession();
+  };
+
+  init();
+
+  return () => { mounted = false; };
+}, []); // ← tableau vide, une seule fois
 
 const checkSession = async () => {
   try {
