@@ -21,47 +21,7 @@ export default function SplashScreen() {
 
   useEffect(() => { checkSession(); }, []);
 
-  const checkSession = async () => {
-    try {
-      // Vérifier onboarding
-      const onboardingDone = await AsyncStorage.getItem('onboarding_done');
-      if (!onboardingDone) {
-        router.replace('/onboarding');
-        return;
-      }
-
-      // Initialiser les notifications
-      const pushToken = await registerForPushNotifications();
-      if (pushToken) await savePushToken(pushToken);
-
-      // Écouter les clics sur notifications
-      setupNotificationListener((data) => {
-        if (data.type === 'paiement') router.push('/historique-paiements');
-        if (data.type === 'rappel')   router.push('/cv/step1-profil');
-        if (data.type === 'pdf')      router.push('/saved');
-      });
-
-      // Vérifier session
-      const { data: { session } } = await supabase.auth.getSession();
-      console.log('SESSION CHECK:', session ? '✅ Connecté' : '❌ Non connecté');
-
-      if (session) {
-        router.replace('/cv/step1-profil');
-        return;
-      }
-
-      // Pas connecté → afficher splash
-      Animated.parallel([
-        Animated.timing(fadeAnim,  { toValue: 1, duration: 600, useNativeDriver: true }),
-        Animated.spring(slideAnim, { toValue: 0, tension: 60, friction: 8, useNativeDriver: true }),
-        Animated.spring(scaleAnim, { toValue: 1, tension: 60, friction: 8, useNativeDriver: true }),
-      ]).start();
-
-    } catch (error) {
-      console.log('Erreur check session:', error);
-      Animated.timing(fadeAnim, { toValue: 1, duration: 400, useNativeDriver: true }).start();
-    }
-  };
+  
 
   const handleReset = async () => {
     reset();
