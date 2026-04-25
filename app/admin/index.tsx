@@ -64,14 +64,19 @@ export default function AdminDashboard() {
 
   const verifierAdmin = async () => {
     try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user || user.email !== ADMIN_EMAIL) {
-        Alert.alert("Accès refusé", "Vous n'êtes pas administrateur.");
-        router.replace("/");
-        return;
-      }
+      const { data: { user } } = await supabase.auth.getUser();
+    
+    console.log('=== ADMIN CHECK ===');
+    console.log('USER EMAIL:', user?.email);
+    console.log('ADMIN EMAIL:', ADMIN_EMAIL);
+    console.log('MATCH:', user?.email === ADMIN_EMAIL);
+    console.log('==================');
+    
+    if (!user || user.email !== ADMIN_EMAIL) {
+      Alert.alert('Accès refusé', `Email: ${user?.email}\nAdmin requis: ${ADMIN_EMAIL}`);
+      router.replace('/');
+      return;
+    }
       setIsAdmin(true);
       await chargerDonnees();
       Animated.timing(fadeAnim, {
