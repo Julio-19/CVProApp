@@ -21,7 +21,7 @@ export default function SplashScreen() {
 
   useEffect(() => { checkSession(); }, []);
 
-  const checkSession = async () => {
+const checkSession = async () => {
   try {
     // Vérifier onboarding
     const onboardingDone = await AsyncStorage.getItem('onboarding_done');
