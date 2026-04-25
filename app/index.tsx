@@ -34,41 +34,46 @@ export default function SplashScreen() {
 
 const checkSession = async () => {
   try {
-    // Vérifier onboarding
     const onboardingDone = await AsyncStorage.getItem('onboarding_done');
     if (!onboardingDone) {
       router.replace('/onboarding');
       return;
     }
 
-    // Initialiser notifications
-    const pushToken = await registerForPushNotifications();
-    if (pushToken) await savePushToken(pushToken);
-
-    setupNotificationListener((data) => {
-      if (data.type === 'paiement') router.push('/historique-paiements');
-      if (data.type === 'rappel')   router.push('/cv/step1-profil');
-      if (data.type === 'pdf')      router.push('/saved');
-    });
+    // Notifications — une seule fois
+    try {
+      const pushToken = await registerForPushNotifications();
+      if (pushToken) await savePushToken(pushToken);
+      setupNotificationListener((data) => {
+        if (data.type === 'paiement') router.push('/historique-paiements');
+        if (data.type === 'rappel')   router.push('/cv/step1-profil');
+        if (data.type === 'pdf')      router.push('/saved');
+      });
+    } catch (notifError) {
+      console.log('Erreur notifications (ignorée):', notifError);
+    }
 
     // Vérifier session
-    const { data: { session } } = await supabase.auth.getSession();
-    console.log('SESSION CHECK:', session ? '✅ Connecté' : '❌ Non connecté');
+    const { data: { session }, error } = await supabase.auth.getSession();
 
-    if (session) {
+    console.log('SESSION CHECK:', session ? '✅ Connecté' : '❌ Non connecté');
+    if (error) console.log('SESSION ERROR:', error.message);
+
+    if (session?.user) {
       router.replace('/cv/step1-profil');
       return;
     }
 
-    // Pas connecté → afficher splash avec animation
+    // Afficher splash
     Animated.parallel([
       Animated.timing(fadeAnim,  { toValue: 1, duration: 600, useNativeDriver: true }),
       Animated.spring(slideAnim, { toValue: 0, tension: 60, friction: 8, useNativeDriver: true }),
       Animated.spring(scaleAnim, { toValue: 1, tension: 60, friction: 8, useNativeDriver: true }),
     ]).start();
 
-  } catch (error) {
-    console.log('Erreur checkSession:', error);
+  } catch (error: any) {
+    console.log('Erreur checkSession:', error.message);
+    // En cas d'erreur, afficher la splash normalement
     Animated.timing(fadeAnim, { toValue: 1, duration: 400, useNativeDriver: true }).start();
   }
 };
