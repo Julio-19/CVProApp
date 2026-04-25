@@ -31,7 +31,7 @@ export default function ProfilScreen() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { router.replace('/login'); return; }
 
-      if (user.email === 'sboot5687@gmail.com') {
+      if (user.email === 'sounoujulio@gmail.com') {
         setIsAdmin(true);
       }
 
