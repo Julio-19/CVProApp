@@ -56,7 +56,7 @@ const TEMPLATES: Template[] = [
   { id: 'dark_orange',    nom: 'Dark Orange',      prix: 2500, description: 'Fond sombre + orange' },
 
   
-  { id: 'crimson_pro',      nom: 'Crimson Pro',       prix: 1500, categorie: 'Corporate' },
+  { id: 'crimson_pro',      nom: 'Crimson Pro',       prix: 1500, description: 'Corporate' },
   { id: 'ocean_blue',       nom: 'Ocean Blue',         prix: 1500, categorie: 'Moderne' },
   { id: 'slate_modern',     nom: 'Slate Modern',       prix: 2000, categorie: 'Tech' },
   { id: 'emerald_tech',     nom: 'Emerald Tech',       prix: 2000, categorie: 'Tech' },
