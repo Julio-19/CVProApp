@@ -1251,3 +1251,350 @@ body{background:#0c0a09;}
   ${cv.formations?.length>0?`<div class="rs">Formation</div>${cv.formations.map((f:any)=>`<div class="ei"><div class="et">${f.diplome}</div><div class="ec">${f.etablissement}</div><div class="ed">${f.annee}</div></div>`).join('')}`:''}
   ${cv.experiences?.length>0?`<div class="rs">Expériences</div>${cv.experiences.map((e:any)=>`<div class="ei"><div class="et">${e.poste}</div><div class="ec">${e.entreprise}</div><div class="ed">${e.debut} – ${e.fin}</div><div class="edesc">${e.description??''}</div></div>`).join('')}`:''}
 </div></div></body></html>`;
+
+// ═══════════════════════════════════════════════════════
+// TEMPLATE 41 — CRIMSON PRO
+// ═══════════════════════════════════════════════════════
+export const templateCrimsonPro = (cv: any, photo: string | null): string => `
+<!DOCTYPE html><html><head><meta charset="utf-8"/>
+<style>${base}
+body{background:#fff;}
+.cv{display:flex;width:100%;min-height:100vh;}
+.L{width:33%;background:#7f1d1d;padding:0 0 24px;}
+.R{width:67%;padding:28px 24px;}
+.ph{width:100px;height:100px;border-radius:6px;object-fit:cover;border:3px solid #fca5a5;display:block;margin:0 auto;}
+.pp{width:100px;height:100px;border-radius:6px;background:#991b1b;margin:0 auto;}
+.ltop{background:#991b1b;padding:24px 16px;text-align:center;margin-bottom:16px;}
+.nm-l{font-size:14px;font-weight:bold;color:#fff;margin-top:10px;}
+.dg-l{font-size:9px;color:#fca5a5;margin-top:3px;letter-spacing:1px;}
+.lpad{padding:0 14px;}
+.lt{font-size:9px;font-weight:bold;text-transform:uppercase;color:#fca5a5;letter-spacing:1.5px;margin:12px 0 7px;border-bottom:1px solid #991b1b;padding-bottom:3px;}
+.ci{font-size:10px;color:#fecaca;margin-bottom:4px;}
+.sk{font-size:10px;color:#fecaca;margin-bottom:4px;}
+.sk::before{content:"▸ ";color:#fca5a5;}
+.lb{margin-bottom:7px;}.ln{font-size:10px;color:#fecaca;margin-bottom:2px;}
+.lbg{height:3px;background:#991b1b;border-radius:2px;}
+.lf{height:3px;background:#fca5a5;border-radius:2px;}
+.r-nm{font-size:30px;font-weight:900;color:#7f1d1d;text-transform:uppercase;border-bottom:4px solid #7f1d1d;padding-bottom:8px;margin-bottom:6px;}
+.r-dg{font-size:11px;color:#9f1239;font-weight:600;margin-bottom:18px;text-transform:uppercase;letter-spacing:2px;}
+.rs{display:flex;align-items:center;gap:8px;margin:16px 0 10px;}
+.rs-title{font-size:11px;font-weight:bold;text-transform:uppercase;color:#7f1d1d;}
+.rs-line{flex:1;height:2px;background:#fecaca;}
+.ei{margin-bottom:12px;padding:10px;background:#fff5f5;border-radius:4px;border-left:4px solid #7f1d1d;}
+.et{font-size:11px;font-weight:bold;color:#111;}
+.ec{font-size:10px;color:#9f1239;margin-top:1px;}
+.ed{font-size:9px;color:#888;}
+.edesc{font-size:10px;color:#555;margin-top:3px;}
+</style></head><body><div class="cv">
+<div class="L">
+  <div class="ltop">
+    ${photo?`<img class="ph" src="${photo}"/>`:'<div class="pp"></div>'}
+    <div class="nm-l">${cv.prenom} ${cv.nom}</div>
+    <div class="dg-l">${cv.titre??''}</div>
+  </div>
+  <div class="lpad">
+    <div class="lt">Contact</div>
+    ${cv.telephone?`<div class="ci">📞 ${cv.telephone}</div>`:''}
+    ${cv.email?`<div class="ci">✉ ${cv.email}</div>`:''}
+    ${cv.ville?`<div class="ci">📍 ${cv.ville}</div>`:''}
+    ${cv.competences?.length>0?`<div class="lt">Compétences</div>${cv.competences.map((c:string)=>`<div class="sk">${c}</div>`).join('')}`:''}
+    ${cv.langues?.length>0?`<div class="lt">Langues</div>${cv.langues.map((l:any)=>`<div class="lb"><div class="ln">${l.langue} — ${l.niveau}</div><div class="lbg"><div class="lf" style="width:${getNiveauPct(l.niveau)}%"></div></div></div>`).join('')}`:''}
+    ${cv.loisirs?.length>0?`<div class="lt">Loisirs</div>${cv.loisirs.map((l:string)=>`<div class="sk">${l}</div>`).join('')}`:''}
+  </div>
+</div>
+<div class="R">
+  <div class="r-nm">${cv.prenom} ${cv.nom}</div>
+  <div class="r-dg">${cv.titre??''}</div>
+  ${cv.objectif?`<p style="font-size:10px;color:#555;line-height:1.7;margin-bottom:14px;border-left:3px solid #fca5a5;padding-left:10px;">${cv.objectif}</p>`:''}
+  ${cv.formations?.length>0?`<div class="rs"><div class="rs-title">Formation</div><div class="rs-line"></div></div>${cv.formations.map((f:any)=>`<div class="ei"><div class="et">${f.diplome}</div><div class="ec">${f.etablissement}</div><div class="ed">${f.annee}</div></div>`).join('')}`:''}
+  ${cv.experiences?.length>0?`<div class="rs"><div class="rs-title">Expériences</div><div class="rs-line"></div></div>${cv.experiences.map((e:any)=>`<div class="ei"><div class="et">${e.poste}</div><div class="ec">${e.entreprise}</div><div class="ed">${e.debut} – ${e.fin}</div><div class="edesc">${e.description??''}</div></div>`).join('')}`:''}
+</div></div></body></html>`;
+
+// ═══════════════════════════════════════════════════════
+// TEMPLATE 42 — OCEAN BLUE (vague + bleu profond)
+// ═══════════════════════════════════════════════════════
+export const templateOceanBlue = (cv: any, photo: string | null): string => `
+<!DOCTYPE html><html><head><meta charset="utf-8"/>
+<style>${base}
+body{background:#f0f9ff;}
+.wave-top{background:#0369a1;height:120px;position:relative;overflow:hidden;}
+.wave-svg{position:absolute;bottom:-2px;left:0;width:100%;}
+.header-content{position:absolute;top:0;left:0;right:0;padding:14px 24px;display:flex;align-items:center;gap:16px;}
+.ph{width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid #7dd3fc;}
+.pp{width:80px;height:80px;border-radius:50%;background:#0284c7;border:3px solid #7dd3fc;}
+.hinfo{flex:1;color:#fff;}
+.nm{font-size:22px;font-weight:bold;}
+.dg{font-size:10px;color:#bae6fd;margin-top:3px;text-transform:uppercase;letter-spacing:1px;}
+.contacts{display:flex;gap:16px;padding:8px 24px;background:#075985;font-size:10px;color:#bae6fd;}
+.body{display:flex;gap:24px;padding:20px 24px;}
+.col-l{width:33%;}
+.col-r{flex:1;}
+.sec{font-size:10px;font-weight:bold;text-transform:uppercase;color:#0369a1;border-bottom:2px solid #bae6fd;padding-bottom:4px;margin:14px 0 8px;}
+.sk{font-size:10px;color:#374151;margin-bottom:4px;}
+.sk::before{content:"◆ ";color:#0284c7;font-size:8px;}
+.lb{margin-bottom:7px;}.ln{font-size:10px;color:#374151;margin-bottom:2px;}
+.lbg{height:3px;background:#e0f2fe;border-radius:2px;}
+.lf{height:3px;background:#0284c7;border-radius:2px;}
+.ei{margin-bottom:12px;padding-left:12px;border-left:3px solid #7dd3fc;}
+.et{font-size:11px;font-weight:bold;color:#0369a1;}
+.ec{font-size:10px;color:#0284c7;margin-top:1px;}
+.ed{font-size:9px;color:#888;}
+.edesc{font-size:10px;color:#555;margin-top:3px;}
+</style></head><body>
+<div class="wave-top">
+  <div class="header-content">
+    ${photo?`<img class="ph" src="${photo}"/>`:'<div class="pp"></div>'}
+    <div class="hinfo">
+      <div class="nm">${cv.prenom} ${cv.nom}</div>
+      <div class="dg">${cv.titre??''}</div>
+    </div>
+  </div>
+  <svg class="wave-svg" viewBox="0 0 1440 30" xmlns="http://www.w3.org/2000/svg"><path fill="#f0f9ff" d="M0,15 C360,30 1080,0 1440,15 L1440,30 L0,30 Z"/></svg>
+</div>
+<div class="contacts">
+  ${cv.telephone?`<span>📞 ${cv.telephone}</span>`:''}
+  ${cv.email?`<span>✉ ${cv.email}</span>`:''}
+  ${cv.ville?`<span>📍 ${cv.ville}</span>`:''}
+</div>
+<div class="body">
+  <div class="col-l">
+    ${cv.objectif?`<div class="sec">Profil</div><p style="font-size:10px;color:#444;line-height:1.6;">${cv.objectif}</p>`:''}
+    ${cv.competences?.length>0?`<div class="sec">Compétences</div>${cv.competences.map((c:string)=>`<div class="sk">${c}</div>`).join('')}`:''}
+    ${cv.langues?.length>0?`<div class="sec">Langues</div>${cv.langues.map((l:any)=>`<div class="lb"><div class="ln">${l.langue} — ${l.niveau}</div><div class="lbg"><div class="lf" style="width:${getNiveauPct(l.niveau)}%"></div></div></div>`).join('')}`:''}
+    ${cv.loisirs?.length>0?`<div class="sec">Loisirs</div>${cv.loisirs.map((l:string)=>`<div class="sk">${l}</div>`).join('')}`:''}
+  </div>
+  <div class="col-r">
+    ${cv.formations?.length>0?`<div class="sec">Formation</div>${cv.formations.map((f:any)=>`<div class="ei"><div class="et">${f.diplome}</div><div class="ec">${f.etablissement}</div><div class="ed">${f.annee}</div></div>`).join('')}`:''}
+    ${cv.experiences?.length>0?`<div class="sec">Expériences</div>${cv.experiences.map((e:any)=>`<div class="ei"><div class="et">${e.poste}</div><div class="ec">${e.entreprise}</div><div class="ed">${e.debut} – ${e.fin}</div><div class="edesc">${e.description??''}</div></div>`).join('')}`:''}
+  </div>
+</div></body></html>`;
+
+// ═══════════════════════════════════════════════════════
+// TEMPLATE 43 — SLATE MODERN
+// ═══════════════════════════════════════════════════════
+export const templateSlateModern = (cv: any, photo: string | null): string => `
+<!DOCTYPE html><html><head><meta charset="utf-8"/>
+<style>${base}
+body{background:#f8fafc;}
+.cv{display:flex;width:100%;min-height:100vh;}
+.L{width:35%;background:#1e293b;padding:0 0 24px;}
+.R{width:65%;padding:0;}
+.ltop{background:#0f172a;padding:28px 18px;text-align:center;}
+.ph{width:90px;height:90px;border-radius:12px;object-fit:cover;border:2px solid #475569;display:block;margin:0 auto 12px;}
+.pp{width:90px;height:90px;border-radius:12px;background:#334155;margin:0 auto 12px;}
+.nm-l{font-size:15px;font-weight:700;color:#f1f5f9;}
+.dg-l{font-size:10px;color:#94a3b8;margin-top:3px;}
+.lpad{padding:0 16px;}
+.lt{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:#64748b;margin:14px 0 8px;}
+.ci{font-size:10px;color:#cbd5e1;margin-bottom:5px;display:flex;gap:8px;}
+.sk-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.sk-name{font-size:10px;color:#cbd5e1;}
+.sk-pct{font-size:9px;color:#64748b;font-weight:bold;}
+.sk-track{height:3px;background:#1e293b;border-radius:2px;margin-top:2px;}
+.sk-fill{height:3px;background:#38bdf8;border-radius:2px;}
+.lb{margin-bottom:8px;}.ln{font-size:10px;color:#cbd5e1;margin-bottom:2px;}
+.lbg{height:3px;background:#1e293b;border-radius:2px;}
+.lf{height:3px;background:#38bdf8;border-radius:2px;}
+.rtop{background:#0f172a;padding:18px 22px;display:flex;align-items:flex-end;gap:14px;}
+.r-nm{font-size:28px;font-weight:900;color:#f1f5f9;line-height:1;}
+.r-dg{font-size:11px;color:#38bdf8;font-weight:600;letter-spacing:1px;}
+.rpad{padding:20px 22px;}
+.rs{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:#0f172a;background:#38bdf8;padding:4px 12px;border-radius:20px;margin:14px 0 10px;display:inline-block;}
+.ei{margin-bottom:13px;padding:10px 12px;background:#fff;border-radius:8px;border:1px solid #e2e8f0;}
+.et{font-size:11px;font-weight:700;color:#0f172a;}
+.ec{font-size:10px;color:#0369a1;margin-top:1px;}
+.ed{font-size:9px;color:#94a3b8;}
+.edesc{font-size:10px;color:#555;margin-top:3px;line-height:1.5;}
+</style></head><body><div class="cv">
+<div class="L">
+  <div class="ltop">
+    ${photo?`<img class="ph" src="${photo}"/>`:'<div class="pp"></div>'}
+    <div class="nm-l">${cv.prenom} ${cv.nom}</div>
+    <div class="dg-l">${cv.titre??''}</div>
+  </div>
+  <div class="lpad">
+    <div class="lt">Contact</div>
+    ${cv.telephone?`<div class="ci">📞 ${cv.telephone}</div>`:''}
+    ${cv.email?`<div class="ci">✉ ${cv.email}</div>`:''}
+    ${cv.ville?`<div class="ci">📍 ${cv.ville}</div>`:''}
+    ${cv.competences?.length>0?`<div class="lt">Compétences</div>${cv.competences.map((c:string,i:number)=>`<div class="sk-row"><div><div class="sk-name">${c}</div><div class="sk-track"><div class="sk-fill" style="width:${Math.min(70+i*7,95)}%"></div></div></div><div class="sk-pct">${Math.min(70+i*7,95)}%</div></div>`).join('')}`:''}
+    ${cv.langues?.length>0?`<div class="lt">Langues</div>${cv.langues.map((l:any)=>`<div class="lb"><div class="ln">${l.langue} — ${l.niveau}</div><div class="lbg"><div class="lf" style="width:${getNiveauPct(l.niveau)}%"></div></div></div>`).join('')}`:''}
+    ${cv.loisirs?.length>0?`<div class="lt">Loisirs</div>${cv.loisirs.map((l:string)=>`<div class="ci">• ${l}</div>`).join('')}`:''}
+  </div>
+</div>
+<div class="R">
+  <div class="rtop">
+    <div>
+      <div class="r-nm">${cv.prenom}<br/>${cv.nom}</div>
+      <div class="r-dg">${cv.titre??''}</div>
+    </div>
+  </div>
+  <div class="rpad">
+    ${cv.objectif?`<p style="font-size:10px;color:#444;line-height:1.7;background:#f0f9ff;padding:10px;border-radius:8px;border-left:4px solid #38bdf8;margin-bottom:14px;">${cv.objectif}</p>`:''}
+    ${cv.formations?.length>0?`<div class="rs">Formation</div>${cv.formations.map((f:any)=>`<div class="ei"><div class="et">${f.diplome}</div><div class="ec">${f.etablissement}</div><div class="ed">${f.annee}</div></div>`).join('')}`:''}
+    ${cv.experiences?.length>0?`<div class="rs">Expériences</div>${cv.experiences.map((e:any)=>`<div class="ei"><div class="et">${e.poste}</div><div class="ec">${e.entreprise}</div><div class="ed">${e.debut} – ${e.fin}</div><div class="edesc">${e.description??''}</div></div>`).join('')}`:''}
+  </div>
+</div></div></body></html>`;
+
+// ═══════════════════════════════════════════════════════
+// TEMPLATE 44 — EMERALD TECH
+// ═══════════════════════════════════════════════════════
+export const templateEmeraldTech = (cv: any, photo: string | null): string => `
+<!DOCTYPE html><html><head><meta charset="utf-8"/>
+<style>${base}
+body{background:#022c22;color:#d1fae5;}
+.header{display:flex;align-items:center;gap:20px;padding:24px;border-bottom:1px solid #065f46;}
+.ph{width:80px;height:80px;border-radius:4px;object-fit:cover;border:2px solid #10b981;}
+.pp{width:80px;height:80px;border-radius:4px;background:#064e3b;border:2px solid #10b981;}
+.nm{font-size:24px;font-weight:900;color:#ecfdf5;font-family:monospace;letter-spacing:2px;}
+.dg{font-size:11px;color:#10b981;margin-top:4px;font-family:monospace;}
+.contacts{display:flex;gap:16px;padding:10px 24px;background:#064e3b;font-size:10px;color:#6ee7b7;font-family:monospace;}
+.body{display:flex;gap:0;padding:0;}
+.col-l{width:35%;padding:20px 16px;border-right:1px solid #065f46;}
+.col-r{flex:1;padding:20px 20px;}
+.sec{font-size:10px;font-weight:bold;text-transform:uppercase;color:#10b981;border-bottom:1px solid #065f46;padding-bottom:4px;margin:14px 0 8px;font-family:monospace;letter-spacing:1px;}
+.sk{font-size:10px;color:#a7f3d0;margin-bottom:5px;font-family:monospace;}
+.sk::before{content:"> ";color:#10b981;}
+.lb{margin-bottom:8px;}.ln{font-size:10px;color:#a7f3d0;margin-bottom:3px;font-family:monospace;}
+.lbg{height:3px;background:#064e3b;border-radius:2px;}
+.lf{height:3px;background:#10b981;border-radius:2px;}
+.ei{margin-bottom:14px;padding:10px;background:#064e3b;border-radius:4px;border-left:3px solid #10b981;}
+.et{font-size:11px;font-weight:bold;color:#ecfdf5;font-family:monospace;}
+.ec{font-size:10px;color:#10b981;margin-top:1px;font-family:monospace;}
+.ed{font-size:9px;color:#6ee7b7;}
+.edesc{font-size:10px;color:#a7f3d0;margin-top:3px;line-height:1.6;}
+</style></head><body>
+<div class="header">
+  ${photo?`<img class="ph" src="${photo}"/>`:'<div class="pp"></div>'}
+  <div>
+    <div class="nm">${cv.prenom} ${cv.nom}</div>
+    <div class="dg">// ${cv.titre??''}</div>
+  </div>
+</div>
+<div class="contacts">
+  ${cv.telephone?`<span>$ phone: ${cv.telephone}</span>`:''}
+  ${cv.email?`<span>$ email: ${cv.email}</span>`:''}
+  ${cv.ville?`<span>$ city: ${cv.ville}</span>`:''}
+</div>
+<div class="body">
+  <div class="col-l">
+    ${cv.objectif?`<div class="sec">/* Profil */</div><p style="font-size:10px;color:#a7f3d0;line-height:1.6;font-family:monospace;">${cv.objectif}</p>`:''}
+    ${cv.competences?.length>0?`<div class="sec">/* Skills */</div>${cv.competences.map((c:string)=>`<div class="sk">${c}</div>`).join('')}`:''}
+    ${cv.langues?.length>0?`<div class="sec">/* Langues */</div>${cv.langues.map((l:any)=>`<div class="lb"><div class="ln">${l.langue}: ${l.niveau}</div><div class="lbg"><div class="lf" style="width:${getNiveauPct(l.niveau)}%"></div></div></div>`).join('')}`:''}
+  </div>
+  <div class="col-r">
+    ${cv.formations?.length>0?`<div class="sec">/* Formation */</div>${cv.formations.map((f:any)=>`<div class="ei"><div class="et">${f.diplome}</div><div class="ec">${f.etablissement}</div><div class="ed">${f.annee}</div></div>`).join('')}`:''}
+    ${cv.experiences?.length>0?`<div class="sec">/* Expériences */</div>${cv.experiences.map((e:any)=>`<div class="ei"><div class="et">${e.poste}</div><div class="ec">${e.entreprise}</div><div class="ed">${e.debut} – ${e.fin}</div><div class="edesc">${e.description??''}</div></div>`).join('')}`:''}
+    ${cv.loisirs?.length>0?`<div class="sec">/* Loisirs */</div><div style="display:flex;flex-wrap:wrap;gap:6px;">${cv.loisirs.map((l:string)=>`<span style="background:#064e3b;color:#10b981;padding:2px 8px;border-radius:3px;font-size:10px;border:1px solid #065f46;">${l}</span>`).join('')}</div>`:''}
+  </div>
+</div></body></html>`;
+
+// ═══════════════════════════════════════════════════════
+// TEMPLATE 45 — SUNSET WARM
+// ═══════════════════════════════════════════════════════
+export const templateSunsetWarm = (cv: any, photo: string | null): string => `
+<!DOCTYPE html><html><head><meta charset="utf-8"/>
+<style>${base}
+body{background:#fff7ed;}
+.hero{background:linear-gradient(135deg,#f97316,#ef4444,#ec4899);padding:30px 24px;display:flex;align-items:center;gap:20px;}
+.ph{width:90px;height:90px;border-radius:50%;object-fit:cover;border:4px solid rgba(255,255,255,0.8);}
+.pp{width:90px;height:90px;border-radius:50%;background:rgba(255,255,255,0.2);border:4px solid rgba(255,255,255,0.8);}
+.hinfo{flex:1;color:#fff;}
+.nm{font-size:26px;font-weight:900;letter-spacing:1px;}
+.dg{font-size:11px;color:rgba(255,255,255,0.85);margin-top:4px;text-transform:uppercase;letter-spacing:2px;}
+.body{display:flex;gap:24px;padding:20px 24px;}
+.col-l{width:33%;}
+.col-r{flex:1;}
+.sec{font-size:10px;font-weight:bold;text-transform:uppercase;color:#c2410c;border-left:4px solid #f97316;padding-left:8px;margin:14px 0 8px;}
+.ci{font-size:10px;color:#374151;margin-bottom:5px;display:flex;gap:8px;}
+.sk-tag{display:inline-block;background:#fed7aa;color:#c2410c;font-size:9px;font-weight:bold;padding:2px 8px;border-radius:12px;margin:2px;}
+.lb{margin-bottom:8px;}.ln{font-size:10px;color:#444;margin-bottom:3px;}
+.lbg{height:4px;background:#fed7aa;border-radius:2px;}
+.lf{height:4px;background:linear-gradient(to right,#f97316,#ef4444);border-radius:2px;}
+.ei{margin-bottom:12px;background:#fff;border-radius:8px;padding:10px;border:1px solid #fed7aa;}
+.et{font-size:11px;font-weight:bold;color:#111;}
+.ec{font-size:10px;color:#c2410c;margin-top:1px;}
+.ed{font-size:9px;color:#888;background:#fff7ed;padding:2px 6px;border-radius:10px;display:inline-block;margin-top:2px;}
+.edesc{font-size:10px;color:#555;margin-top:3px;}
+</style></head><body>
+<div class="hero">
+  ${photo?`<img class="ph" src="${photo}"/>`:'<div class="pp"></div>'}
+  <div class="hinfo">
+    <div class="nm">${cv.prenom} ${cv.nom}</div>
+    <div class="dg">${cv.titre??''}</div>
+  </div>
+</div>
+<div style="background:#fed7aa;padding:8px 24px;display:flex;gap:16px;">
+  ${cv.telephone?`<span style="font-size:10px;color:#7c2d12;">📞 ${cv.telephone}</span>`:''}
+  ${cv.email?`<span style="font-size:10px;color:#7c2d12;">✉ ${cv.email}</span>`:''}
+  ${cv.ville?`<span style="font-size:10px;color:#7c2d12;">📍 ${cv.ville}</span>`:''}
+</div>
+<div class="body">
+  <div class="col-l">
+    ${cv.objectif?`<div class="sec">Profil</div><p style="font-size:10px;color:#444;line-height:1.6;">${cv.objectif}</p>`:''}
+    ${cv.competences?.length>0?`<div class="sec">Compétences</div><div style="display:flex;flex-wrap:wrap;">${cv.competences.map((c:string)=>`<span class="sk-tag">${c}</span>`).join('')}</div>`:''}
+    ${cv.langues?.length>0?`<div class="sec">Langues</div>${cv.langues.map((l:any)=>`<div class="lb"><div class="ln">${l.langue} — ${l.niveau}</div><div class="lbg"><div class="lf" style="width:${getNiveauPct(l.niveau)}%"></div></div></div>`).join('')}`:''}
+    ${cv.loisirs?.length>0?`<div class="sec">Loisirs</div><div style="display:flex;flex-wrap:wrap;">${cv.loisirs.map((l:string)=>`<span class="sk-tag">${l}</span>`).join('')}</div>`:''}
+  </div>
+  <div class="col-r">
+    ${cv.formations?.length>0?`<div class="sec">Formation</div>${cv.formations.map((f:any)=>`<div class="ei"><div class="et">${f.diplome}</div><div class="ec">${f.etablissement}</div><div class="ed">${f.annee}</div></div>`).join('')}`:''}
+    ${cv.experiences?.length>0?`<div class="sec">Expériences</div>${cv.experiences.map((e:any)=>`<div class="ei"><div class="et">${e.poste}</div><div class="ec">${e.entreprise}</div><div class="ed">${e.debut} – ${e.fin}</div><div class="edesc">${e.description??''}</div></div>`).join('')}`:''}
+  </div>
+</div></body></html>`;
+
+// Templates 46-100 — Variantes optimisées
+export const templateArcticWhite    = (cv:any,p:string|null) => templateSlateModern(cv,p).replace(/#0f172a/g,'#1e293b').replace(/#1e293b/g,'#334155').replace(/#38bdf8/g,'#e2e8f0').replace(/#f8fafc/g,'#ffffff');
+export const templateMidnightPro    = (cv:any,p:string|null) => templateCrimsonPro(cv,p).replace(/#7f1d1d/g,'#1e1b4b').replace(/#991b1b/g,'#312e81').replace(/#fca5a5/g,'#a5b4fc').replace(/#fff5f5/g,'#eef2ff').replace(/#9f1239/g,'#4338ca').replace(/#fecaca/g,'#c7d2fe');
+export const templateCopperElegant  = (cv:any,p:string|null) => templateBrunElegant(cv,p).replace(/#c9a96e/g,'#b87333').replace(/#2a2520/g,'#1a1008').replace(/#f5f5f2/g,'#fdf8f0');
+export const templateForestGreen    = (cv:any,p:string|null) => templateVertNature(cv,p).replace(/#1e3422/g,'#14532d').replace(/#4a6344/g,'#16a34a').replace(/#c8d5b9/g,'#bbf7d0').replace(/#f5f3ee/g,'#f0fdf4');
+export const templateRoyalPurple    = (cv:any,p:string|null) => templateViolet(cv,p).replace(/#6b21a8/g,'#4c1d95').replace(/#c084fc/g,'#a78bfa').replace(/#e9d5ff/g,'#ddd6fe').replace(/#dbb6ff/g,'#c4b5fd');
+export const templateSandMinimal    = (cv:any,p:string|null) => templateMinimaliste(cv,p).replace(/#111/g,'#78350f').replace(/color:#1a1a1a/g,'color:#44270a').replace(/#ddd/g,'#e7d8c5');
+export const templateTechDark       = (cv:any,p:string|null) => templateEmeraldTech(cv,p).replace(/#022c22/g,'#0a0a0f').replace(/#10b981/g,'#6366f1').replace(/#064e3b/g,'#1e1b4b').replace(/#065f46/g,'#312e81').replace(/#a7f3d0/g,'#c7d2fe').replace(/#6ee7b7/g,'#a5b4fc').replace(/#ecfdf5/g,'#eef2ff');
+export const templateCoralFresh     = (cv:any,p:string|null) => templateRougeModerne(cv,p).replace(/#dc2626/g,'#f43f5e').replace(/#991b1b/g,'#be123c').replace(/#fee2e2/g,'#fff1f2').replace(/#b91c1c/g,'#e11d48');
+export const templateGoldBlack      = (cv:any,p:string|null) => templateDoreDark(cv,p).replace(/#18130a/g,'#000000').replace(/#d4a017/g,'#ffd700').replace(/#231c0e/g,'#111111').replace(/#a07820/g,'#daa520');
+export const templateMintClean      = (cv:any,p:string|null) => templateVertMinimal(cv,p).replace(/#16a34a/g,'#14b8a6').replace(/#14532d/g,'#0f766e').replace(/#dcfce7/g,'#ccfbf1').replace(/#f0fdf4/g,'#f0fdfa').replace(/#bbf7d0/g,'#99f6e4');
+export const templateBurgundyClassic= (cv:any,p:string|null) => templateClassiquePro(cv,p).replace(/#888/g,'#881337').replace(/border-bottom:2px solid #ddd/g,'border-bottom:2px solid #fda4af').replace(/border-bottom:1px solid #ddd/g,'border-bottom:1px solid #fecdd3');
+export const templateSkyCreative    = (cv:any,p:string|null) => templateOceanBlue(cv,p).replace(/#0369a1/g,'#0284c7').replace(/#075985/g,'#0c4a6e').replace(/#bae6fd/g,'#e0f2fe').replace(/#f0f9ff/g,'#f0f9ff');
+export const templateCharcoalPro    = (cv:any,p:string|null) => templateDarkGris(cv,p).replace(/#1f2937/g,'#18181b').replace(/#111827/g,'#09090b').replace(/#374151/g,'#27272a');
+export const templatePeachSoft      = (cv:any,p:string|null) => templateSunsetWarm(cv,p).replace(/linear-gradient\(135deg,#f97316,#ef4444,#ec4899\)/g,'linear-gradient(135deg,#fb923c,#f472b6)').replace(/#fed7aa/g,'#fde8d8').replace(/#c2410c/g,'#db2777').replace(/#7c2d12/g,'#9d174d');
+export const templateIndigoModern   = (cv:any,p:string|null) => templateSlateModern(cv,p).replace(/#0f172a/g,'#1e1b4b').replace(/#1e293b/g,'#312e81').replace(/#38bdf8/g,'#818cf8').replace(/#0369a1/g,'#4338ca');
+export const templateOliveNatural   = (cv:any,p:string|null) => templateVertNature(cv,p).replace(/#1e3422/g,'#365314').replace(/#4a6344/g,'#65a30d').replace(/#c8d5b9/g,'#d9f99d').replace(/#f5f3ee/g,'#f7fee7');
+export const templateRubyLuxe       = (cv:any,p:string|null) => templateBrunElegant(cv,p).replace(/#c9a96e/g,'#e11d48').replace(/#2a2520/g,'#1c0a0e').replace(/#3d3028/g,'#3b0a14').replace(/#f5f5f2/g,'#fff1f2');
+export const templateSteelCorporate = (cv:any,p:string|null) => templateNavyPro(cv,p).replace(/#1e3a6e/g,'#374151').replace(/#90afd4/g,'#9ca3af').replace(/#bfdbfe/g,'#e5e7eb').replace(/#2d4f8e/g,'#4b5563');
+export const templateLavenderSoft   = (cv:any,p:string|null) => templateRoseElegant(cv,p).replace(/#831843/g,'#5b21b6').replace(/#be185d/g,'#7c3aed').replace(/#f9a8d4/g,'#c4b5fd').replace(/#fce7f3/g,'#f5f3ff').replace(/#fff5f7/g,'#faf5ff');
+export const templateAmberWarm      = (cv:any,p:string|null) => templateJaunePro(cv,p).replace(/#eab308/g,'#d97706').replace(/#ca8a04/g,'#b45309').replace(/#fefce8/g,'#fffbeb');
+export const templateInkMinimal     = (cv:any,p:string|null) => templateMinimaliste(cv,p).replace(/#111/g,'#0f172a').replace(/color:#1a1a1a/g,'color:#0f172a').replace(/#ddd/g,'#94a3b8');
+export const templateAzureClean     = (cv:any,p:string|null) => templateVertMinimal(cv,p).replace(/#16a34a/g,'#2563eb').replace(/#14532d/g,'#1e40af').replace(/#dcfce7/g,'#dbeafe').replace(/#f0fdf4/g,'#eff6ff').replace(/#bbf7d0/g,'#bfdbfe');
+export const templateMahoganyRich   = (cv:any,p:string|null) => templateBrunElegant(cv,p).replace(/#2a2520/g,'#3b1a0c').replace(/#c9a96e/g,'#c0392b').replace(/#3d3028/g,'#5c2515').replace(/#f5f5f2/g,'#fdf6f0');
+export const templateLimeTech       = (cv:any,p:string|null) => templateEmeraldTech(cv,p).replace(/#022c22/g,'#111827').replace(/#10b981/g,'#84cc16').replace(/#064e3b/g,'#1f2937').replace(/#065f46/g,'#374151').replace(/#a7f3d0/g,'#d9f99d').replace(/#6ee7b7/g,'#bef264').replace(/#ecfdf5/g,'#f7fee7');
+export const templatePlumElegant    = (cv:any,p:string|null) => templateViolet(cv,p).replace(/#6b21a8/g,'#4a044e').replace(/#c084fc/g,'#d946ef').replace(/#e9d5ff/g,'#fae8ff').replace(/#dbb6ff/g,'#f0abfc');
+export const templateGraphitePro    = (cv:any,p:string|null) => templateDarkSidebar(cv,p).replace(/#2c2c2c/g,'#27272a').replace(/#1a1a1a/g,'#18181b').replace(/#9ca3af/g,'#a1a1aa').replace(/#444/g,'#3f3f46');
+export const templateJadeFresh      = (cv:any,p:string|null) => templateTealStudent(cv,p).replace(/#3d9b8a/g,'#0f766e').replace(/#5ab5a3/g,'#0d9488').replace(/#e8e8e8/g,'#f0fdfa');
+export const templateTerracottaWarm = (cv:any,p:string|null) => templateOrangeSidebar(cv,p).replace(/#ea580c/g,'#c2410c').replace(/#c2410c/g,'#9a3412').replace(/#fed7aa/g,'#fdba74').replace(/#fef7f0/g,'#fff7ed');
+export const templateCobaltModern   = (cv:any,p:string|null) => templateCrimsonPro(cv,p).replace(/#7f1d1d/g,'#1e3a5f').replace(/#991b1b/g,'#1d4ed8').replace(/#fca5a5/g,'#93c5fd').replace(/#fff5f5/g,'#eff6ff').replace(/#9f1239/g,'#1d4ed8').replace(/#fecaca/g,'#bfdbfe');
+export const templateCreamLuxe      = (cv:any,p:string|null) => templateClassiquePro(cv,p).replace(/#888/g,'#92400e').replace(/background:#fff/g,'background:#fffdf5').replace(/background:#f5f5f5/g,'background:#fdf6e3');
+export const templateCarbonTech     = (cv:any,p:string|null) => templateTechDark(cv,p).replace(/#0a0a0f/g,'#111111').replace(/#6366f1/g,'#22d3ee').replace(/#1e1b4b/g,'#1a1a1a').replace(/#312e81/g,'#262626');
+export const templateSageMinimal    = (cv:any,p:string|null) => templateVertMinimal(cv,p).replace(/#16a34a/g,'#84cc16').replace(/#14532d/g,'#365314').replace(/#dcfce7/g,'#ecfccb').replace(/#f0fdf4/g,'#f7fee7');
+export const templateWineClassic    = (cv:any,p:string|null) => templateClassiquePro(cv,p).replace(/#888/g,'#7f1d1d').replace(/background:#fff/g,'background:#fff9f9').replace(/border-bottom:2px solid #ddd/g,'border-bottom:2px solid #fca5a5');
+export const templateTopazBright    = (cv:any,p:string|null) => templateOceanBlue(cv,p).replace(/#0369a1/g,'#0891b2').replace(/#075985/g,'#164e63').replace(/#bae6fd/g,'#a5f3fc').replace(/#f0f9ff/g,'#ecfeff');
+export const templateEbonyGold      = (cv:any,p:string|null) => templateGoldBlack(cv,p).replace(/#000000/g,'#0a0500').replace(/#ffd700/g,'#ffd700').replace(/#111111/g,'#0d0800');
+export const templateBlushModern    = (cv:any,p:string|null) => templatePeachSoft(cv,p).replace(/linear-gradient\(135deg,#fb923c,#f472b6\)/g,'linear-gradient(135deg,#f9a8d4,#fbcfe8)').replace(/#fde8d8/g,'#fce7f3').replace(/#db2777/g,'#be185d');
+export const templatePineForest     = (cv:any,p:string|null) => templateForestGreen(cv,p).replace(/#14532d/g,'#052e16').replace(/#16a34a/g,'#15803d').replace(/#bbf7d0/g,'#a7f3d0').replace(/#f0fdf4/g,'#f0fdf4');
+export const templateDenimCasual    = (cv:any,p:string|null) => templateSteelCorporate(cv,p).replace(/#374151/g,'#1d4ed8').replace(/#4b5563/g,'#2563eb').replace(/#e5e7eb/g,'#dbeafe').replace(/#9ca3af/g,'#93c5fd');
+export const templateRoseGold       = (cv:any,p:string|null) => templateCopperElegant(cv,p).replace(/#b87333/g,'#f43f5e').replace(/#1a1008/g,'#1c0a16').replace(/#fdf8f0/g,'#fff1f5');
+export const templateSpaceDark      = (cv:any,p:string|null) => templateMidnightPro(cv,p).replace(/#1e1b4b/g,'#020617').replace(/#312e81/g,'#0f172a').replace(/#a5b4fc/g,'#38bdf8').replace(/#c7d2fe/g,'#7dd3fc').replace(/#eef2ff/g,'#f0f9ff');
+export const templateCitrusFresh    = (cv:any,p:string|null) => templateAmberWarm(cv,p).replace(/#d97706/g,'#ca8a04').replace(/#b45309/g,'#a16207').replace(/#fffbeb/g,'#fefce8');
+export const templateMochaWarm      = (cv:any,p:string|null) => templateMahoganyRich(cv,p).replace(/#3b1a0c/g,'#292219').replace(/#c0392b/g,'#a07850').replace(/#5c2515/g,'#3d3228');
+export const templateGlacierCool    = (cv:any,p:string|null) => templateArcticWhite(cv,p).replace(/#e2e8f0/g,'#bae6fd').replace(/#334155/g,'#0284c7').replace(/#1e293b/g,'#0369a1');
+export const templateAmberDark      = (cv:any,p:string|null) => templateDarkOrange(cv,p).replace(/#f97316/g,'#d97706').replace(/#1c1917/g,'#1c1207').replace(/#0c0a09/g,'#120c00').replace(/#292524/g,'#231a08').replace(/#fed7aa/g,'#fde68a');
+export const templateElectricBlue   = (cv:any,p:string|null) => templateSkyCreative(cv,p).replace(/#0284c7/g,'#2563eb').replace(/#0c4a6e/g,'#1e40af').replace(/#e0f2fe/g,'#dbeafe').replace(/#f0f9ff/g,'#eff6ff');
+export const templateDustyRose      = (cv:any,p:string|null) => templateBlushModern(cv,p).replace(/linear-gradient\(135deg,#f9a8d4,#fbcfe8\)/g,'linear-gradient(135deg,#e879a6,#fbcfe8)').replace(/#fce7f3/g,'#fff0f5').replace(/#be185d/g,'#9d174d');
+export const templateForestDark     = (cv:any,p:string|null) => templatePineForest(cv,p).replace(/#052e16/g,'#1a2e1a').replace(/#15803d/g,'#166534').replace(/#a7f3d0/g,'#bbf7d0').replace(/#f0fdf4/g,'#f0fdf4');
+export const templateIvoryClassic   = (cv:any,p:string|null) => templateCreamLuxe(cv,p).replace(/#92400e/g,'#713f12').replace(/#fffdf5/g,'#fefef7').replace(/#fdf6e3/g,'#fdf8ec');
+export const templateNeonDark       = (cv:any,p:string|null) => templateCarbonTech(cv,p).replace(/#22d3ee/g,'#a3e635').replace(/#1a1a1a/g,'#050505').replace(/#262626/g,'#0a0a0a');
+export const templateSepiaVintage   = (cv:any,p:string|null) => templateMochaWarm(cv,p).replace(/#292219/g,'#382D1A').replace(/#a07850/g,'#C8A87A').replace(/#3d3228/g,'#5C4B35');
+export const templateArcticDark     = (cv:any,p:string|null) => templateSpaceDark(cv,p).replace(/#020617/g,'#0a1628').replace(/#0f172a/g,'#0f2240').replace(/#38bdf8/g,'#7dd3fc').replace(/#7dd3fc/g,'#bae6fd');
+export const templateBlazeOrange    = (cv:any,p:string|null) => templateSunsetWarm(cv,p).replace(/linear-gradient\(135deg,#f97316,#ef4444,#ec4899\)/g,'linear-gradient(135deg,#f97316,#f59e0b)').replace(/#fed7aa/g,'#fde68a').replace(/#c2410c/g,'#b45309').replace(/#7c2d12/g,'#78350f');
+export const templateStormGrey      = (cv:any,p:string|null) => templateGraphitePro(cv,p).replace(/#27272a/g,'#374151').replace(/#18181b/g,'#1f2937').replace(/#a1a1aa/g,'#6b7280').replace(/#3f3f46/g,'#4b5563');
+export const templateSpringGreen    = (cv:any,p:string|null) => templateJadeFresh(cv,p).replace(/#0f766e/g,'#16a34a').replace(/#0d9488/g,'#22c55e').replace(/#f0fdfa/g,'#f0fdf4');
+export const templateVelvetDark     = (cv:any,p:string|null) => templatePlumElegant(cv,p).replace(/#4a044e/g,'#2e1065').replace(/#d946ef/g,'#c026d3').replace(/#fae8ff/g,'#f5f3ff').replace(/#f0abfc/g,'#c084fc');
