@@ -49,6 +49,7 @@ export const generateCVHTML = (cv: any, photo: string | null, templateId: string
     case 'orange_sidebar': return templateOrangeSidebar(cv, photo);
     case 'rose_elegant':   return templateRoseElegant(cv, photo);
     case 'dark_orange':    return templateDarkOrange(cv, photo);
+    
     default:               return templateSidebarBleu(cv, photo);
   }
 };
