@@ -1593,6 +1593,446 @@ body{background:#fff7ed;}
   </div>
 </div></body></html>`;
 
+// ═══════════════════════════════════════════════════════
+// TEMPLATE 102 — AURORA DARK (dégradé violet-cyan sombre)
+// ═══════════════════════════════════════════════════════
+export const templateAuroraDark = (cv: any, photo: string | null): string => `
+<!DOCTYPE html><html><head><meta charset="utf-8"/>
+<style>${base}
+body{background:#0d0d1a;}
+.cv{display:flex;width:100%;min-height:100vh;}
+.L{width:34%;background:linear-gradient(180deg,#1a0533,#0d1a33);padding:0 0 24px;}
+.R{width:66%;padding:24px 20px;}
+.ltop{padding:28px 16px;text-align:center;border-bottom:1px solid rgba(139,92,246,0.3);}
+.ph{width:95px;height:95px;border-radius:50%;object-fit:cover;border:3px solid #8b5cf6;display:block;margin:0 auto 12px;box-shadow:0 0 20px rgba(139,92,246,0.5);}
+.pp{width:95px;height:95px;border-radius:50%;background:rgba(139,92,246,0.2);border:3px solid #8b5cf6;margin:0 auto 12px;}
+.nm-l{font-size:15px;font-weight:800;color:#f0f0ff;text-align:center;}
+.dg-l{font-size:10px;color:#8b5cf6;text-align:center;margin-top:3px;letter-spacing:1px;}
+.lpad{padding:0 14px;}
+.lt{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:#8b5cf6;margin:14px 0 8px;border-bottom:1px solid rgba(139,92,246,0.2);padding-bottom:3px;}
+.ci{font-size:10px;color:#c4b5fd;margin-bottom:5px;display:flex;gap:7px;}
+.sk{font-size:10px;color:#c4b5fd;margin-bottom:4px;}
+.sk::before{content:"◈ ";color:#8b5cf6;}
+.lb{margin-bottom:8px;}.ln{font-size:10px;color:#c4b5fd;margin-bottom:3px;}
+.lbg{height:3px;background:rgba(139,92,246,0.15);border-radius:2px;}
+.lf{height:3px;background:linear-gradient(to right,#8b5cf6,#06b6d4);border-radius:2px;}
+.r-nm{font-size:28px;font-weight:900;color:#f0f0ff;line-height:1.1;margin-bottom:4px;}
+.r-dg{font-size:11px;color:#06b6d4;font-weight:600;letter-spacing:2px;margin-bottom:16px;text-transform:uppercase;}
+.rs{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#0d0d1a;background:linear-gradient(to right,#8b5cf6,#06b6d4);padding:5px 14px;border-radius:20px;margin:14px 0 10px;display:inline-block;}
+.ei{margin-bottom:12px;padding:10px;background:rgba(139,92,246,0.08);border-radius:8px;border-left:3px solid #8b5cf6;}
+.et{font-size:11px;font-weight:700;color:#f0f0ff;}
+.ec{font-size:10px;color:#06b6d4;margin-top:1px;}
+.ed{font-size:9px;color:#6b7280;}
+.edesc{font-size:10px;color:#c4b5fd;margin-top:3px;line-height:1.5;}
+</style></head><body><div class="cv">
+<div class="L">
+  <div class="ltop">
+    ${photo?`<img class="ph" src="${photo}"/>`:'<div class="pp"></div>'}
+    <div class="nm-l">${cv.prenom} ${cv.nom}</div>
+    <div class="dg-l">${cv.titre??''}</div>
+  </div>
+  <div class="lpad">
+    <div class="lt">Contact</div>
+    ${cv.telephone?`<div class="ci">📞 ${cv.telephone}</div>`:''}
+    ${cv.email?`<div class="ci">✉ ${cv.email}</div>`:''}
+    ${cv.ville?`<div class="ci">📍 ${cv.ville}</div>`:''}
+    ${cv.competences?.length>0?`<div class="lt">Compétences</div>${cv.competences.map((c:string)=>`<div class="sk">${c}</div>`).join('')}`:''}
+    ${cv.langues?.length>0?`<div class="lt">Langues</div>${cv.langues.map((l:any)=>`<div class="lb"><div class="ln">${l.langue} — ${l.niveau}</div><div class="lbg"><div class="lf" style="width:${getNiveauPct(l.niveau)}%"></div></div></div>`).join('')}`:''}
+    ${cv.loisirs?.length>0?`<div class="lt">Loisirs</div>${cv.loisirs.map((l:string)=>`<div class="sk">${l}</div>`).join('')}`:''}
+  </div>
+</div>
+<div class="R">
+  <div class="r-nm">${cv.prenom}<br/>${cv.nom}</div>
+  <div class="r-dg">${cv.titre??''}</div>
+  ${cv.objectif?`<p style="font-size:10px;color:#c4b5fd;line-height:1.7;background:rgba(139,92,246,0.08);padding:10px;border-radius:8px;margin-bottom:14px;">${cv.objectif}</p>`:''}
+  ${cv.formations?.length>0?`<div class="rs">Formation</div>${cv.formations.map((f:any)=>`<div class="ei"><div class="et">${f.diplome}</div><div class="ec">${f.etablissement}</div><div class="ed">${f.annee}</div></div>`).join('')}`:''}
+  ${cv.experiences?.length>0?`<div class="rs">Expériences</div>${cv.experiences.map((e:any)=>`<div class="ei"><div class="et">${e.poste}</div><div class="ec">${e.entreprise}</div><div class="ed">${e.debut} – ${e.fin}</div><div class="edesc">${e.description??''}</div></div>`).join('')}`:''}
+</div></div></body></html>`;
+
+// ═══════════════════════════════════════════════════════
+// TEMPLATE 103 — METRO PRO (style métro, lignes colorées)
+// ═══════════════════════════════════════════════════════
+export const templateMetroPro = (cv: any, photo: string | null): string => `
+<!DOCTYPE html><html><head><meta charset="utf-8"/>
+<style>${base}
+body{background:#fff;padding:0;}
+.top-bar{height:8px;background:linear-gradient(to right,#dc2626 25%,#2563eb 25% 50%,#16a34a 50% 75%,#eab308 75%);}
+.header{display:flex;gap:20px;align-items:center;padding:20px 24px;background:#f8fafc;border-bottom:1px solid #e2e8f0;}
+.ph{width:80px;height:80px;border-radius:4px;object-fit:cover;}
+.pp{width:80px;height:80px;border-radius:4px;background:#e2e8f0;}
+.hinfo{flex:1;}
+.nm{font-size:26px;font-weight:900;color:#0f172a;text-transform:uppercase;letter-spacing:2px;}
+.dg{font-size:11px;color:#64748b;margin-top:4px;text-transform:uppercase;letter-spacing:3px;}
+.contacts{display:flex;gap:20px;padding:10px 24px;background:#0f172a;}
+.cb{font-size:10px;color:#94a3b8;}
+.body{display:flex;gap:0;}
+.col-l{width:32%;padding:20px 16px;background:#f8fafc;border-right:4px solid #dc2626;}
+.col-r{flex:1;padding:20px 20px;}
+.sec-l{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:2px;color:#0f172a;margin:14px 0 8px;display:flex;align-items:center;gap:8px;}
+.sec-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.sk{font-size:10px;color:#374151;margin-bottom:4px;}
+.sk::before{content:"→ ";}
+.lb{margin-bottom:7px;}.ln{font-size:10px;color:#374151;margin-bottom:2px;}
+.lbg{height:4px;background:#e2e8f0;border-radius:2px;}
+.lf{height:4px;background:#2563eb;border-radius:2px;}
+.sec-r{font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:1px;color:#fff;background:#0f172a;padding:6px 14px;margin:14px 0 10px;display:inline-block;}
+.ei{margin-bottom:12px;padding-left:14px;border-left:3px solid #e2e8f0;}
+.et{font-size:11px;font-weight:bold;color:#0f172a;}
+.ec{font-size:10px;color:#2563eb;margin-top:1px;}
+.ed{font-size:9px;color:#94a3b8;}
+.edesc{font-size:10px;color:#555;margin-top:3px;}
+</style></head><body>
+<div class="top-bar"></div>
+<div class="header">
+  ${photo?`<img class="ph" src="${photo}"/>`:'<div class="pp"></div>'}
+  <div class="hinfo">
+    <div class="nm">${cv.prenom} ${cv.nom}</div>
+    <div class="dg">${cv.titre??''}</div>
+  </div>
+</div>
+<div class="contacts">
+  ${cv.telephone?`<span class="cb">📞 ${cv.telephone}</span>`:''}
+  ${cv.email?`<span class="cb">✉ ${cv.email}</span>`:''}
+  ${cv.ville?`<span class="cb">📍 ${cv.ville}</span>`:''}
+</div>
+<div class="body">
+  <div class="col-l">
+    ${cv.objectif?`<div class="sec-l"><div class="sec-dot" style="background:#dc2626"></div>Profil</div><p style="font-size:10px;color:#444;line-height:1.6;">${cv.objectif}</p>`:''}
+    ${cv.competences?.length>0?`<div class="sec-l"><div class="sec-dot" style="background:#16a34a"></div>Compétences</div>${cv.competences.map((c:string)=>`<div class="sk">${c}</div>`).join('')}`:''}
+    ${cv.langues?.length>0?`<div class="sec-l"><div class="sec-dot" style="background:#2563eb"></div>Langues</div>${cv.langues.map((l:any)=>`<div class="lb"><div class="ln">${l.langue} — ${l.niveau}</div><div class="lbg"><div class="lf" style="width:${getNiveauPct(l.niveau)}%"></div></div></div>`).join('')}`:''}
+    ${cv.loisirs?.length>0?`<div class="sec-l"><div class="sec-dot" style="background:#eab308"></div>Loisirs</div>${cv.loisirs.map((l:string)=>`<div class="sk">${l}</div>`).join('')}`:''}
+  </div>
+  <div class="col-r">
+    ${cv.formations?.length>0?`<div class="sec-r">Formation</div>${cv.formations.map((f:any)=>`<div class="ei"><div class="et">${f.diplome}</div><div class="ec">${f.etablissement}</div><div class="ed">${f.annee}</div></div>`).join('')}`:''}
+    ${cv.experiences?.length>0?`<div class="sec-r">Expériences</div>${cv.experiences.map((e:any)=>`<div class="ei"><div class="et">${e.poste}</div><div class="ec">${e.entreprise}</div><div class="ed">${e.debut} – ${e.fin}</div><div class="edesc">${e.description??''}</div></div>`).join('')}`:''}
+  </div>
+</div></body></html>`;
+
+// ═══════════════════════════════════════════════════════
+// TEMPLATE 104 — BAMBOO ZEN (style japonais, épuré)
+// ═══════════════════════════════════════════════════════
+export const templateBambooZen = (cv: any, photo: string | null): string => `
+<!DOCTYPE html><html><head><meta charset="utf-8"/>
+<style>${base}
+body{background:#fafaf7;padding:32px;}
+.header{display:flex;gap:24px;align-items:flex-start;margin-bottom:24px;}
+.ph{width:100px;height:100px;border-radius:50%;object-fit:cover;border:1px solid #d4c5a0;}
+.pp{width:100px;height:100px;border-radius:50%;background:#e8e0cc;border:1px solid #d4c5a0;}
+.hinfo{flex:1;border-bottom:2px solid #2d5016;padding-bottom:14px;}
+.nm{font-size:30px;font-weight:300;color:#1a1a0a;letter-spacing:4px;}
+.nm b{font-weight:900;color:#2d5016;}
+.dg{font-size:10px;color:#6b6b50;margin-top:6px;letter-spacing:4px;text-transform:uppercase;}
+.kanji{font-size:32px;color:#2d5016;opacity:0.15;position:absolute;right:32px;top:32px;}
+.body{display:flex;gap:32px;position:relative;}
+.col-l{width:30%;}
+.col-r{flex:1;}
+.sec{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:3px;color:#2d5016;margin:18px 0 10px;display:flex;align-items:center;gap:8px;}
+.sec-line{flex:1;height:1px;background:#d4c5a0;}
+.ci{font-size:10px;color:#444;margin-bottom:6px;display:flex;gap:8px;}
+.sk{font-size:10px;color:#444;margin-bottom:5px;padding-left:12px;border-left:2px solid #d4c5a0;}
+.lb{margin-bottom:8px;}.ln{font-size:10px;color:#444;margin-bottom:3px;}
+.lbg{height:2px;background:#e8e0cc;border-radius:2px;}
+.lf{height:2px;background:#2d5016;border-radius:2px;}
+.ei{margin-bottom:16px;padding-bottom:12px;border-bottom:1px dashed #e8e0cc;}
+.et{font-size:12px;font-weight:700;color:#1a1a0a;letter-spacing:1px;}
+.ec{font-size:10px;color:#2d5016;margin-top:2px;font-style:italic;}
+.ed{font-size:9px;color:#888;margin-top:1px;}
+.edesc{font-size:10px;color:#555;margin-top:5px;line-height:1.7;}
+</style></head><body>
+<div class="kanji">禅</div>
+<div class="header">
+  ${photo?`<img class="ph" src="${photo}"/>`:'<div class="pp"></div>'}
+  <div class="hinfo">
+    <div class="nm"><b>${cv.prenom}</b> ${cv.nom}</div>
+    <div class="dg">${cv.titre??''}</div>
+  </div>
+</div>
+<div class="body">
+  <div class="col-l">
+    <div class="sec">Contact <div class="sec-line"></div></div>
+    ${cv.telephone?`<div class="ci">☎ ${cv.telephone}</div>`:''}
+    ${cv.email?`<div class="ci">@ ${cv.email}</div>`:''}
+    ${cv.ville?`<div class="ci">◎ ${cv.ville}</div>`:''}
+    ${cv.competences?.length>0?`<div class="sec">Compétences <div class="sec-line"></div></div>${cv.competences.map((c:string)=>`<div class="sk">${c}</div>`).join('')}`:''}
+    ${cv.langues?.length>0?`<div class="sec">Langues <div class="sec-line"></div></div>${cv.langues.map((l:any)=>`<div class="lb"><div class="ln">${l.langue} — ${l.niveau}</div><div class="lbg"><div class="lf" style="width:${getNiveauPct(l.niveau)}%"></div></div></div>`).join('')}`:''}
+    ${cv.loisirs?.length>0?`<div class="sec">Loisirs <div class="sec-line"></div></div>${cv.loisirs.map((l:string)=>`<div class="sk">${l}</div>`).join('')}`:''}
+  </div>
+  <div class="col-r">
+    ${cv.objectif?`<div class="sec">Profil <div class="sec-line"></div></div><p style="font-size:10px;color:#444;line-height:1.8;font-style:italic;">"${cv.objectif}"</p>`:''}
+    ${cv.formations?.length>0?`<div class="sec">Formation <div class="sec-line"></div></div>${cv.formations.map((f:any)=>`<div class="ei"><div class="et">${f.diplome}</div><div class="ec">${f.etablissement}</div><div class="ed">${f.annee}</div></div>`).join('')}`:''}
+    ${cv.experiences?.length>0?`<div class="sec">Expériences <div class="sec-line"></div></div>${cv.experiences.map((e:any)=>`<div class="ei"><div class="et">${e.poste}</div><div class="ec">${e.entreprise}</div><div class="ed">${e.debut} – ${e.fin}</div><div class="edesc">${e.description??''}</div></div>`).join('')}`:''}
+  </div>
+</div></body></html>`;
+
+// ═══════════════════════════════════════════════════════
+// TEMPLATE 105 — CHROME TECH (style chrome/métal)
+// ═══════════════════════════════════════════════════════
+export const templateChromeTech = (cv: any, photo: string | null): string => `
+<!DOCTYPE html><html><head><meta charset="utf-8"/>
+<style>${base}
+body{background:#18181b;}
+.header{background:linear-gradient(135deg,#27272a,#3f3f46);border-bottom:2px solid #71717a;padding:24px;display:flex;gap:20px;align-items:center;}
+.ph{width:85px;height:85px;border-radius:8px;object-fit:cover;border:2px solid #71717a;}
+.pp{width:85px;height:85px;border-radius:8px;background:#52525b;border:2px solid #71717a;}
+.nm{font-size:24px;font-weight:900;color:#f4f4f5;letter-spacing:2px;text-transform:uppercase;}
+.dg{font-size:10px;color:#a1a1aa;margin-top:4px;letter-spacing:3px;}
+.contacts{background:#27272a;border-bottom:1px solid #3f3f46;padding:8px 24px;display:flex;gap:18px;}
+.cb{font-size:10px;color:#71717a;}
+.body{display:flex;}
+.col-l{width:33%;padding:20px 16px;border-right:1px solid #3f3f46;}
+.col-r{flex:1;padding:20px 20px;}
+.sec{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:#71717a;background:#27272a;padding:4px 10px;border-radius:3px;margin:14px 0 8px;display:block;}
+.sk{font-size:10px;color:#d4d4d8;margin-bottom:5px;display:flex;justify-content:space-between;}
+.sk-bar{width:60px;height:4px;background:#3f3f46;border-radius:2px;margin-top:6px;}
+.sk-fill{height:4px;background:linear-gradient(to right,#71717a,#d4d4d8);border-radius:2px;}
+.lb{margin-bottom:8px;}.ln{font-size:10px;color:#d4d4d8;margin-bottom:3px;}
+.lbg{height:3px;background:#3f3f46;border-radius:2px;}
+.lf{height:3px;background:#a1a1aa;border-radius:2px;}
+.ci{font-size:10px;color:#a1a1aa;margin-bottom:5px;}
+.ei{margin-bottom:12px;padding:10px;background:#27272a;border-radius:6px;border:1px solid #3f3f46;}
+.et{font-size:11px;font-weight:700;color:#f4f4f5;}
+.ec{font-size:10px;color:#71717a;margin-top:1px;}
+.ed{font-size:9px;color:#52525b;}
+.edesc{font-size:10px;color:#a1a1aa;margin-top:3px;line-height:1.5;}
+.rs{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#f4f4f5;background:linear-gradient(to right,#52525b,#71717a);padding:5px 14px;border-radius:3px;margin:14px 0 10px;display:inline-block;}
+</style></head><body>
+<div class="header">
+  ${photo?`<img class="ph" src="${photo}"/>`:'<div class="pp"></div>'}
+  <div>
+    <div class="nm">${cv.prenom} ${cv.nom}</div>
+    <div class="dg">${cv.titre??''}</div>
+  </div>
+</div>
+<div class="contacts">
+  ${cv.telephone?`<span class="cb">📞 ${cv.telephone}</span>`:''}
+  ${cv.email?`<span class="cb">✉ ${cv.email}</span>`:''}
+  ${cv.ville?`<span class="cb">📍 ${cv.ville}</span>`:''}
+</div>
+<div class="body">
+  <div class="col-l">
+    ${cv.objectif?`<div class="sec">Profil</div><p style="font-size:10px;color:#a1a1aa;line-height:1.6;">${cv.objectif}</p>`:''}
+    ${cv.competences?.length>0?`<div class="sec">Compétences</div>${cv.competences.map((c:string,i:number)=>`<div class="sk"><span>${c}</span></div><div class="sk-bar"><div class="sk-fill" style="width:${Math.min(70+i*6,95)}%"></div></div>`).join('')}`:''}
+    ${cv.langues?.length>0?`<div class="sec">Langues</div>${cv.langues.map((l:any)=>`<div class="lb"><div class="ln">${l.langue} — ${l.niveau}</div><div class="lbg"><div class="lf" style="width:${getNiveauPct(l.niveau)}%"></div></div></div>`).join('')}`:''}
+    ${cv.loisirs?.length>0?`<div class="sec">Loisirs</div>${cv.loisirs.map((l:string)=>`<div class="ci">• ${l}</div>`).join('')}`:''}
+  </div>
+  <div class="col-r">
+    ${cv.formations?.length>0?`<div class="rs">Formation</div>${cv.formations.map((f:any)=>`<div class="ei"><div class="et">${f.diplome}</div><div class="ec">${f.etablissement}</div><div class="ed">${f.annee}</div></div>`).join('')}`:''}
+    ${cv.experiences?.length>0?`<div class="rs">Expériences</div>${cv.experiences.map((e:any)=>`<div class="ei"><div class="et">${e.poste}</div><div class="ec">${e.entreprise}</div><div class="ed">${e.debut} – ${e.fin}</div><div class="edesc">${e.description??''}</div></div>`).join('')}`:''}
+  </div>
+</div></body></html>`;
+
+// ═══════════════════════════════════════════════════════
+// TEMPLATE 106 — SAHARA WARM (tons sablés chauds)
+// ═══════════════════════════════════════════════════════
+export const templateSaharaWarm = (cv: any, photo: string | null): string => `
+<!DOCTYPE html><html><head><meta charset="utf-8"/>
+<style>${base}
+body{background:#fdf4e3;}
+.cv{display:flex;width:100%;min-height:100vh;}
+.L{width:35%;background:#c8a96e;padding:0 0 24px;}
+.R{width:65%;padding:24px 22px;}
+.ltop{background:#8b6914;padding:28px 16px;text-align:center;}
+.ph{width:90px;height:90px;border-radius:50%;object-fit:cover;border:4px solid #fdf4e3;display:block;margin:0 auto 12px;}
+.pp{width:90px;height:90px;border-radius:50%;background:#6b4f10;border:4px solid #fdf4e3;margin:0 auto 12px;}
+.nm-l{font-size:15px;font-weight:800;color:#fdf4e3;text-align:center;}
+.dg-l{font-size:10px;color:#f5deb3;text-align:center;margin-top:3px;}
+.lpad{padding:0 16px;}
+.lt{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#fdf4e3;border-bottom:1px solid rgba(255,255,255,0.3);padding-bottom:4px;margin:14px 0 8px;}
+.ci{font-size:10px;color:#fdf4e3;margin-bottom:5px;display:flex;gap:7px;}
+.sk{font-size:10px;color:#fdf4e3;margin-bottom:4px;}
+.sk::before{content:"◆ ";color:#f5deb3;font-size:8px;}
+.lb{margin-bottom:8px;}.ln{font-size:10px;color:#fdf4e3;margin-bottom:3px;}
+.lbg{height:3px;background:rgba(255,255,255,0.25);border-radius:2px;}
+.lf{height:3px;background:#fdf4e3;border-radius:2px;}
+.r-nm{font-size:28px;font-weight:900;color:#5c3d11;border-bottom:3px solid #c8a96e;padding-bottom:8px;margin-bottom:6px;}
+.r-dg{font-size:11px;color:#8b6914;font-weight:700;margin-bottom:18px;text-transform:uppercase;letter-spacing:2px;}
+.rs{background:#8b6914;color:#fdf4e3;font-size:10px;font-weight:700;text-transform:uppercase;padding:5px 14px;border-radius:4px;margin:14px 0 10px;display:inline-block;}
+.ei{margin-bottom:12px;padding:10px;background:#fff9ef;border-radius:6px;border-left:4px solid #c8a96e;}
+.et{font-size:11px;font-weight:700;color:#3d2800;}
+.ec{font-size:10px;color:#8b6914;margin-top:1px;}
+.ed{font-size:9px;color:#888;}
+.edesc{font-size:10px;color:#555;margin-top:3px;}
+</style></head><body><div class="cv">
+<div class="L">
+  <div class="ltop">
+    ${photo?`<img class="ph" src="${photo}"/>`:'<div class="pp"></div>'}
+    <div class="nm-l">${cv.prenom} ${cv.nom}</div>
+    <div class="dg-l">${cv.titre??''}</div>
+  </div>
+  <div class="lpad">
+    <div class="lt">Contact</div>
+    ${cv.telephone?`<div class="ci">📞 ${cv.telephone}</div>`:''}
+    ${cv.email?`<div class="ci">✉ ${cv.email}</div>`:''}
+    ${cv.ville?`<div class="ci">📍 ${cv.ville}</div>`:''}
+    ${cv.objectif?`<div class="lt">Profil</div><p style="font-size:10px;color:#fdf4e3;line-height:1.6;">${cv.objectif}</p>`:''}
+    ${cv.competences?.length>0?`<div class="lt">Compétences</div>${cv.competences.map((c:string)=>`<div class="sk">${c}</div>`).join('')}`:''}
+    ${cv.langues?.length>0?`<div class="lt">Langues</div>${cv.langues.map((l:any)=>`<div class="lb"><div class="ln">${l.langue} — ${l.niveau}</div><div class="lbg"><div class="lf" style="width:${getNiveauPct(l.niveau)}%"></div></div></div>`).join('')}`:''}
+    ${cv.loisirs?.length>0?`<div class="lt">Loisirs</div>${cv.loisirs.map((l:string)=>`<div class="sk">${l}</div>`).join('')}`:''}
+  </div>
+</div>
+<div class="R">
+  <div class="r-nm">${cv.prenom} ${cv.nom}</div>
+  <div class="r-dg">${cv.titre??''}</div>
+  ${cv.formations?.length>0?`<div class="rs">Formation</div>${cv.formations.map((f:any)=>`<div class="ei"><div class="et">${f.diplome}</div><div class="ec">${f.etablissement}</div><div class="ed">${f.annee}</div></div>`).join('')}`:''}
+  ${cv.experiences?.length>0?`<div class="rs">Expériences</div>${cv.experiences.map((e:any)=>`<div class="ei"><div class="et">${e.poste}</div><div class="ec">${e.entreprise}</div><div class="ed">${e.debut} – ${e.fin}</div><div class="edesc">${e.description??''}</div></div>`).join('')}`:''}
+</div></div></body></html>`;
+
+// ═══════════════════════════════════════════════════════
+// TEMPLATE 107 — NORDIC CLEAN (style scandinave)
+// ═══════════════════════════════════════════════════════
+export const templateNordicClean = (cv: any, photo: string | null): string => `
+<!DOCTYPE html><html><head><meta charset="utf-8"/>
+<style>${base}
+body{background:#f9fafb;padding:32px 40px;}
+.header{display:grid;grid-template-columns:auto 1fr;gap:20px;align-items:center;margin-bottom:24px;}
+.ph{width:85px;height:85px;border-radius:50%;object-fit:cover;}
+.pp{width:85px;height:85px;border-radius:50%;background:#e5e7eb;}
+.nm{font-size:32px;font-weight:200;color:#111;letter-spacing:3px;text-transform:uppercase;}
+.nm b{font-weight:900;}
+.dg{font-size:10px;color:#9ca3af;letter-spacing:5px;text-transform:uppercase;margin-top:6px;}
+.divider{height:1px;background:#e5e7eb;margin:0 0 20px;}
+.body{display:grid;grid-template-columns:1fr 2fr;gap:32px;}
+.sec{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:3px;color:#374151;margin:18px 0 10px;position:relative;padding-bottom:6px;}
+.sec::after{content:"";position:absolute;bottom:0;left:0;width:24px;height:2px;background:#111;}
+.ci{font-size:10px;color:#6b7280;margin-bottom:7px;display:flex;gap:10px;}
+.sk{font-size:10px;color:#374151;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;}
+.sk-dots{display:flex;gap:3px;}
+.sk-d{width:8px;height:8px;border-radius:50%;}
+.lb{margin-bottom:9px;}.ln{font-size:10px;color:#374151;margin-bottom:3px;}
+.lbg{height:2px;background:#e5e7eb;border-radius:2px;}
+.lf{height:2px;background:#374151;border-radius:2px;}
+.ei{margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid #f3f4f6;}
+.date-tag{font-size:9px;color:#9ca3af;background:#f3f4f6;padding:2px 8px;border-radius:10px;display:inline-block;margin-bottom:4px;}
+.et{font-size:12px;font-weight:700;color:#111;}
+.ec{font-size:10px;color:#6b7280;margin-top:2px;font-style:italic;}
+.edesc{font-size:10px;color:#6b7280;margin-top:6px;line-height:1.7;}
+</style></head><body>
+<div class="header">
+  ${photo?`<img class="ph" src="${photo}"/>`:'<div class="pp"></div>'}
+  <div>
+    <div class="nm"><b>${cv.prenom}</b> ${cv.nom}</div>
+    <div class="dg">${cv.titre??''}</div>
+  </div>
+</div>
+<div class="divider"></div>
+<div class="body">
+  <div>
+    <div class="sec">Contact</div>
+    ${cv.telephone?`<div class="ci">📞 ${cv.telephone}</div>`:''}
+    ${cv.email?`<div class="ci">✉ ${cv.email}</div>`:''}
+    ${cv.ville?`<div class="ci">📍 ${cv.ville}</div>`:''}
+    ${cv.competences?.length>0?`<div class="sec">Compétences</div>${cv.competences.map((c:string,i:number)=>`<div class="sk"><span>${c}</span><div class="sk-dots">${[1,2,3,4,5].map(n=>`<div class="sk-d" style="background:${n<=Math.ceil((70+i*5)/20)?'#374151':'#e5e7eb'}"></div>`).join('')}</div></div>`).join('')}`:''}
+    ${cv.langues?.length>0?`<div class="sec">Langues</div>${cv.langues.map((l:any)=>`<div class="lb"><div class="ln">${l.langue} — ${l.niveau}</div><div class="lbg"><div class="lf" style="width:${getNiveauPct(l.niveau)}%"></div></div></div>`).join('')}`:''}
+    ${cv.loisirs?.length>0?`<div class="sec">Loisirs</div>${cv.loisirs.map((l:string)=>`<div class="ci">○ ${l}</div>`).join('')}`:''}
+  </div>
+  <div>
+    ${cv.objectif?`<div class="sec">Résumé</div><p style="font-size:11px;color:#6b7280;line-height:1.8;margin-bottom:16px;">${cv.objectif}</p>`:''}
+    ${cv.formations?.length>0?`<div class="sec">Formation</div>${cv.formations.map((f:any)=>`<div class="ei"><div class="date-tag">${f.annee}</div><div class="et">${f.diplome}</div><div class="ec">${f.etablissement}</div></div>`).join('')}`:''}
+    ${cv.experiences?.length>0?`<div class="sec">Expériences</div>${cv.experiences.map((e:any)=>`<div class="ei"><div class="date-tag">${e.debut} – ${e.fin}</div><div class="et">${e.poste}</div><div class="ec">${e.entreprise}</div><div class="edesc">${e.description??''}</div></div>`).join('')}`:''}
+  </div>
+</div></body></html>`;
+
+// ═══════════════════════════════════════════════════════
+// TEMPLATE 108 — GALAXY DARK (fond étoilé, galaxie)
+// ═══════════════════════════════════════════════════════
+export const templateGalaxyDark = (cv: any, photo: string | null): string => `
+<!DOCTYPE html><html><head><meta charset="utf-8"/>
+<style>${base}
+body{background:#050510;background-image:radial-gradient(circle at 20% 50%,rgba(99,102,241,0.08) 0%,transparent 50%),radial-gradient(circle at 80% 20%,rgba(244,63,94,0.06) 0%,transparent 50%);}
+.cv{display:flex;width:100%;min-height:100vh;}
+.L{width:34%;padding:0 0 24px;border-right:1px solid rgba(99,102,241,0.2);}
+.R{width:66%;padding:24px 22px;}
+.ltop{padding:28px 16px;text-align:center;border-bottom:1px solid rgba(99,102,241,0.2);}
+.ph{width:95px;height:95px;border-radius:50%;object-fit:cover;border:2px solid #6366f1;display:block;margin:0 auto 12px;box-shadow:0 0 30px rgba(99,102,241,0.4);}
+.pp{width:95px;height:95px;border-radius:50%;background:rgba(99,102,241,0.1);border:2px solid #6366f1;margin:0 auto 12px;}
+.nm-l{font-size:15px;font-weight:800;color:#f1f5f9;text-align:center;}
+.dg-l{font-size:9px;color:#818cf8;text-align:center;margin-top:3px;letter-spacing:2px;text-transform:uppercase;}
+.lpad{padding:0 16px;}
+.lt{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:#818cf8;margin:14px 0 8px;border-bottom:1px solid rgba(99,102,241,0.2);padding-bottom:3px;}
+.ci{font-size:10px;color:#94a3b8;margin-bottom:5px;display:flex;gap:7px;}
+.sk{font-size:10px;color:#c7d2fe;margin-bottom:4px;}
+.sk::before{content:"✦ ";color:#6366f1;}
+.lb{margin-bottom:8px;}.ln{font-size:10px;color:#c7d2fe;margin-bottom:3px;}
+.lbg{height:3px;background:rgba(99,102,241,0.15);border-radius:2px;}
+.lf{height:3px;background:linear-gradient(to right,#6366f1,#a78bfa);border-radius:2px;}
+.star{position:fixed;width:2px;height:2px;background:#fff;border-radius:50%;}
+.r-nm{font-size:26px;font-weight:900;color:#f1f5f9;margin-bottom:2px;}
+.r-dg{font-size:11px;color:#6366f1;font-weight:600;margin-bottom:16px;letter-spacing:2px;text-transform:uppercase;}
+.rs{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#f1f5f9;border:1px solid rgba(99,102,241,0.5);padding:5px 14px;border-radius:20px;margin:14px 0 10px;display:inline-block;background:rgba(99,102,241,0.1);}
+.ei{margin-bottom:12px;padding:10px;background:rgba(99,102,241,0.05);border-radius:8px;border:1px solid rgba(99,102,241,0.15);}
+.et{font-size:11px;font-weight:700;color:#f1f5f9;}
+.ec{font-size:10px;color:#6366f1;margin-top:1px;}
+.ed{font-size:9px;color:#475569;}
+.edesc{font-size:10px;color:#94a3b8;margin-top:3px;line-height:1.5;}
+</style></head><body><div class="cv">
+<div class="L">
+  <div class="ltop">
+    ${photo?`<img class="ph" src="${photo}"/>`:'<div class="pp"></div>'}
+    <div class="nm-l">${cv.prenom} ${cv.nom}</div>
+    <div class="dg-l">${cv.titre??''}</div>
+  </div>
+  <div class="lpad">
+    <div class="lt">Contact</div>
+    ${cv.telephone?`<div class="ci">📞 ${cv.telephone}</div>`:''}
+    ${cv.email?`<div class="ci">✉ ${cv.email}</div>`:''}
+    ${cv.ville?`<div class="ci">📍 ${cv.ville}</div>`:''}
+    ${cv.competences?.length>0?`<div class="lt">Compétences</div>${cv.competences.map((c:string)=>`<div class="sk">${c}</div>`).join('')}`:''}
+    ${cv.langues?.length>0?`<div class="lt">Langues</div>${cv.langues.map((l:any)=>`<div class="lb"><div class="ln">${l.langue} — ${l.niveau}</div><div class="lbg"><div class="lf" style="width:${getNiveauPct(l.niveau)}%"></div></div></div>`).join('')}`:''}
+    ${cv.loisirs?.length>0?`<div class="lt">Loisirs</div>${cv.loisirs.map((l:string)=>`<div class="sk">${l}</div>`).join('')}`:''}
+  </div>
+</div>
+<div class="R">
+  <div class="r-nm">${cv.prenom} ${cv.nom}</div>
+  <div class="r-dg">${cv.titre??''}</div>
+  ${cv.objectif?`<p style="font-size:10px;color:#94a3b8;line-height:1.7;background:rgba(99,102,241,0.05);padding:10px;border-radius:8px;border:1px solid rgba(99,102,241,0.1);margin-bottom:14px;">${cv.objectif}</p>`:''}
+  ${cv.formations?.length>0?`<div class="rs">✦ Formation</div>${cv.formations.map((f:any)=>`<div class="ei"><div class="et">${f.diplome}</div><div class="ec">${f.etablissement}</div><div class="ed">${f.annee}</div></div>`).join('')}`:''}
+  ${cv.experiences?.length>0?`<div class="rs">✦ Expériences</div>${cv.experiences.map((e:any)=>`<div class="ei"><div class="et">${e.poste}</div><div class="ec">${e.entreprise}</div><div class="ed">${e.debut} – ${e.fin}</div><div class="edesc">${e.description??''}</div></div>`).join('')}`:''}
+</div></div></body></html>`;
+
+// Templates 109-150 — Variantes créatives et optimisées
+export const templateTerraceMed    = (cv:any,p:string|null) => templateSaharaWarm(cv,p).replace(/#c8a96e/g,'#7c9b6e').replace(/#8b6914/g,'#3d6b3d').replace(/#6b4f10/g,'#2d5026').replace(/#fdf4e3/g,'#f0f7f0').replace(/#f5deb3/g,'#c8e6c0').replace(/#5c3d11/g,'#1a3a1a').replace(/#8b6914/g,'#2d6b2d');
+export const templateFlamingoPink  = (cv:any,p:string|null) => templateAuroraDark(cv,p).replace(/#8b5cf6/g,'#ec4899').replace(/#06b6d4/g,'#f9a8d4').replace(/#1a0533/g,'#1a0020').replace(/#0d1a33/g,'#0d0015').replace(/#c4b5fd/g,'#fbcfe8').replace(/#0d0d1a/g,'#0d0010');
+export const templateTitaniumPro   = (cv:any,p:string|null) => templateChromeTech(cv,p).replace(/#71717a/g,'#60a5fa').replace(/#27272a/g,'#1e2a3a').replace(/#18181b/g,'#111827').replace(/#3f3f46/g,'#1f2a3a').replace(/#52525b/g,'#1d2d40').replace(/#a1a1aa/g,'#93c5fd');
+export const templateCanopyGreen   = (cv:any,p:string|null) => templateBambooZen(cv,p).replace(/#2d5016/g,'#15803d').replace(/#6b6b50/g,'#4b7a4b').replace(/#d4c5a0/g,'#bbf7d0').replace(/#fafaf7/g,'#f0fdf4').replace(/#e8e0cc/g,'#dcfce7');
+export const templateBrickWarm     = (cv:any,p:string|null) => templateMetroPro(cv,p).replace(/#dc2626/g,'#b45309').replace(/#2563eb/g,'#92400e').replace(/#16a34a/g,'#78350f').replace(/#eab308/g,'#d97706').replace(/#0f172a/g,'#1c0f00');
+export const templateDiamondLuxe   = (cv:any,p:string|null) => templateGalaxyDark(cv,p).replace(/#6366f1/g,'#06b6d4').replace(/#a78bfa/g,'#67e8f9').replace(/#818cf8/g,'#22d3ee').replace(/#c7d2fe/g,'#cffafe').replace(/#050510/g,'#000d1a').replace(/#f1f5f9/g,'#f0fdff');
+export const templateArcticPro     = (cv:any,p:string|null) => templateNordicClean(cv,p).replace(/#374151/g,'#0369a1').replace(/#111/g,'#0c4a6e').replace(/#e5e7eb/g,'#bae6fd').replace(/#f9fafb/g,'#f0f9ff').replace(/#6b7280/g,'#0284c7').replace(/#9ca3af/g,'#38bdf8');
+export const templateVolcanoDark   = (cv:any,p:string|null) => templateAuroraDark(cv,p).replace(/#8b5cf6/g,'#ef4444').replace(/#06b6d4/g,'#f97316').replace(/#1a0533/g,'#1a0000').replace(/#0d1a33/g,'#0d0000').replace(/#c4b5fd/g,'#fecaca').replace(/#0d0d1a/g,'#0a0000');
+export const templateSpringBlossom = (cv:any,p:string|null) => templateBambooZen(cv,p).replace(/#2d5016/g,'#db2777').replace(/#6b6b50/g,'#9d174d').replace(/#d4c5a0/g,'#fce7f3').replace(/#fafaf7/g,'#fff5f8').replace(/#e8e0cc/g,'#fce7f3');
+export const templateUrbanGrey     = (cv:any,p:string|null) => templateMetroPro(cv,p).replace(/#dc2626/g,'#374151').replace(/#2563eb/g,'#6b7280').replace(/#16a34a/g,'#9ca3af').replace(/#eab308/g,'#d1d5db').replace(/#0f172a/g,'#1f2937');
+export const templateTropicsFresh  = (cv:any,p:string|null) => templateOceanBlue(cv,p).replace(/#0369a1/g,'#0d9488').replace(/#075985/g,'#134e4a').replace(/#bae6fd/g,'#99f6e4').replace(/#f0f9ff/g,'#f0fdfa').replace(/#7dd3fc/g,'#5eead4').replace(/#e0f2fe/g,'#ccfbf1');
+export const templateOnyxGold      = (cv:any,p:string|null) => templateChromeTech(cv,p).replace(/#71717a/g,'#d4af37').replace(/#27272a/g,'#1a1500').replace(/#18181b/g,'#0d0b00').replace(/#3f3f46/g,'#2a2200').replace(/#52525b/g,'#1f1900').replace(/#a1a1aa/g,'#f5d060');
+export const templatePastelDream   = (cv:any,p:string|null) => templateNordicClean(cv,p).replace(/#374151/g,'#be185d').replace(/#111/g,'#9d174d').replace(/#e5e7eb/g,'#fce7f3').replace(/#f9fafb/g,'#fff5f8').replace(/#6b7280/g,'#db2777').replace(/#9ca3af/g,'#f9a8d4');
+export const templateNinjaDark     = (cv:any,p:string|null) => templateGalaxyDark(cv,p).replace(/#6366f1/g,'#dc2626').replace(/#a78bfa/g,'#fca5a5').replace(/#818cf8/g,'#ef4444').replace(/#c7d2fe/g,'#fecaca').replace(/#050510/g,'#050000').replace(/#f1f5f9/g,'#fff5f5');
+export const templateLemonZest     = (cv:any,p:string|null) => templateMetroPro(cv,p).replace(/#dc2626/g,'#ca8a04').replace(/#2563eb/g,'#a16207').replace(/#16a34a/g,'#65a30d').replace(/#eab308/g,'#84cc16').replace(/#0f172a/g,'#1c1400');
+export const templateMarbleLuxe    = (cv:any,p:string|null) => templateNordicClean(cv,p).replace(/#374151/g,'#6b7280').replace(/#111/g,'#1f2937').replace(/#e5e7eb/g,'#e5e7eb').replace(/#f9fafb/g,'#f9fafb').replace(/#6b7280/g,'#9ca3af').replace(/#9ca3af/g,'#d1d5db').replace(/font-weight:200/g,'font-weight:100').replace(/letter-spacing:3px/g,'letter-spacing:6px');
+export const templateRustBold      = (cv:any,p:string|null) => templateSaharaWarm(cv,p).replace(/#c8a96e/g,'#b45309').replace(/#8b6914/g,'#7c2d12').replace(/#6b4f10/g,'#431407').replace(/#fdf4e3/g,'#fff7ed').replace(/#f5deb3/g,'#fed7aa').replace(/#5c3d11/g,'#431407');
+export const templateLagoonBlue    = (cv:any,p:string|null) => templateTropicsFresh(cv,p).replace(/#0d9488/g,'#0284c7').replace(/#134e4a/g,'#075985').replace(/#99f6e4/g,'#bae6fd').replace(/#f0fdfa/g,'#f0f9ff').replace(/#5eead4/g,'#7dd3fc').replace(/#ccfbf1/g,'#e0f2fe');
+export const templateObsidianPro   = (cv:any,p:string|null) => templateChromeTech(cv,p).replace(/#71717a/g,'#8b5cf6').replace(/#27272a/g,'#1e1a2e').replace(/#18181b/g,'#0f0d1a').replace(/#3f3f46/g,'#2d2640').replace(/#52525b/g,'#231e35').replace(/#a1a1aa/g,'#c4b5fd');
+export const templateMeadowSoft    = (cv:any,p:string|null) => templateBambooZen(cv,p).replace(/#2d5016/g,'#4ade80').replace(/#6b6b50/g,'#86efac').replace(/#d4c5a0/g,'#bbf7d0').replace(/#fafaf7/g,'#f0fff4').replace(/#e8e0cc/g,'#dcfce7').replace(/color:#1a1a0a/g,'color:#052e16');
+export const templatePrismColorful = (cv:any,p:string|null) => templateMetroPro(cv,p).replace(/#dc2626 25%,#2563eb 25% 50%,#16a34a 50% 75%,#eab308 75%/g,'#f97316 25%,#8b5cf6 25% 50%,#06b6d4 50% 75%,#ec4899 75%').replace(/#0f172a/g,'#1a0a2e');
+export const templateShadowDark    = (cv:any,p:string|null) => templateGalaxyDark(cv,p).replace(/#6366f1/g,'#374151').replace(/#a78bfa/g,'#6b7280').replace(/#818cf8/g,'#4b5563').replace(/#c7d2fe/g,'#d1d5db').replace(/#050510/g,'#030303').replace(/#f1f5f9/g,'#f3f4f6');
+export const templateCottonSoft    = (cv:any,p:string|null) => templatePastelDream(cv,p).replace(/#be185d/g,'#7c3aed').replace(/#9d174d/g,'#6d28d9').replace(/#fce7f3/g,'#f5f3ff').replace(/#fff5f8/g,'#faf5ff').replace(/#db2777/g,'#7c3aed').replace(/#f9a8d4/g,'#c4b5fd');
+export const templateThunderDark   = (cv:any,p:string|null) => templateVolcanoDark(cv,p).replace(/#ef4444/g,'#facc15').replace(/#f97316/g,'#fde047').replace(/#1a0000/g,'#0d0d00').replace(/#0d0000/g,'#070700').replace(/#fecaca/g,'#fef08a').replace(/#0a0000/g,'#050500');
+export const templateCactusGreen   = (cv:any,p:string|null) => templateCanopyGreen(cv,p).replace(/#15803d/g,'#4d7c0f').replace(/#4b7a4b/g,'#3f6212').replace(/#bbf7d0/g,'#d9f99d').replace(/#f0fdf4/g,'#f7fee7').replace(/#dcfce7/g,'#ecfccb');
+export const templatePearlWhite    = (cv:any,p:string|null) => templateMarbleLuxe(cv,p).replace(/letter-spacing:6px/g,'letter-spacing:8px').replace(/#1f2937/g,'#111827').replace(/font-weight:100/g,'font-weight:100').replace(/#f9fafb/g,'#ffffff').replace(/#e5e7eb/g,'#f3f4f6');
+export const templateLavaHot       = (cv:any,p:string|null) => templateVolcanoDark(cv,p).replace(/#ef4444/g,'#f97316').replace(/#f97316/g,'#fbbf24').replace(/#fecaca/g,'#fed7aa').replace(/#1a0000/g,'#1a0a00').replace(/#0a0000/g,'#0a0500');
+export const templateMonsoonBlue   = (cv:any,p:string|null) => templateOceanBlue(cv,p).replace(/#0369a1/g,'#1d4ed8').replace(/#075985/g,'#1e3a8a').replace(/#bae6fd/g,'#bfdbfe').replace(/#7dd3fc/g,'#93c5fd').replace(/#f0f9ff/g,'#eff6ff').replace(/#e0f2fe/g,'#dbeafe');
+export const templateBronzeClassic = (cv:any,p:string|null) => templateBrunElegant(cv,p).replace(/#c9a96e/g,'#cd7f32').replace(/#2a2520/g,'#1a0f00').replace(/#3d3028/g,'#2a1a00').replace(/#f5f5f2/g,'#fdf8f0');
+export const templateSakuraPink    = (cv:any,p:string|null) => templateSpringBlossom(cv,p).replace(/#db2777/g,'#f472b6').replace(/#9d174d/g,'#ec4899').replace(/#fce7f3/g,'#fdf2f8').replace(/#fff5f8/g,'#fdf4ff');
+export const templateMatrixGreen   = (cv:any,p:string|null) => templateEmeraldTech(cv,p).replace(/#022c22/g,'#000a00').replace(/#10b981/g,'#00ff41').replace(/#064e3b/g,'#001400').replace(/#065f46/g,'#002800').replace(/#a7f3d0/g,'#00cc33').replace(/#6ee7b7/g,'#00ff41').replace(/#ecfdf5/g,'#ccffcc');
+export const templateDuskPurple    = (cv:any,p:string|null) => templateAuroraDark(cv,p).replace(/#8b5cf6/g,'#a855f7').replace(/#06b6d4/g,'#e879f9').replace(/#1a0533/g,'#120027').replace(/#0d1a33/g,'#0a0020').replace(/#c4b5fd/g,'#f0abfc').replace(/#0d0d1a/g,'#080012');
+export const templateGlacierWhite  = (cv:any,p:string|null) => templateArcticPro(cv,p).replace(/#0369a1/g,'#0e7490').replace(/#0c4a6e/g,'#164e63').replace(/#bae6fd/g,'#a5f3fc').replace(/#f0f9ff/g,'#ecfeff').replace(/#0284c7/g,'#0891b2').replace(/#38bdf8/g,'#22d3ee');
+export const templateCedarWarm     = (cv:any,p:string|null) => templateBrickWarm(cv,p).replace(/#b45309/g,'#92400e').replace(/#92400e/g,'#78350f').replace(/#78350f/g,'#6b2a0a').replace(/#d97706/g,'#b45309').replace(/#1c0f00/g,'#120900');
+export const templatePhantomDark   = (cv:any,p:string|null) => templateShadowDark(cv,p).replace(/#374151/g,'#1f2937').replace(/#6b7280/g,'#374151').replace(/#4b5563/g,'#1f2937').replace(/#d1d5db/g,'#9ca3af').replace(/#030303/g,'#020202').replace(/#f3f4f6/g,'#f9fafb');
+export const templatePapayaBright  = (cv:any,p:string|null) => templateLemonZest(cv,p).replace(/#ca8a04/g,'#ea580c').replace(/#a16207/g,'#c2410c').replace(/#65a30d/g,'#b91c1c').replace(/#84cc16/g,'#f97316').replace(/#1c1400/g,'#1a0800');
+export const templateSteelBlue     = (cv:any,p:string|null) => templateTitaniumPro(cv,p).replace(/#60a5fa/g,'#38bdf8').replace(/#1e2a3a/g,'#0c2a3a').replace(/#111827/g,'#051525').replace(/#1f2a3a/g,'#0a2030').replace(/#1d2d40/g,'#082030').replace(/#93c5fd/g,'#7dd3fc');
+export const templateNoirRose      = (cv:any,p:string|null) => templateNinjaDark(cv,p).replace(/#dc2626/g,'#f472b6').replace(/#fca5a5/g,'#fbcfe8').replace(/#ef4444/g,'#ec4899').replace(/#fecaca/g,'#fce7f3').replace(/#050000/g,'#0d000d').replace(/#fff5f5/g,'#fff0ff');
+export const templateZenMinimal    = (cv:any,p:string|null) => templateBambooZen(cv,p).replace(/#2d5016/g,'#374151').replace(/#6b6b50/g,'#6b7280').replace(/#d4c5a0/g,'#e5e7eb').replace(/#fafaf7/g,'#f9fafb').replace(/#e8e0cc/g,'#f3f4f6').replace(/禅/g,'');
+export const templateFireDark      = (cv:any,p:string|null) => templateThunderDark(cv,p).replace(/#facc15/g,'#ef4444').replace(/#fde047/g,'#f97316').replace(/#0d0d00/g,'#0d0000').replace(/#070700/g,'#070000').replace(/#fef08a/g,'#fca5a5').replace(/#050500/g,'#050000');
+export const templateCloudSoft     = (cv:any,p:string|null) => templateCottonSoft(cv,p).replace(/#7c3aed/g,'#0369a1').replace(/#6d28d9/g,'#0284c7').replace(/#f5f3ff/g,'#f0f9ff').replace(/#faf5ff/g,'#eff6ff').replace(/#c4b5fd/g,'#bae6fd');
+export const templateHarborBlue    = (cv:any,p:string|null) => templateMonsoonBlue(cv,p).replace(/#1d4ed8/g,'#0369a1').replace(/#1e3a8a/g,'#075985').replace(/#bfdbfe/g,'#bae6fd').replace(/#93c5fd/g,'#7dd3fc').replace(/#eff6ff/g,'#f0f9ff').replace(/#dbeafe/g,'#e0f2fe');
+
 // Templates 46-100 — Variantes optimisées
 export const templateArcticWhite    = (cv:any,p:string|null) => templateSlateModern(cv,p).replace(/#0f172a/g,'#1e293b').replace(/#1e293b/g,'#334155').replace(/#38bdf8/g,'#e2e8f0').replace(/#f8fafc/g,'#ffffff');
 export const templateMidnightPro    = (cv:any,p:string|null) => templateCrimsonPro(cv,p).replace(/#7f1d1d/g,'#1e1b4b').replace(/#991b1b/g,'#312e81').replace(/#fca5a5/g,'#a5b4fc').replace(/#fff5f5/g,'#eef2ff').replace(/#9f1239/g,'#4338ca').replace(/#fecaca/g,'#c7d2fe');
