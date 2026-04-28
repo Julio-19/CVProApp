@@ -110,7 +110,7 @@ export const generateCVHTML = (cv: any, photo: string | null, templateId: string
     case 'storm_grey':       return templateStormGrey(cv, photo);
     case 'spring_green':     return templateSpringGreen(cv, photo);
     case 'velvet_dark':      return templateVelvetDark(cv, photo);
-    default:               return templateSidebarBleu(cv, photo);
+   
 
     case 'aurora_dark':       return templateAuroraDark(cv, photo);
 case 'metro_pro':         return templateMetroPro(cv, photo);
@@ -161,6 +161,7 @@ case 'zen_minimal':       return templateZenMinimal(cv, photo);
 case 'fire_dark':         return templateFireDark(cv, photo);
 case 'cloud_soft':        return templateCloudSoft(cv, photo);
 case 'harbor_blue':       return templateHarborBlue(cv, photo);
+ default:               return templateSidebarBleu(cv, photo);
   }
 };
 
