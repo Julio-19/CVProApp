@@ -158,14 +158,14 @@ const TEMPLATES: Template[] = [
 { id: 'dusk_purple',      nom: 'Dusk Purple',        prix: 2000, description: 'Artistique' },
 { id: 'glacier_white',    nom: 'Glacier White',      prix: 1500, description: 'Cool' },
 { id: 'cedar_warm',       nom: 'Cedar Warm',         prix: 1500, description: 'Chaud' },
-{ id: 'phantom_dark',     nom: 'Phantom Dark',       prix: 2000, categorie: 'Sombre' },
-{ id: 'papaya_bright',    nom: 'Papaya Bright',      prix: 1000, categorie: 'Coloré' },
-{ id: 'steel_blue',       nom: 'Steel Blue',         prix: 2000, categorie: 'Tech' },
-{ id: 'noir_rose',        nom: 'Noir Rose',          prix: 2000, categorie: 'Artistique' },
-{ id: 'zen_minimal',      nom: 'Zen Minimal',        prix: 1000, categorie: 'Minimal' },
-{ id: 'fire_dark',        nom: 'Fire Dark',          prix: 2000, categorie: 'Sombre' },
-{ id: 'cloud_soft',       nom: 'Cloud Soft',         prix: 1000, categorie: 'Doux' },
-{ id: 'harbor_blue',      nom: 'Harbor Blue',        prix: 1500, categorie: 'Cool' },
+{ id: 'phantom_dark',     nom: 'Phantom Dark',       prix: 2000, description: 'Sombre' },
+{ id: 'papaya_bright',    nom: 'Papaya Bright',      prix: 1000, description: 'Coloré' },
+{ id: 'steel_blue',       nom: 'Steel Blue',         prix: 2000, description: 'Tech' },
+{ id: 'noir_rose',        nom: 'Noir Rose',          prix: 2000, description: 'Artistique' },
+{ id: 'zen_minimal',      nom: 'Zen Minimal',        prix: 1000,description: 'Minimal' },
+{ id: 'fire_dark',        nom: 'Fire Dark',          prix: 2000, description: 'Sombre' },
+{ id: 'cloud_soft',       nom: 'Cloud Soft',         prix: 1000, description: 'Doux' },
+{ id: 'harbor_blue',      nom: 'Harbor Blue',        prix: 1500, description: 'Cool' },
 ];
 
 const SIDEBAR_COLORS: Record<string, string> = {
