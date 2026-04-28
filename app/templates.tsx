@@ -54,8 +54,6 @@ const TEMPLATES: Template[] = [
   { id: 'orange_sidebar', nom: 'Orange Sidebar',   prix: 1500, description: 'Sidebar orange vif' },
   { id: 'rose_elegant',   nom: 'Rose Élégant',     prix: 2000, description: 'Rose poudré élégant' },
   { id: 'dark_orange',    nom: 'Dark Orange',      prix: 2500, description: 'Fond sombre + orange' },
-
-  
   { id: 'crimson_pro',      nom: 'Crimson Pro',       prix: 1500, description: 'Corporate' },
   { id: 'ocean_blue',       nom: 'Ocean Blue',         prix: 1500,  description: 'Moderne' },
   { id: 'slate_modern',     nom: 'Slate Modern',       prix: 2000, description: 'Tech' },
@@ -116,7 +114,6 @@ const TEMPLATES: Template[] = [
   { id: 'storm_grey',       nom: 'Storm Grey',         prix: 1500, description: 'Corporate' },
   { id: 'spring_green',     nom: 'Spring Green',       prix: 1000, description: 'Nature' },
   { id: 'velvet_dark',      nom: 'Velvet Dark',        prix: 2500, description: 'Luxe' },
-
   { id: 'aurora_dark',      nom: 'Aurora Dark',       prix: 2500, description: 'Luxe' },
 { id: 'metro_pro',        nom: 'Metro Pro',          prix: 2000, description: 'Corporate' },
 { id: 'bamboo_zen',       nom: 'Bamboo Zen',         prix: 2000, description: 'Artistique' },
