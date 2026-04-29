@@ -18,7 +18,7 @@ const SLIDES = [
   {
     id: 2,
     emoji: '🎨',
-    title: '40 Templates',
+    title: '150 Templates',
     subtitle: 'Choisissez parmi nos designs modernes et professionnels',
     bg: '#1a3a5c',
     accent: '#2d5a8a',
