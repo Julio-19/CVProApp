@@ -79,7 +79,7 @@ export const templatePhantomDark   = (cv:any,p:string|null) => sidebar(cv,p,{bg:
 export const templateFireDark      = (cv:any,p:string|null) => sidebar(cv,p,{bg:'#0d0000',accent:'#ef4444',text:'#fff',muted:'#fca5a5'});
 export const templateNoirRose      = (cv:any,p:string|null) => sidebar(cv,p,{bg:'#0d000d',accent:'#f472b6',text:'#fff',muted:'#fbcfe8'});
 export const templateChromeTech    = (cv:any,p:string|null) => sidebar(cv,p,{bg:'#27272a',accent:'#a1a1aa',text:'#fff',muted:'#d4d4d8'});
-export const templateTitaniumPro   = (cv:any,p:string|null) => sidebar(cv,p,{bg:'#1e2a3a',accent:'#60a5fa',text:'#fff',muted:'#93c5fd'});
+export const templateTitaniumPra   = (cv:any,p:string|null) => sidebar(cv,p,{bg:'#1e2a3a',accent:'#60a5fa',text:'#fff',muted:'#93c5fd'});
 export const templateOnyxGold      = (cv:any,p:string|null) => sidebar(cv,p,{bg:'#1a1500',accent:'#d4af37',text:'#fff',muted:'#f5d060'});
 export const templateSteelBlue     = (cv:any,p:string|null) => sidebar(cv,p,{bg:'#0c2a3a',accent:'#38bdf8',text:'#fff',muted:'#7dd3fc'});
 export const templateThunderDark   = (cv:any,p:string|null) => sidebar(cv,p,{bg:'#0d0d00',accent:'#facc15',text:'#fff',muted:'#fef08a'});
