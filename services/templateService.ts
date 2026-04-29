@@ -178,7 +178,7 @@ export const templateCottonSoft    = (cv:any,p:string|null) => light(cv,p,{accen
 export const templateCloudSoft     = (cv:any,p:string|null) => light(cv,p,{accent:'#0369a1',bg:'#bae6fd',light:'#f0f9ff'});
 export const templateGlacierWhite  = (cv:any,p:string|null) => light(cv,p,{accent:'#0e7490',bg:'#a5f3fc',light:'#ecfeff'});
 export const templateArcticPro     = (cv:any,p:string|null) => light(cv,p,{accent:'#0369a1',bg:'#bae6fd',light:'#f0f9ff'});
-export const templateGlacierCool   = (cv:any,p:string|null) => light(cv,p,{accent:'#0284c7',bg,'bae6fd',light:'#f0f9ff'});
+export const templateGlacierCool   = (cv:any,p:string|null) => light(cv,p,{accent:'#0284c7',bg:'#bae6fd',light:'#f0f9ff'});
 export const templateNordicClean   = (cv:any,p:string|null) => light(cv,p,{accent:'#374151',bg:'#e5e7eb',light:'#f9fafb'});
 export const templateZenMinimal    = (cv:any,p:string|null) => light(cv,p,{accent:'#374151',bg:'#e5e7eb',light:'#f9fafb'});
 export const templateInkMinimal    = (cv:any,p:string|null) => light(cv,p,{accent:'#0f172a',bg:'#e2e8f0',light:'#f8fafc'});
