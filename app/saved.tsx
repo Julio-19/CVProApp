@@ -513,10 +513,10 @@ const handleSauvegarder = async () => {
 
                 <TouchableOpacity style={styles.actionBtn} onPress={() => router.push('/parametres')}>
                 <Text style={styles.actionBtnIcon}>⚙️</Text>
-  <View style={styles.actionBtnInfo}>
-    <Text style={styles.actionBtnTitle}>Paramètres</Text>
-    <Text style={styles.actionBtnSub}>Langue, évaluation, partage...</Text>
-  </View>
+                <View style={styles.actionBtnInfo}>
+                 <Text style={styles.actionBtnTitle}>Paramètres</Text>
+                   <Text style={styles.actionBtnSub}>Langue, évaluation, partage...</Text>
+                 </View>
                 </TouchableOpacity>
               </View>
 
