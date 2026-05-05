@@ -95,13 +95,7 @@ export default function Step2() {
           )}
         </View>
 
-        {photo && (
-          <View style={styles.successBadge}>
-            <Text style={styles.successText}>
-              ✅ Photo prête — {photo.startsWith('data:image') ? 'Base64 ✅' : 'URI ⚠️'}
-            </Text>
-          </View>
-        )}
+        
 
         <View style={styles.row}>
           <View style={{ flex: 1 }}>
