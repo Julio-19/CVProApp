@@ -181,6 +181,7 @@ export default function ProfilScreen() {
               { icon: '🎨', label: 'Parcourir les templates', route: '/templates' },
               { icon: '🧾', label: 'Historique des achats',  route: '/historique-paiements' },
               { icon: '🔔', label: 'Notifications',          route: '/notifications-settings' },
+              { icon: '⚙️', label: 'Paramètres', route: '/parametres' },
             ].map((item, i) => (
               <TouchableOpacity
                 key={i}
