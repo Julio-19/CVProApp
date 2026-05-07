@@ -279,7 +279,7 @@ export default function PaiementScreen() {
                 </View>
               </View>
 
-              <Text style={styles.sectionTitle}>Mode de paiement</Text>
+              {/* <Text style={styles.sectionTitle}>Mode de paiement</Text> */}
 
               {[
                 {
