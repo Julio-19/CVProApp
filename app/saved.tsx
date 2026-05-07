@@ -478,7 +478,7 @@ const handleSauvegarder = async () => {
                   <Text style={styles.actionBtnIcon}>{'🎨'}</Text>
                   <View style={styles.actionBtnInfo}>
                     <Text style={styles.actionBtnTitle}>Changer de template</Text>
-                    <Text style={styles.actionBtnSub}>40 designs disponibles</Text>
+                    <Text style={styles.actionBtnSub}>150 designs disponibles</Text>
                   </View>
                 </TouchableOpacity>
 
