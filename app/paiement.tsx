@@ -279,9 +279,9 @@ export default function PaiementScreen() {
                 </View>
               </View>
 
-              {/* <Text style={styles.sectionTitle}>Mode de paiement</Text> */}
+              {/* <Text style={styles.sectionTitle}>Mode de paiement</Text> c}
 
-              {[
+              {/*[
                 {
                   key: "mtn",
                   label: "MTN Mobile Money",
@@ -336,7 +336,7 @@ export default function PaiementScreen() {
                     </View>
                   ))}
                 </View>
-              )}
+              )*/}
 
               <View style={styles.securityInfo}>
                 <Text style={styles.securityText}>
