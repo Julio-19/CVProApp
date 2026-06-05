@@ -48,6 +48,11 @@
       "orientation": "portrait",
       "lang": "fr",
       "scope": "/",
+      "build": {
+        "babel": {
+          "include": ["@expo/metro-runtime"]
+        }
+      },
       "icons": [
         {
           "src": "./assets/images/icon-192.png",
