@@ -1,9 +1,9 @@
-const { getDefaultConfig } = require('expo/metro-config');
+const { getDefaultConfig } = require("expo/metro-config");
 
 const config = getDefaultConfig(__dirname);
 
 // Configuration critique pour le web
-config.resolver.assetExts.push('cjs');
+config.resolver.assetExts.push("cjs");
 
 config.transformer.getTransformOptions = () => ({
   transform: {
