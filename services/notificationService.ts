@@ -3,21 +3,26 @@ import * as Device from 'expo-device';
 import { Platform } from 'react-native';
 import { supabase } from '../config/supabase';
 
-// ── Nouvelle API SDK 53 ───────────────────────────────────────────────────────
-Notifications.setNotificationHandler({
-  handleNotification: async (_notification) => ({
-    shouldShowAlert:  true,
-    shouldPlaySound:  true,
-    shouldSetBadge:   false,
-    shouldShowBanner: true,
-    shouldShowList:   true,
-  }),
-});
-
-
+// ── Configuration — uniquement sur mobile ─────────────────────────────────────
+if (Platform.OS !== 'web') {
+  Notifications.setNotificationHandler({
+    handleNotification: async (_notification) => ({
+      shouldShowAlert:  true,
+      shouldPlaySound:  true,
+      shouldSetBadge:   false,
+      shouldShowBanner: true,
+      shouldShowList:   true,
+    }),
+  });
+}
 
 // ── Push token ────────────────────────────────────────────────────────────────
 export const registerForPushNotifications = async (): Promise<string | null> => {
+  if (Platform.OS === 'web') {
+    console.log('Notifications non disponibles sur web');
+    return null;
+  }
+
   if (!Device.isDevice) {
     console.log('Émulateur détecté — notifications limitées');
     return null;
@@ -58,6 +63,7 @@ export const registerForPushNotifications = async (): Promise<string | null> => 
 
 // ── Sauvegarder token ─────────────────────────────────────────────────────────
 export const savePushToken = async (token: string) => {
+  if (Platform.OS === 'web') return;
   if (token === 'local-only') return;
   try {
     const { data: { user } } = await supabase.auth.getUser();
@@ -77,6 +83,10 @@ export const envoyerNotificationLocale = async (
   corps: string,
   data?: Record<string, any>
 ) => {
+  if (Platform.OS === 'web') {
+    console.log('Notification (web):', titre);
+    return;
+  }
   try {
     await Notifications.scheduleNotificationAsync({
       content: {
@@ -124,6 +134,7 @@ export const notifCVIncomplet = () =>
 
 // ── Rappel programmé ──────────────────────────────────────────────────────────
 export const programmerRappel = async (heures: number = 24) => {
+  if (Platform.OS === 'web') return;
   try {
     await Notifications.scheduleNotificationAsync({
       content: {
@@ -143,15 +154,24 @@ export const programmerRappel = async (heures: number = 24) => {
   }
 };
 
+// ── Annuler tous les rappels ──────────────────────────────────────────────────
 export const annulerTousLesRappels = async () => {
-  await Notifications.cancelAllScheduledNotificationsAsync();
-  console.log('✅ Rappels annulés');
+  if (Platform.OS === 'web') return;
+  try {
+    await Notifications.cancelAllScheduledNotificationsAsync();
+    console.log('✅ Rappels annulés');
+  } catch (error: any) {
+    console.log('Erreur annulation:', error.message);
+  }
 };
 
 // ── Listener clic notification ────────────────────────────────────────────────
 export const setupNotificationListener = (
   onNotification: (data: Record<string, any>) => void
 ) => {
+  if (Platform.OS === 'web') {
+    return { remove: () => {} }; // ← retourne un objet factice sur web
+  }
   return Notifications.addNotificationResponseReceivedListener(response => {
     const data = response.notification.request.content.data;
     onNotification(data);
