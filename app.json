@@ -37,7 +37,9 @@
       ]
     },
     "web": {
-      "output": "single",
+	"output": "single",
+ 	 "favicon": "./assets/images/favicon.png",
+  	"bundler": "metro",
       "bundler": "metro",
       "favicon": "./assets/images/favicon.png",
       "name": "CVProApp",
