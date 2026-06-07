@@ -35,7 +35,7 @@ export default function PreviewScreen() {
       }
       const generatedHtml = generateCVHTML(cv, photoData, cv.templateId ?? 'sidebar_bleu');
       setHtml(generatedHtml);
-      Animated.timing(fadeAnim, { toValue: 1, duration: 400, useNativeDriver: true }).start();
+      Animated.timing(fadeAnim, { toValue: 1, duration: 400, useNativeDriver: Platform.OS !== 'web' }).start();
     } finally {
       setLoading(false);
     }

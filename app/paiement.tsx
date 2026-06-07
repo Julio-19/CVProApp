@@ -45,13 +45,13 @@ export default function PaiementScreen() {
       Animated.timing(fadeAnim, {
         toValue: 1,
         duration: 400,
-        useNativeDriver: true,
+        useNativeDriver: Platform.OS !== 'web',
       }),
       Animated.spring(scaleAnim, {
         toValue: 1,
         tension: 80,
         friction: 8,
-        useNativeDriver: true,
+        useNativeDriver: Platform.OS !== 'web',
       }),
     ]).start();
   }, []);
@@ -715,3 +715,4 @@ const styles = StyleSheet.create({
   },
   btnGenererText: { color: "#fff", fontSize: 16, fontWeight: "700" },
 });
+

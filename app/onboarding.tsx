@@ -47,12 +47,12 @@ export default function OnboardingScreen() {
     emojiAnim.setValue(0);
 
     Animated.parallel([
-      Animated.timing(fadeAnim, { toValue: 1, duration: 500, useNativeDriver: true }),
-      Animated.spring(slideAnim, { toValue: 0, tension: 80, friction: 8, useNativeDriver: true }),
-      Animated.spring(scaleAnim, { toValue: 1, tension: 80, friction: 8, useNativeDriver: true }),
+      Animated.timing(fadeAnim, { toValue: 1, duration: 500, useNativeDriver: Platform.OS !== 'web' }),
+      Animated.spring(slideAnim, { toValue: 0, tension: 80, friction: 8, useNativeDriver: Platform.OS !== 'web' }),
+      Animated.spring(scaleAnim, { toValue: 1, tension: 80, friction: 8, useNativeDriver: Platform.OS !== 'web' }),
       Animated.sequence([
         Animated.delay(200),
-        Animated.spring(emojiAnim, { toValue: 1, tension: 60, friction: 6, useNativeDriver: true }),
+        Animated.spring(emojiAnim, { toValue: 1, tension: 60, friction: 6, useNativeDriver: Platform.OS !== 'web' }),
       ]),
     ]).start();
   };

@@ -20,7 +20,7 @@ export default function NotificationsSettingsScreen() {
 
   useEffect(() => {
     checkPermission();
-    Animated.timing(fadeAnim, { toValue: 1, duration: 400, useNativeDriver: true }).start();
+    Animated.timing(fadeAnim, { toValue: 1, duration: 400, useNativeDriver: Platform.OS !== 'web' }).start();
   }, []);
 
   const checkPermission = async () => {

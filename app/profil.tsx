@@ -47,7 +47,7 @@ export default function ProfilScreen() {
         .from('cvs').select('*', { count: 'exact', head: true }).eq('user_id', user.id);
       setNbCVs(count ?? 0);
 
-      Animated.timing(fadeAnim, { toValue: 1, duration: 400, useNativeDriver: true }).start();
+      Animated.timing(fadeAnim, { toValue: 1, duration: 400, useNativeDriver: Platform.OS !== 'web' }).start();
     } catch (e: any) {
       Alert.alert('Erreur', e.message);
     } finally {

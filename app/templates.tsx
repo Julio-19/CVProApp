@@ -217,7 +217,7 @@ export default function TemplatesScreen() {
 
   useEffect(() => {
     chargerAchetes();
-    Animated.timing(fadeAnim, { toValue: 1, duration: 400, useNativeDriver: true }).start();
+    Animated.timing(fadeAnim, { toValue: 1, duration: 400, useNativeDriver: Platform.OS !== 'web' }).start();
   }, []);
 
   const chargerAchetes = async () => {

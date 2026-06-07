@@ -90,7 +90,7 @@ export default function AdminDashboard() {
 
     setIsAdmin(true);
     await chargerDonnees();
-    Animated.timing(fadeAnim, { toValue: 1, duration: 400, useNativeDriver: true }).start();
+    Animated.timing(fadeAnim, { toValue: 1, duration: 400, useNativeDriver: Platform.OS !== 'web' }).start();
   } catch (e: any) {
     Alert.alert('Erreur', e.message);
   } finally {
@@ -801,3 +801,4 @@ const styles = StyleSheet.create({
   emptyEmoji: { fontSize: 48 },
   emptyTitle: { fontSize: 16, fontWeight: "600", color: "#888" },
 });
+
