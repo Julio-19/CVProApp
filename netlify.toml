@@ -1,6 +1,9 @@
 [build]
-  command = "npx expo export --platform web"
+  command = "npm install -g expo-cli && npx expo export --platform web && sed -i 's/<script src=\"\\/_expo/<script type=\"module\" src=\"\\/_expo/g' dist/index.html"
   publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "20"
 
 [[redirects]]
   from = "/*"
