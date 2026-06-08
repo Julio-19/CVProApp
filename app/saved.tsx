@@ -3,6 +3,7 @@ import {
   ActivityIndicator, Alert, Animated, Dimensions
 } from 'react-native';
 import { router } from 'expo-router';
+import { Platform } from 'react-native';
 import { sauvegarderCV, uploaderPhoto } from '../services/cvService';
 import { useState, useEffect, useRef } from 'react';
 import * as Print from 'expo-print';
