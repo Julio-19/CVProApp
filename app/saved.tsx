@@ -441,11 +441,13 @@ const handleSauvegarder = async () => {
                     {pdfUri ? 'PDF généré' : 'PDF non généré'}
                   </Text>
                   <Text style={styles.statusSub}>
-                    {pdfUri
-                      ? `${cv.prenom ?? ''}_${cv.nom ?? ''}_CV.pdf`
-                      : 'Cliquez sur "Générer" pour créer le PDF'
-                    }
-                  </Text>
+                  {pdfUri
+                    ? Platform.OS === 'web'
+                      ? `${cv.prenom ?? ''}_${cv.nom ?? ''}_CV.html`
+                      : `${cv.prenom ?? ''}_${cv.nom ?? ''}_CV.pdf`
+                    : 'Cliquez sur "Générer" pour créer le PDF'
+                  }
+                </Text>
                 </View>
               </View>
 
