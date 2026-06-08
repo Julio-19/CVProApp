@@ -408,21 +408,25 @@ const handleSauvegarder = async () => {
 
               {/* Bouton générer */}
               {!pdfUri ? (
-                <TouchableOpacity
-                  style={[styles.btnGenerer, loading && styles.btnDisabled]}
-                  onPress={handleGenerate}
-                  disabled={loading}
-                >
-                  {loading
-                    ? <ActivityIndicator color="#fff" size="small" />
-                    : <Text style={styles.btnGenererText}>{'🔄 Générer le PDF'}</Text>
-                  }
-                </TouchableOpacity>
-              ) : (
-                <TouchableOpacity style={styles.btnDownload} onPress={handleDownload}>
-                  <Text style={styles.btnDownloadText}>{'⬇️ Télécharger le PDF'}</Text>
-                </TouchableOpacity>
-              )}
+  <TouchableOpacity
+    style={[styles.btnGenerer, loading && styles.btnDisabled]}
+    onPress={handleGenerate}
+    disabled={loading}
+  >
+    {loading
+      ? <ActivityIndicator color="#fff" size="small" />
+      : <Text style={styles.btnGenererText}>
+          {Platform.OS === 'web' ? '🖨️ Imprimer / Télécharger le CV' : '🔄 Générer le PDF'}
+        </Text>
+    }
+  </TouchableOpacity>
+) : (
+  <TouchableOpacity style={styles.btnDownload} onPress={handleDownload}>
+    <Text style={styles.btnDownloadText}>
+      {Platform.OS === 'web' ? '⬇️ Télécharger le CV' : '⬇️ Télécharger le PDF'}
+    </Text>
+  </TouchableOpacity>
+)}
             </>
           )}
 
