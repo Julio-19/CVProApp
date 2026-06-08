@@ -78,22 +78,58 @@ export default function SavedScreen() {
 
   const score = getCompletionScore();
 
-  const handleGenerate = async () => {
-    try {
-      setLoading(true);
-      const photoData = await getPhotoData();
-      setPhotoBase64(photoData);
-      const html = generateCVHTML(cv, photoData, cv.templateId ?? 'sidebar_bleu');
+  
+
+const handleGenerate = async () => {
+  try {
+    setLoading(true);
+    const photoData = await getPhotoData();
+    setPhotoBase64(photoData);
+    const html = generateCVHTML(cv, photoData, cv.templateId ?? 'sidebar_bleu');
+
+    if (Platform.OS === 'web') {
+      // ── Génération PDF sur web via impression navigateur ──────────────────
+      const printWindow = window.open('', '_blank');
+      if (!printWindow) {
+        Alert.alert('Erreur', 'Autorisez les popups pour générer le PDF.');
+        return;
+      }
+      printWindow.document.write(html);
+      printWindow.document.close();
+      printWindow.focus();
+
+      // Attendre le chargement puis imprimer
+      printWindow.onload = () => {
+        setTimeout(() => {
+          printWindow.print();
+          setPdfUri('web-generated');
+          setActiveTab('actions');
+        }, 500);
+      };
+
+      // Fallback si onload ne se déclenche pas
+      setTimeout(() => {
+        if (!pdfUri) {
+          printWindow.print();
+          setPdfUri('web-generated');
+          setActiveTab('actions');
+        }
+      }, 1500);
+
+    } else {
+      // ── Génération PDF sur mobile ─────────────────────────────────────────
       const { uri } = await Print.printToFileAsync({ html, base64: false });
       setPdfUri(uri);
       await notifPDFGenere(`${cv.prenom ?? ''} ${cv.nom ?? ''}`);
       setActiveTab('actions');
-    } catch {
-      Alert.alert('Erreur', 'Impossible de générer le PDF.');
-    } finally {
-      setLoading(false);
     }
-  };
+
+  } catch (err) {
+    Alert.alert('Erreur', 'Impossible de générer le PDF.');
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleDownload = async () => {
     if (!pdfUri) return;
