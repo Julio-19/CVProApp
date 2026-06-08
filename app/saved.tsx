@@ -158,12 +158,24 @@ const handleGenerate = async () => {
 };
 
   const handlePrint = async () => {
-    try {
-      const photoData = await getPhotoData();
-      const html = generateCVHTML(cv, photoData, cv.templateId ?? 'sidebar_bleu');
-      await Print.printAsync({ html });
-    } catch (e) { console.error(e); }
-  };
+  if (Platform.OS === 'web') {
+    const photoData = await getPhotoData();
+    const html = generateCVHTML(cv, photoData, cv.templateId ?? 'sidebar_bleu');
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) return;
+    printWindow.document.write(html);
+    printWindow.document.close();
+    printWindow.focus();
+    setTimeout(() => printWindow.print(), 500);
+    return;
+  }
+
+  try {
+    const photoData = await getPhotoData();
+    const html = generateCVHTML(cv, photoData, cv.templateId ?? 'sidebar_bleu');
+    await Print.printAsync({ html });
+  } catch (e) { console.error(e); }
+};
 
   
 
