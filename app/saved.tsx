@@ -132,15 +132,30 @@ const handleGenerate = async () => {
 };
 
   const handleDownload = async () => {
-    if (!pdfUri) return;
-    try {
-      await Sharing.shareAsync(pdfUri, {
-        mimeType: 'application/pdf',
-        dialogTitle: 'Télécharger votre CV',
-        UTI: 'com.adobe.pdf',
-      });
-    } catch (e) { console.error(e); }
-  };
+  if (!pdfUri) return;
+
+  if (Platform.OS === 'web') {
+    // Sur web → ouvrir le CV dans une nouvelle fenêtre pour télécharger
+    const photoData = await getPhotoData();
+    const html = generateCVHTML(cv, photoData, cv.templateId ?? 'sidebar_bleu');
+    const blob = new Blob([html], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${cv.prenom ?? 'CV'}_${cv.nom ?? ''}_CV.html`;
+    a.click();
+    URL.revokeObjectURL(url);
+    return;
+  }
+
+  try {
+    await Sharing.shareAsync(pdfUri, {
+      mimeType: 'application/pdf',
+      dialogTitle: 'Télécharger votre CV',
+      UTI: 'com.adobe.pdf',
+    });
+  } catch (e) { console.error(e); }
+};
 
   const handlePrint = async () => {
     try {
