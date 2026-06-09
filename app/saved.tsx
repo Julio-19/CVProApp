@@ -14,34 +14,66 @@ import { Colors } from '../constants/colors';
 import { generateCVHTML } from '../services/templateService';
 import { notifCVSauvegarde, notifPDFGenere } from '../services/notificationService';
 
-const [cvIdActuel, setCvIdActuel] = useState<string | null>(null);
 const { width } = Dimensions.get('window');
+
+// ── Couleur du template ───────────────────────────────────────────────────────
+const getTemplateColor = (templateId: string): string => {
+  const colors: Record<string, string> = {
+    sidebar_bleu:  '#1a3a5c', gagnant:      '#1a3a5c', minimaliste:  '#111',
+    teal_student:  '#3d9b8a', dark_sidebar: '#2c2c2c', violet:       '#6b21a8',
+    classique_pro: '#6b7280', bold_noir:    '#111',    bleu_arrondi: '#2563eb',
+    brun_elegant:  '#2a2520', fresher_vert: '#2d5a27', geometrique:  '#e85d30',
+    vert_nature:   '#1e3422', navy_pro:     '#1e3a6e', fresher_dark: '#1a2744',
+    rouge_moderne: '#dc2626', jaune_pro:    '#ca8a04', vert_minimal: '#14532d',
+    orange_sidebar:'#ea580c', rose_elegant: '#831843', dark_orange:  '#f97316',
+  };
+  return colors[templateId] ?? '#534AB7';
+};
+
+// ── Fonction impression iframe (web uniquement) ───────────────────────────────
+const imprimerViaIframe = (html: string) => {
+  const iframe = document.createElement('iframe');
+  iframe.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:none;visibility:hidden;';
+  document.body.appendChild(iframe);
+  const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+  if (!iframeDoc) { document.body.removeChild(iframe); return; }
+  iframeDoc.open();
+  iframeDoc.write(html);
+  iframeDoc.close();
+  iframe.onload = () => {
+    setTimeout(() => {
+      iframe.contentWindow?.print();
+      setTimeout(() => document.body.removeChild(iframe), 1000);
+    }, 800);
+  };
+};
 
 export default function SavedScreen() {
   const cv = useCVStore();
 
+  // ── TOUS les useState en haut ─────────────────────────────────────────────
   const [loading, setLoading]         = useState(false);
   const [saving, setSaving]           = useState(false);
   const [pdfUri, setPdfUri]           = useState<string | null>(null);
   const [photoBase64, setPhotoBase64] = useState<string | null>(null);
   const [activeTab, setActiveTab]     = useState<'apercu' | 'actions'>('apercu');
-  const [cvIdActuel, setCvIdActuel] = useState<string | null>(null); 
+  const [cvIdActuel, setCvIdActuel]   = useState<string | null>(null);
 
-    const fadeAnim  = useRef(new Animated.Value(0)).current;
+  // ── Tous les useRef ───────────────────────────────────────────────────────
+  const fadeAnim  = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(30)).current;
   const scaleAnim = useRef(new Animated.Value(0.95)).current;
 
-  
-
+  // ── Tous les useEffect ────────────────────────────────────────────────────
   useEffect(() => {
-  console.log('=== CV STORE ===');
-  console.log('PRENOM:', cv.prenom);
-  console.log('NOM:', cv.nom);
-  console.log('EMAIL:', cv.email);
-  console.log('TITRE:', cv.titre);
-  console.log('===============');
-}, []);
-  
+    console.log('=== CV STORE ===');
+    console.log('PRENOM:', cv.prenom);
+    console.log('NOM:', cv.nom);
+    console.log('EMAIL:', cv.email);
+    console.log('TITRE:', cv.titre);
+    console.log('===============');
+  }, []);
+
   useEffect(() => {
     setPdfUri(null);
     setPhotoBase64(null);
@@ -52,9 +84,11 @@ export default function SavedScreen() {
     ]).start();
   }, [cv.templateId]);
 
+  // ── Helpers ───────────────────────────────────────────────────────────────
   const getPhotoData = async (): Promise<string | null> => {
     if (!cv.photo) return null;
     if (cv.photo.startsWith('data:image')) return cv.photo;
+    if (Platform.OS === 'web') return null;
     try {
       const base64 = await FileSystem.readAsStringAsync(cv.photo, { encoding: 'base64' });
       return `data:image/jpeg;base64,${base64}`;
@@ -62,243 +96,150 @@ export default function SavedScreen() {
   };
 
   const getCompletionScore = () => {
-    const fields = [
-      cv.prenom, cv.nom, cv.email, cv.telephone,
-      cv.ville, cv.titre, cv.objectif, cv.photo,
-    ];
+    const fields = [cv.prenom, cv.nom, cv.email, cv.telephone, cv.ville, cv.titre, cv.objectif, cv.photo];
     const filled = fields.filter(Boolean).length;
     const extras = [
-      (cv.experiences?.length ?? 0) > 0,
-      (cv.formations?.length  ?? 0) > 0,
-      (cv.competences?.length ?? 0) > 0,
-      (cv.langues?.length     ?? 0) > 0,
+      (cv.experiences?.length  ?? 0) > 0,
+      (cv.formations?.length   ?? 0) > 0,
+      (cv.competences?.length  ?? 0) > 0,
+      (cv.langues?.length      ?? 0) > 0,
     ].filter(Boolean).length;
     return Math.round(((filled + extras) / 12) * 100);
   };
 
   const score = getCompletionScore();
-
-  
-
-const handleGenerate = async () => {
-  try {
-    setLoading(true);
-    const photoData = await getPhotoData();
-    setPhotoBase64(photoData);
-    const html = generateCVHTML(cv, photoData, cv.templateId ?? 'sidebar_bleu');
-
-    if (Platform.OS === 'web') {
-      // Créer un iframe caché pour l'impression
-      const iframe = document.createElement('iframe');
-      iframe.style.position = 'fixed';
-      iframe.style.right = '0';
-      iframe.style.bottom = '0';
-      iframe.style.width = '0';
-      iframe.style.height = '0';
-      iframe.style.border = 'none';
-      iframe.style.visibility = 'hidden';
-      document.body.appendChild(iframe);
-
-      const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
-      if (!iframeDoc) return;
-
-      iframeDoc.open();
-      iframeDoc.write(html);
-      iframeDoc.close();
-
-      iframe.onload = () => {
-        setTimeout(() => {
-          iframe.contentWindow?.print();
-          document.body.removeChild(iframe);
-          setPdfUri('web-generated');
-          setActiveTab('actions');
-        }, 800);
-      };
-
-    } else {
-      const { uri } = await Print.printToFileAsync({ html, base64: false });
-      setPdfUri(uri);
-      await notifPDFGenere(`${cv.prenom ?? ''} ${cv.nom ?? ''}`);
-      setActiveTab('actions');
-    }
-
-  } catch (err) {
-    Alert.alert('Erreur', 'Impossible de générer le PDF.');
-    console.error(err);
-  } finally {
-    setLoading(false);
-  }
-};
-
-  const handleDownload = async () => {
-  if (!pdfUri) return;
-
-  if (Platform.OS === 'web') {
-    const photoData = await getPhotoData();
-    const html = generateCVHTML(cv, photoData, cv.templateId ?? 'sidebar_bleu');
-
-    // Créer iframe caché pour impression propre
-    const iframe = document.createElement('iframe');
-    iframe.style.position = 'fixed';
-    iframe.style.right = '0';
-    iframe.style.bottom = '0';
-    iframe.style.width = '0';
-    iframe.style.height = '0';
-    iframe.style.border = 'none';
-    iframe.style.visibility = 'hidden';
-    document.body.appendChild(iframe);
-
-    const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
-    if (!iframeDoc) return;
-
-    iframeDoc.open();
-    iframeDoc.write(html);
-    iframeDoc.close();
-
-    iframe.onload = () => {
-      setTimeout(() => {
-        iframe.contentWindow?.print();
-        document.body.removeChild(iframe);
-      }, 800);
-    };
-    return;
-  }
-
-  try {
-    await Sharing.shareAsync(pdfUri, {
-      mimeType: 'application/pdf',
-      dialogTitle: 'Télécharger votre CV',
-      UTI: 'com.adobe.pdf',
-    });
-  } catch (e) { console.error(e); }
-};
-
-const handlePrint = async () => {
-  if (Platform.OS === 'web') {
-    const photoData = await getPhotoData();
-    const html = generateCVHTML(cv, photoData, cv.templateId ?? 'sidebar_bleu');
-
-    const iframe = document.createElement('iframe');
-    iframe.style.position = 'fixed';
-    iframe.style.right = '0';
-    iframe.style.bottom = '0';
-    iframe.style.width = '0';
-    iframe.style.height = '0';
-    iframe.style.border = 'none';
-    iframe.style.visibility = 'hidden';
-    document.body.appendChild(iframe);
-
-    const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
-    if (!iframeDoc) return;
-
-    iframeDoc.open();
-    iframeDoc.write(html);
-    iframeDoc.close();
-
-    iframe.onload = () => {
-      setTimeout(() => {
-        iframe.contentWindow?.print();
-        document.body.removeChild(iframe);
-      }, 800);
-    };
-    return;
-  }
-
-  try {
-    const photoData = await getPhotoData();
-    const html = generateCVHTML(cv, photoData, cv.templateId ?? 'sidebar_bleu');
-    await Print.printAsync({ html });
-  } catch (e) { console.error(e); }
-};
-
-  
-
-const handleSauvegarder = async () => {
-  try {
-    setSaving(true);
-
-    // Vérifier que le store a bien des données
-    console.log('=== SAUVEGARDE ===');
-    console.log('PRENOM:', cv.prenom);
-    console.log('NOM:', cv.nom);
-    console.log('EMAIL:', cv.email);
-
-    if (!cv.prenom && !cv.nom) {
-      Alert.alert(
-        'CV incomplet',
-        'Votre CV ne contient pas de nom. Remplissez d\'abord vos informations.',
-        [{ text: 'Remplir', onPress: () => router.push('/cv/step1-profil') }]
-      );
-      return;
-    }
-
-    let photoURL = cv.photo;
-    if (cv.photo && !cv.photo.startsWith('https') && !cv.photo.startsWith('data:')) {
-      photoURL = await uploaderPhoto(cv.photo);
-    }
-
-    // Si un CV a déjà été sauvegardé dans cette session, demander
-    if (cvIdActuel) {
-      Alert.alert(
-        'Mettre à jour ou créer ?',
-        'Voulez-vous mettre à jour ce CV ou en créer un nouveau ?',
-        [
-          {
-            text: 'Mettre à jour',
-            onPress: async () => {
-              const id = await sauvegarderCV({ ...cv, photo: photoURL }, cvIdActuel);
-              setCvIdActuel(id);
-              await notifCVSauvegarde();
-              Alert.alert('✅ Mis à jour !', 'Votre CV a été mis à jour.');
-            },
-          },
-          {
-            text: 'Nouveau CV',
-            onPress: async () => {
-              const id = await sauvegarderCV({ ...cv, photo: photoURL });
-              setCvIdActuel(id);
-              await notifCVSauvegarde();
-              Alert.alert('✅ Nouveau CV créé !', 'Disponible dans "Mes CVs".');
-            },
-          },
-          { text: 'Annuler', style: 'cancel' },
-        ]
-      );
-    } else {
-      // Premier enregistrement
-      const id = await sauvegarderCV({ ...cv, photo: photoURL });
-      setCvIdActuel(id);
-      await notifCVSauvegarde();
-      Alert.alert('✅ Sauvegardé !', 'Votre CV est disponible dans "Mes CVs".');
-    }
-
-  } catch (error: any) {
-    console.error('Erreur sauvegarde:', error.message);
-    Alert.alert('Erreur', error.message);
-  } finally {
-    setSaving(false);
-  }
-};
-  // ── Composant InfoRow ─────────────────────────────────────────────────────
-  const InfoRow = ({
-    label, value, color
-  }: {
-    label: string; value: string; color?: string
-  }) => (
-    <View style={styles.infoRow}>
-      <Text style={styles.infoLabel}>{label}</Text>
-      <Text style={[styles.infoValue, color ? { color } : {}]} numberOfLines={1}>
-        {value}
-      </Text>
-    </View>
-  );
-
-  // ── Nom complet ───────────────────────────────────────────────────────────
   const nomComplet = [cv.prenom, cv.nom].filter(Boolean).join(' ') || '—';
   const templateNom = (cv.templateId ?? 'sidebar_bleu')
     .replace(/_/g, ' ')
     .replace(/\b\w/g, l => l.toUpperCase());
 
+  // ── Handlers ──────────────────────────────────────────────────────────────
+  const handleGenerate = async () => {
+    try {
+      setLoading(true);
+      const photoData = await getPhotoData();
+      setPhotoBase64(photoData);
+      const html = generateCVHTML(cv, photoData, cv.templateId ?? 'sidebar_bleu');
+
+      if (Platform.OS === 'web') {
+        imprimerViaIframe(html);
+        setPdfUri('web-generated');
+        setActiveTab('actions');
+      } else {
+        const { uri } = await Print.printToFileAsync({ html, base64: false });
+        setPdfUri(uri);
+        await notifPDFGenere(`${cv.prenom ?? ''} ${cv.nom ?? ''}`);
+        setActiveTab('actions');
+      }
+    } catch (err) {
+      console.error(err);
+      Alert.alert('Erreur', 'Impossible de générer le PDF.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDownload = async () => {
+    if (!pdfUri) return;
+    if (Platform.OS === 'web') {
+      const photoData = await getPhotoData();
+      const html = generateCVHTML(cv, photoData, cv.templateId ?? 'sidebar_bleu');
+      imprimerViaIframe(html);
+      return;
+    }
+    try {
+      await Sharing.shareAsync(pdfUri, {
+        mimeType: 'application/pdf',
+        dialogTitle: 'Télécharger votre CV',
+        UTI: 'com.adobe.pdf',
+      });
+    } catch (e) { console.error(e); }
+  };
+
+  const handlePrint = async () => {
+    if (Platform.OS === 'web') {
+      const photoData = await getPhotoData();
+      const html = generateCVHTML(cv, photoData, cv.templateId ?? 'sidebar_bleu');
+      imprimerViaIframe(html);
+      return;
+    }
+    try {
+      const photoData = await getPhotoData();
+      const html = generateCVHTML(cv, photoData, cv.templateId ?? 'sidebar_bleu');
+      await Print.printAsync({ html });
+    } catch (e) { console.error(e); }
+  };
+
+  const handleSauvegarder = async () => {
+    try {
+      setSaving(true);
+      console.log('=== SAUVEGARDE ===');
+      console.log('PRENOM:', cv.prenom);
+      console.log('NOM:', cv.nom);
+
+      if (!cv.prenom && !cv.nom) {
+        Alert.alert(
+          'CV incomplet',
+          'Votre CV ne contient pas de nom. Remplissez d\'abord vos informations.',
+          [{ text: 'Remplir', onPress: () => router.push('/cv/step1-profil') }]
+        );
+        return;
+      }
+
+      let photoURL = cv.photo;
+      if (cv.photo && !cv.photo.startsWith('https') && !cv.photo.startsWith('data:')) {
+        photoURL = await uploaderPhoto(cv.photo);
+      }
+
+      if (cvIdActuel) {
+        Alert.alert(
+          'Mettre à jour ou créer ?',
+          'Voulez-vous mettre à jour ce CV ou en créer un nouveau ?',
+          [
+            {
+              text: 'Mettre à jour',
+              onPress: async () => {
+                const id = await sauvegarderCV({ ...cv, photo: photoURL }, cvIdActuel);
+                setCvIdActuel(id);
+                await notifCVSauvegarde();
+                Alert.alert('✅ Mis à jour !', 'Votre CV a été mis à jour.');
+              },
+            },
+            {
+              text: 'Nouveau CV',
+              onPress: async () => {
+                const id = await sauvegarderCV({ ...cv, photo: photoURL });
+                setCvIdActuel(id);
+                await notifCVSauvegarde();
+                Alert.alert('✅ Nouveau CV créé !', 'Disponible dans "Mes CVs".');
+              },
+            },
+            { text: 'Annuler', style: 'cancel' },
+          ]
+        );
+      } else {
+        const id = await sauvegarderCV({ ...cv, photo: photoURL });
+        setCvIdActuel(id);
+        await notifCVSauvegarde();
+        Alert.alert('✅ Sauvegardé !', 'Votre CV est disponible dans "Mes CVs".');
+      }
+    } catch (error: any) {
+      console.error('Erreur sauvegarde:', error.message);
+      Alert.alert('Erreur', error.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // ── Composant InfoRow ─────────────────────────────────────────────────────
+  const InfoRow = ({ label, value, color }: { label: string; value: string; color?: string }) => (
+    <View style={styles.infoRow}>
+      <Text style={styles.infoLabel}>{label}</Text>
+      <Text style={[styles.infoValue, color ? { color } : {}]} numberOfLines={1}>{value}</Text>
+    </View>
+  );
+
+  // ── Rendu ─────────────────────────────────────────────────────────────────
   return (
     <View style={styles.container}>
 
@@ -309,33 +250,26 @@ const handleSauvegarder = async () => {
         </TouchableOpacity>
         <View style={styles.headerCenter}>
           <Text style={styles.headerTitle}>Votre CV</Text>
-          <Text style={styles.headerSub} numberOfLines={1}>
-            {nomComplet}
-          </Text>
+          <Text style={styles.headerSub} numberOfLines={1}>{nomComplet}</Text>
         </View>
         <TouchableOpacity style={styles.mesCVsBtn} onPress={() => router.push('/mes-cvs')}>
           <Text style={styles.mesCVsText}>📂</Text>
         </TouchableOpacity>
       </View>
 
-      {/* Score de complétion */}
+      {/* Score */}
       <Animated.View style={[styles.scoreBar, { opacity: fadeAnim }]}>
         <View style={styles.scoreRow}>
           <Text style={styles.scoreLabel}>Complétion du CV</Text>
           <Text style={[styles.scorePct, {
             color: score >= 80 ? '#16a34a' : score >= 50 ? '#f59e0b' : '#dc2626'
-          }]}>
-            {String(score)}{'%'}
-          </Text>
+          }]}>{String(score)}{'%'}</Text>
         </View>
         <View style={styles.scoreTrack}>
-          <View style={[
-            styles.scoreFill,
-            {
-              width:           `${score}%` as any,
-              backgroundColor: score >= 80 ? '#16a34a' : score >= 50 ? '#f59e0b' : '#dc2626',
-            }
-          ]} />
+          <View style={[styles.scoreFill, {
+            width: `${score}%` as any,
+            backgroundColor: score >= 80 ? '#16a34a' : score >= 50 ? '#f59e0b' : '#dc2626',
+          }]} />
         </View>
       </Animated.View>
 
@@ -368,57 +302,33 @@ const handleSauvegarder = async () => {
           {/* ── TAB APERÇU ── */}
           {activeTab === 'apercu' && (
             <>
-              {/* Carte template */}
               <View style={styles.templateCard}>
-                <View style={[
-                  styles.templatePreview,
-                  { backgroundColor: getTemplateColor(cv.templateId ?? '') }
-                ]}>
+                <View style={[styles.templatePreview, { backgroundColor: getTemplateColor(cv.templateId ?? '') }]}>
                   <Text style={styles.templateEmoji}>{'🎨'}</Text>
                   {pdfUri ? (
                     <View style={styles.pdfReadyBadge}>
-                      <Text style={styles.pdfReadyText}>PDF prêt</Text>
+                      <Text style={styles.pdfReadyText}>Prêt</Text>
                     </View>
                   ) : null}
                 </View>
                 <View style={styles.templateInfo}>
                   <Text style={styles.templateNom}>{templateNom}</Text>
                   <Text style={styles.templateDesc}>Template sélectionné</Text>
-                  <TouchableOpacity
-                    style={styles.changeTemplateBtn}
-                    onPress={() => router.push('/templates')}
-                  >
+                  <TouchableOpacity style={styles.changeTemplateBtn} onPress={() => router.push('/templates')}>
                     <Text style={styles.changeTemplateTxt}>Changer →</Text>
                   </TouchableOpacity>
                 </View>
               </View>
 
-              {/* Infos CV */}
               <View style={styles.card}>
                 <Text style={styles.cardTitle}>{'📋 Informations'}</Text>
-                <InfoRow
-                  label="Nom complet"
-                  value={nomComplet}
-                />
-                <InfoRow
-                  label="Titre"
-                  value={cv.titre || '—'}
-                />
-                <InfoRow
-                  label="Email"
-                  value={cv.email || '—'}
-                />
-                <InfoRow
-                  label="Téléphone"
-                  value={cv.telephone || '—'}
-                />
-                <InfoRow
-                  label="Ville"
-                  value={cv.ville || '—'}
-                />
+                <InfoRow label="Nom complet" value={nomComplet} />
+                <InfoRow label="Titre"       value={cv.titre     || '—'} />
+                <InfoRow label="Email"       value={cv.email     || '—'} />
+                <InfoRow label="Téléphone"   value={cv.telephone || '—'} />
+                <InfoRow label="Ville"       value={cv.ville     || '—'} />
               </View>
 
-              {/* Sections remplies */}
               <View style={styles.card}>
                 <Text style={styles.cardTitle}>{'📊 Sections'}</Text>
                 <View style={styles.sectionsGrid}>
@@ -428,10 +338,7 @@ const handleSauvegarder = async () => {
                     { label: 'Compétences', count: cv.competences?.length ?? 0, emoji: '⚡' },
                     { label: 'Langues',     count: cv.langues?.length     ?? 0, emoji: '🌍' },
                   ].map((s, i) => (
-                    <View
-                      key={i}
-                      style={[styles.sectionItem, s.count === 0 && styles.sectionEmpty]}
-                    >
+                    <View key={i} style={[styles.sectionItem, s.count === 0 && styles.sectionEmpty]}>
                       <Text style={styles.sectionEmoji}>{s.emoji}</Text>
                       <Text style={styles.sectionCount}>{String(s.count)}</Text>
                       <Text style={styles.sectionLabel}>{s.label}</Text>
@@ -440,7 +347,6 @@ const handleSauvegarder = async () => {
                 </View>
               </View>
 
-              {/* Bouton générer */}
               {!pdfUri ? (
                 <TouchableOpacity
                   style={[styles.btnGenerer, loading && styles.btnDisabled]}
@@ -450,42 +356,38 @@ const handleSauvegarder = async () => {
                   {loading
                     ? <ActivityIndicator color="#fff" size="small" />
                     : <Text style={styles.btnGenererText}>
-                        {Platform.OS === 'web' ? '🖨️ Imprimer / Télécharger le CV' : '🔄 Générer le PDF'}
+                        {Platform.OS === 'web' ? '🖨️ Générer et imprimer le CV' : '🔄 Générer le PDF'}
                       </Text>
                   }
                 </TouchableOpacity>
               ) : (
                 <TouchableOpacity style={styles.btnDownload} onPress={handleDownload}>
                   <Text style={styles.btnDownloadText}>
-                    {Platform.OS === 'web' ? '⬇️ Télécharger le CV' : '⬇️ Télécharger le PDF'}
+                    {Platform.OS === 'web' ? '🖨️ Imprimer / Sauvegarder PDF' : '⬇️ Télécharger le PDF'}
                   </Text>
                 </TouchableOpacity>
-)}
+              )}
             </>
           )}
 
           {/* ── TAB ACTIONS ── */}
           {activeTab === 'actions' && (
             <>
-              {/* Statut PDF */}
               <View style={[styles.statusCard, { borderColor: pdfUri ? '#16a34a' : '#f59e0b' }]}>
                 <Text style={styles.statusEmoji}>{pdfUri ? '✅' : '⏳'}</Text>
                 <View style={styles.statusInfo}>
                   <Text style={styles.statusTitle}>
-                    {pdfUri ? 'PDF généré' : 'PDF non généré'}
+                    {pdfUri ? 'CV prêt à imprimer' : 'CV non généré'}
                   </Text>
                   <Text style={styles.statusSub}>
-                  {pdfUri
-                    ? Platform.OS === 'web'
-                      ? `${cv.prenom ?? ''}_${cv.nom ?? ''}_CV.html`
-                      : `${cv.prenom ?? ''}_${cv.nom ?? ''}_CV.pdf`
-                    : 'Cliquez sur "Générer" pour créer le PDF'
-                  }
-                </Text>
+                    {pdfUri
+                      ? `${cv.prenom ?? ''}_${cv.nom ?? ''}_CV`
+                      : 'Cliquez sur "Générer" pour créer le CV'
+                    }
+                  </Text>
                 </View>
               </View>
 
-              {/* Actions PDF */}
               <View style={styles.card}>
                 <Text style={styles.cardTitle}>{'📄 PDF'}</Text>
                 <TouchableOpacity
@@ -500,10 +402,10 @@ const handleSauvegarder = async () => {
                       <Text style={styles.actionBtnIcon}>{'🔄'}</Text>
                       <View style={styles.actionBtnInfo}>
                         <Text style={styles.actionBtnTitle}>
-                          {pdfUri ? 'Regénérer' : 'Générer le PDF'}
+                          {pdfUri ? 'Regénérer' : Platform.OS === 'web' ? 'Générer et imprimer' : 'Générer le PDF'}
                         </Text>
                         <Text style={styles.actionBtnSub}>
-                          Crée un fichier PDF de votre CV
+                          {Platform.OS === 'web' ? 'Ouvre la boîte d\'impression' : 'Crée un fichier PDF'}
                         </Text>
                       </View>
                     </>
@@ -515,22 +417,27 @@ const handleSauvegarder = async () => {
                     <TouchableOpacity style={styles.actionBtn} onPress={handleDownload}>
                       <Text style={styles.actionBtnIcon}>{'⬇️'}</Text>
                       <View style={styles.actionBtnInfo}>
-                        <Text style={styles.actionBtnTitle}>Télécharger / Partager</Text>
-                        <Text style={styles.actionBtnSub}>Enregistrez ou envoyez le PDF</Text>
+                        <Text style={styles.actionBtnTitle}>
+                          {Platform.OS === 'web' ? 'Imprimer / Sauvegarder PDF' : 'Télécharger / Partager'}
+                        </Text>
+                        <Text style={styles.actionBtnSub}>
+                          {Platform.OS === 'web' ? 'Sauvegardez en PDF depuis la boîte d\'impression' : 'Enregistrez ou envoyez le PDF'}
+                        </Text>
                       </View>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.actionBtn} onPress={handlePrint}>
-                      <Text style={styles.actionBtnIcon}>{'🖨️'}</Text>
-                      <View style={styles.actionBtnInfo}>
-                        <Text style={styles.actionBtnTitle}>Imprimer</Text>
-                        <Text style={styles.actionBtnSub}>Imprimez directement depuis l'app</Text>
-                      </View>
-                    </TouchableOpacity>
+                    {Platform.OS !== 'web' && (
+                      <TouchableOpacity style={styles.actionBtn} onPress={handlePrint}>
+                        <Text style={styles.actionBtnIcon}>{'🖨️'}</Text>
+                        <View style={styles.actionBtnInfo}>
+                          <Text style={styles.actionBtnTitle}>Imprimer</Text>
+                          <Text style={styles.actionBtnSub}>Imprimez directement depuis l'app</Text>
+                        </View>
+                      </TouchableOpacity>
+                    )}
                   </>
                 ) : null}
               </View>
 
-              {/* Actions CV en ligne */}
               <View style={styles.card}>
                 <Text style={styles.cardTitle}>{'☁️ En ligne'}</Text>
                 <TouchableOpacity
@@ -550,7 +457,6 @@ const handleSauvegarder = async () => {
                     </>
                   )}
                 </TouchableOpacity>
-
                 <TouchableOpacity style={styles.actionBtn} onPress={() => router.push('/mes-cvs')}>
                   <Text style={styles.actionBtnIcon}>{'📂'}</Text>
                   <View style={styles.actionBtnInfo}>
@@ -560,32 +466,22 @@ const handleSauvegarder = async () => {
                 </TouchableOpacity>
               </View>
 
-              {/* Modifier */}
               <View style={styles.card}>
                 <Text style={styles.cardTitle}>{'✏️ Modifier'}</Text>
-
-                <TouchableOpacity
-                  style={styles.actionBtn}
-                  onPress={() => router.push('/cv/step1-profil')}
-                >
+                <TouchableOpacity style={styles.actionBtn} onPress={() => router.push('/cv/step1-profil')}>
                   <Text style={styles.actionBtnIcon}>{'👤'}</Text>
                   <View style={styles.actionBtnInfo}>
                     <Text style={styles.actionBtnTitle}>Modifier le profil</Text>
                     <Text style={styles.actionBtnSub}>Nom, titre, contact...</Text>
                   </View>
                 </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={styles.actionBtn}
-                  onPress={() => router.push('/templates')}
-                >
+                <TouchableOpacity style={styles.actionBtn} onPress={() => router.push('/templates')}>
                   <Text style={styles.actionBtnIcon}>{'🎨'}</Text>
                   <View style={styles.actionBtnInfo}>
                     <Text style={styles.actionBtnTitle}>Changer de template</Text>
                     <Text style={styles.actionBtnSub}>150 designs disponibles</Text>
                   </View>
                 </TouchableOpacity>
-
                 <TouchableOpacity
                   style={[styles.actionBtn, styles.actionBtnDanger]}
                   onPress={() => {
@@ -608,19 +504,16 @@ const handleSauvegarder = async () => {
                 >
                   <Text style={styles.actionBtnIcon}>{'➕'}</Text>
                   <View style={styles.actionBtnInfo}>
-                    <Text style={[styles.actionBtnTitle, { color: '#dc2626' }]}>
-                      Nouveau CV
-                    </Text>
+                    <Text style={[styles.actionBtnTitle, { color: '#dc2626' }]}>Nouveau CV</Text>
                     <Text style={styles.actionBtnSub}>Recommencer depuis zéro</Text>
                   </View>
                 </TouchableOpacity>
-
                 <TouchableOpacity style={styles.actionBtn} onPress={() => router.push('/parametres')}>
-                <Text style={styles.actionBtnIcon}>⚙️</Text>
-                <View style={styles.actionBtnInfo}>
-                 <Text style={styles.actionBtnTitle}>Paramètres</Text>
-                   <Text style={styles.actionBtnSub}>Langue, évaluation, partage...</Text>
-                 </View>
+                  <Text style={styles.actionBtnIcon}>{'⚙️'}</Text>
+                  <View style={styles.actionBtnInfo}>
+                    <Text style={styles.actionBtnTitle}>Paramètres</Text>
+                    <Text style={styles.actionBtnSub}>Langue, évaluation, partage...</Text>
+                  </View>
                 </TouchableOpacity>
               </View>
 
@@ -633,21 +526,6 @@ const handleSauvegarder = async () => {
   );
 }
 
-// ── Couleur du template ───────────────────────────────────────────────────────
-const getTemplateColor = (templateId: string): string => {
-  const colors: Record<string, string> = {
-    sidebar_bleu:  '#1a3a5c', gagnant:      '#1a3a5c', minimaliste:  '#111',
-    teal_student:  '#3d9b8a', dark_sidebar: '#2c2c2c', violet:       '#6b21a8',
-    classique_pro: '#6b7280', bold_noir:    '#111',    bleu_arrondi: '#2563eb',
-    brun_elegant:  '#2a2520', fresher_vert: '#2d5a27', geometrique:  '#e85d30',
-    vert_nature:   '#1e3422', navy_pro:     '#1e3a6e', fresher_dark: '#1a2744',
-    rouge_moderne: '#dc2626', jaune_pro:    '#ca8a04', vert_minimal: '#14532d',
-    orange_sidebar:'#ea580c', rose_elegant: '#831843', dark_orange:  '#f97316',
-  };
-  return colors[templateId] ?? '#534AB7';
-};
-
-// ── Styles ────────────────────────────────────────────────────────────────────
 const styles = StyleSheet.create({
   container:        { flex: 1, backgroundColor: '#f5f7fa' },
   header:           { backgroundColor: '#534AB7', paddingTop: 52, paddingBottom: 16, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center' },
