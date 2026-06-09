@@ -32,18 +32,48 @@ const getTemplateColor = (templateId: string): string => {
 
 // ── Fonction impression iframe (web uniquement) ───────────────────────────────
 const imprimerViaIframe = (html: string) => {
+  // Injecter le CSS d'impression AVANT d'écrire le HTML
+  const htmlAvecPrint = html.replace(
+    '<style>',
+    `<style>
+@media print {
+  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
+  body { -webkit-print-color-adjust: exact !important; }
+}
+`
+  ).replace(
+    '* { margin:0; padding:0; box-sizing:border-box; } body { font-family: Arial, sans-serif; font-size:12px; }',
+    `* { margin:0; padding:0; box-sizing:border-box; } body { font-family: Arial, sans-serif; font-size:12px; }
+@media print { * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; } }`
+  );
+
   const iframe = document.createElement('iframe');
   iframe.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:none;visibility:hidden;';
   document.body.appendChild(iframe);
+
   const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
   if (!iframeDoc) { document.body.removeChild(iframe); return; }
+
   iframeDoc.open();
-  iframeDoc.write(html);
+  iframeDoc.write(htmlAvecPrint);
   iframeDoc.close();
+
   iframe.onload = () => {
     setTimeout(() => {
+      // Forcer les couleurs dans l'iframe aussi
+      if (iframe.contentWindow) {
+        const style = iframeDoc.createElement('style');
+        style.textContent = `
+          @media print {
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
+          }
+        `;
+        iframeDoc.head.appendChild(style);
+      }
       iframe.contentWindow?.print();
-      setTimeout(() => document.body.removeChild(iframe), 1000);
+      setTimeout(() => {
+        try { document.body.removeChild(iframe); } catch(e) {}
+      }, 1000);
     }, 800);
   };
 };
