@@ -173,16 +173,34 @@ const handleGenerate = async () => {
   } catch (e) { console.error(e); }
 };
 
-  const handlePrint = async () => {
+const handlePrint = async () => {
   if (Platform.OS === 'web') {
     const photoData = await getPhotoData();
     const html = generateCVHTML(cv, photoData, cv.templateId ?? 'sidebar_bleu');
-    const printWindow = window.open('', '_blank');
-    if (!printWindow) return;
-    printWindow.document.write(html);
-    printWindow.document.close();
-    printWindow.focus();
-    setTimeout(() => printWindow.print(), 500);
+
+    const iframe = document.createElement('iframe');
+    iframe.style.position = 'fixed';
+    iframe.style.right = '0';
+    iframe.style.bottom = '0';
+    iframe.style.width = '0';
+    iframe.style.height = '0';
+    iframe.style.border = 'none';
+    iframe.style.visibility = 'hidden';
+    document.body.appendChild(iframe);
+
+    const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+    if (!iframeDoc) return;
+
+    iframeDoc.open();
+    iframeDoc.write(html);
+    iframeDoc.close();
+
+    iframe.onload = () => {
+      setTimeout(() => {
+        iframe.contentWindow?.print();
+        document.body.removeChild(iframe);
+      }, 800);
+    };
     return;
   }
 
