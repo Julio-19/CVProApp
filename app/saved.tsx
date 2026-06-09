@@ -117,6 +117,8 @@ export default function SavedScreen() {
   const handleGenerate = async () => {
     try {
       setLoading(true);
+
+      
       const photoData = await getPhotoData();
       setPhotoBase64(photoData);
       const html = generateCVHTML(cv, photoData, cv.templateId ?? 'sidebar_bleu');
