@@ -88,36 +88,34 @@ const handleGenerate = async () => {
     const html = generateCVHTML(cv, photoData, cv.templateId ?? 'sidebar_bleu');
 
     if (Platform.OS === 'web') {
-      // ── Génération PDF sur web via impression navigateur ──────────────────
-      const printWindow = window.open('', '_blank');
-      if (!printWindow) {
-        Alert.alert('Erreur', 'Autorisez les popups pour générer le PDF.');
-        return;
-      }
-      printWindow.document.write(html);
-      printWindow.document.close();
-      printWindow.focus();
+      // Créer un iframe caché pour l'impression
+      const iframe = document.createElement('iframe');
+      iframe.style.position = 'fixed';
+      iframe.style.right = '0';
+      iframe.style.bottom = '0';
+      iframe.style.width = '0';
+      iframe.style.height = '0';
+      iframe.style.border = 'none';
+      iframe.style.visibility = 'hidden';
+      document.body.appendChild(iframe);
 
-      // Attendre le chargement puis imprimer
-      printWindow.onload = () => {
+      const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+      if (!iframeDoc) return;
+
+      iframeDoc.open();
+      iframeDoc.write(html);
+      iframeDoc.close();
+
+      iframe.onload = () => {
         setTimeout(() => {
-          printWindow.print();
+          iframe.contentWindow?.print();
+          document.body.removeChild(iframe);
           setPdfUri('web-generated');
           setActiveTab('actions');
-        }, 500);
+        }, 800);
       };
 
-      // Fallback si onload ne se déclenche pas
-      setTimeout(() => {
-        if (!pdfUri) {
-          printWindow.print();
-          setPdfUri('web-generated');
-          setActiveTab('actions');
-        }
-      }, 1500);
-
     } else {
-      // ── Génération PDF sur mobile ─────────────────────────────────────────
       const { uri } = await Print.printToFileAsync({ html, base64: false });
       setPdfUri(uri);
       await notifPDFGenere(`${cv.prenom ?? ''} ${cv.nom ?? ''}`);
@@ -126,6 +124,7 @@ const handleGenerate = async () => {
 
   } catch (err) {
     Alert.alert('Erreur', 'Impossible de générer le PDF.');
+    console.error(err);
   } finally {
     setLoading(false);
   }
@@ -135,16 +134,33 @@ const handleGenerate = async () => {
   if (!pdfUri) return;
 
   if (Platform.OS === 'web') {
-    // Sur web → ouvrir le CV dans une nouvelle fenêtre pour télécharger
     const photoData = await getPhotoData();
     const html = generateCVHTML(cv, photoData, cv.templateId ?? 'sidebar_bleu');
-    const blob = new Blob([html], { type: 'text/html' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${cv.prenom ?? 'CV'}_${cv.nom ?? ''}_CV.html`;
-    a.click();
-    URL.revokeObjectURL(url);
+
+    // Créer iframe caché pour impression propre
+    const iframe = document.createElement('iframe');
+    iframe.style.position = 'fixed';
+    iframe.style.right = '0';
+    iframe.style.bottom = '0';
+    iframe.style.width = '0';
+    iframe.style.height = '0';
+    iframe.style.border = 'none';
+    iframe.style.visibility = 'hidden';
+    document.body.appendChild(iframe);
+
+    const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+    if (!iframeDoc) return;
+
+    iframeDoc.open();
+    iframeDoc.write(html);
+    iframeDoc.close();
+
+    iframe.onload = () => {
+      setTimeout(() => {
+        iframe.contentWindow?.print();
+        document.body.removeChild(iframe);
+      }, 800);
+    };
     return;
   }
 
