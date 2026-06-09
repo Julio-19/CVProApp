@@ -166,7 +166,13 @@ case 'harbor_blue':       return templateHarborBlue(cv, photo);
   }
 };
 
-const base = `* { margin:0; padding:0; box-sizing:border-box; } body { font-family: Arial, sans-serif; font-size:12px; }`;
+const base = `
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: Arial, sans-serif; font-size:12px; }
+@media print {
+  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
+  body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+}`;
 
 // ═══════════════════════════════════════════════════════
 // TEMPLATE 1 — SIDEBAR BLEU
