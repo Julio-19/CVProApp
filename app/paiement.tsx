@@ -26,6 +26,12 @@ export default function PaiementScreen() {
     templateId: string;
     prix: string;
   }>();
+    useEffect(() => {
+    console.log('=== PAIEMENT PARAMS ===');
+    console.log('TEMPLATE ID:', templateId);
+    console.log('PRIX:', prix);
+    console.log('======================');
+  }, []);
   const { setTemplate } = useCVStore();
 
   const [mode, setMode] = useState<ModePaiement>("mtn");
