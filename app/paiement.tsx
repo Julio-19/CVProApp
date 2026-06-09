@@ -191,13 +191,14 @@ export default function PaiementScreen() {
 
       if (error) throw new Error(error.message);
 
-      if (data?.confirme === true) {
-        console.log("✅ Paiement confirmé !");
+        if (data?.confirme === true) {
+        // ← Définir le template dans le store AVANT de naviguer
         setTemplate(templateId!);
-        setEtape("succes");
-        // Notification push
+        console.log('✅ Template activé:', templateId);
+        setEtape('succes');
         await notifPaiementConfirme(templateId!);
-      } else {
+      }
+      else {
         Alert.alert(
           "Paiement non encore confirmé",
           `Statut: ${data?.statut ?? "inconnu"}\n\nSi vous avez payé, patientez et réessayez.`,
