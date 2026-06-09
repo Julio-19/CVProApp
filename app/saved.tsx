@@ -117,8 +117,11 @@ export default function SavedScreen() {
   const handleGenerate = async () => {
     try {
       setLoading(true);
-
-      
+      console.log('=== GÉNÉRATION PDF ===');
+      console.log('TEMPLATE ID:', cv.templateId);
+      console.log('PRENOM:', cv.prenom);
+      console.log('NOM:', cv.nom);
+      console.log('=====================');
       const photoData = await getPhotoData();
       setPhotoBase64(photoData);
       const html = generateCVHTML(cv, photoData, cv.templateId ?? 'sidebar_bleu');
