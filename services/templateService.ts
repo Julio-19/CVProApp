@@ -6,6 +6,7 @@ export const getNiveauPct = (niveau: string): number => {
 };
 
 export const generateCVHTML = (cv: any, photo: string | null, templateId: string): string => {
+  console.log('🎨 Génération HTML pour template:', templateId);
   switch (templateId) {
     case 'sidebar_bleu':   return templateSidebarBleu(cv, photo);
     case 'gagnant':        return templateGagnant(cv, photo);
