@@ -241,15 +241,20 @@ export default function TemplatesScreen() {
   });
 
   const handleChoisir = (t: Template) => {
-    if (achetes.includes(t.id)) {
-      // Déjà acheté → utiliser directement
-      setTemplate(t.id);
-      router.push('/saved');
-    } else {
-      // Aller au paiement
-      router.push({ pathname: '/paiement', params: { templateId: t.id, prix: t.prix } });
-    }
-  };
+  if (achetes.includes(t.id)) {
+    // Déjà acheté → utiliser directement
+    setTemplate(t.id);
+    console.log('Template sélectionné:', t.id);
+    router.push('/saved');
+  } else {
+    // Aller au paiement — passer le templateId en params
+    console.log('Redirection paiement pour template:', t.id);
+    router.push({
+      pathname: '/paiement',
+      params: { templateId: t.id, prix: t.prix }
+    });
+  }
+};
 
   const renderTemplate = ({ item: t }: { item: Template }) => {
     const selectionne = t.id === templateActuel;
