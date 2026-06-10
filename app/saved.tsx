@@ -202,36 +202,39 @@ export default function SavedScreen() {
   }
 };
 
-  const handleDownload = async () => {
-    if (!pdfUri) return;
-    if (Platform.OS === 'web') {
-      const photoData = await getPhotoData();
-      const html = generateCVHTML(cv, photoData, cv.templateId ?? 'sidebar_bleu');
-      imprimerViaIframe(html);
-      return;
-    }
-    try {
-      await Sharing.shareAsync(pdfUri, {
-        mimeType: 'application/pdf',
-        dialogTitle: 'Télécharger votre CV',
-        UTI: 'com.adobe.pdf',
-      });
-    } catch (e) { console.error(e); }
-  };
+const handleDownload = async () => {
+  if (!pdfUri) return;
 
-  const handlePrint = async () => {
-    if (Platform.OS === 'web') {
-      const photoData = await getPhotoData();
-      const html = generateCVHTML(cv, photoData, cv.templateId ?? 'sidebar_bleu');
-      imprimerViaIframe(html);
-      return;
-    }
-    try {
-      const photoData = await getPhotoData();
-      const html = generateCVHTML(cv, photoData, cv.templateId ?? 'sidebar_bleu');
-      await Print.printAsync({ html });
-    } catch (e) { console.error(e); }
-  };
+  if (Platform.OS === 'web') {
+    const photoData = await getPhotoData();
+    const html = generateCVHTML(cv, photoData, cv.templateId ?? 'sidebar_bleu');
+    await genererPDFWeb(html);
+    return;
+  }
+
+  try {
+    await Sharing.shareAsync(pdfUri, {
+      mimeType: 'application/pdf',
+      dialogTitle: 'Télécharger votre CV',
+      UTI: 'com.adobe.pdf',
+    });
+  } catch (e) { console.error(e); }
+};
+
+const handlePrint = async () => {
+  if (Platform.OS === 'web') {
+    const photoData = await getPhotoData();
+    const html = generateCVHTML(cv, photoData, cv.templateId ?? 'sidebar_bleu');
+    await genererPDFWeb(html);
+    return;
+  }
+
+  try {
+    const photoData = await getPhotoData();
+    const html = generateCVHTML(cv, photoData, cv.templateId ?? 'sidebar_bleu');
+    await Print.printAsync({ html });
+  } catch (e) { console.error(e); }
+};
 
   const handleSauvegarder = async () => {
     try {
