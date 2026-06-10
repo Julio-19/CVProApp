@@ -170,34 +170,37 @@ export default function SavedScreen() {
 
   // ── Handlers ──────────────────────────────────────────────────────────────
   const handleGenerate = async () => {
-    try {
-      setLoading(true);
-      console.log('=== GÉNÉRATION PDF ===');
-      console.log('TEMPLATE ID:', cv.templateId);
-      console.log('PRENOM:', cv.prenom);
-      console.log('NOM:', cv.nom);
-      console.log('=====================');
-      const photoData = await getPhotoData();
-      setPhotoBase64(photoData);
-      const html = generateCVHTML(cv, photoData, cv.templateId ?? 'sidebar_bleu');
+  try {
+    setLoading(true);
 
-      if (Platform.OS === 'web') {
-        imprimerViaIframe(html);
-        setPdfUri('web-generated');
-        setActiveTab('actions');
-      } else {
-        const { uri } = await Print.printToFileAsync({ html, base64: false });
-        setPdfUri(uri);
-        await notifPDFGenere(`${cv.prenom ?? ''} ${cv.nom ?? ''}`);
-        setActiveTab('actions');
-      }
-    } catch (err) {
-      console.error(err);
-      Alert.alert('Erreur', 'Impossible de générer le PDF.');
-    } finally {
-      setLoading(false);
+    console.log('=== GÉNÉRATION PDF ===');
+    console.log('TEMPLATE ID:', cv.templateId);
+    console.log('PRENOM:', cv.prenom);
+    console.log('NOM:', cv.nom);
+    console.log('=====================');
+
+    const photoData = await getPhotoData();
+    setPhotoBase64(photoData);
+    const html = generateCVHTML(cv, photoData, cv.templateId ?? 'sidebar_bleu');
+
+    if (Platform.OS === 'web') {
+      await genererPDFWeb(html);
+      setPdfUri('web-generated');
+      setActiveTab('actions');
+    } else {
+      const { uri } = await Print.printToFileAsync({ html, base64: false });
+      setPdfUri(uri);
+      await notifPDFGenere(`${cv.prenom ?? ''} ${cv.nom ?? ''}`);
+      setActiveTab('actions');
     }
-  };
+
+  } catch (err: any) {
+    console.error('Erreur génération:', err);
+    Alert.alert('Erreur', 'Impossible de générer le PDF : ' + err.message);
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleDownload = async () => {
     if (!pdfUri) return;
