@@ -30,48 +30,76 @@ const getTemplateColor = (templateId: string): string => {
   return colors[templateId] ?? '#534AB7';
 };
 
-const imprimerViaIframe = (html: string) => {
-  const iframe = document.createElement('iframe');
-  iframe.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:none;visibility:hidden;';
-  document.body.appendChild(iframe);
-
-  const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
-  if (!iframeDoc) { document.body.removeChild(iframe); return; }
-
-  // Injecter le CSS d'impression avant tout
-  const printCSS = `
-    <style>
-      * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
-      @media print {
-        * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
-        html, body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-      }
-    </style>
-  `;
-
-  // Injecter le CSS DANS le HTML du template
-  const htmlModifie = html.replace('</head>', printCSS + '</head>');
-
-  iframeDoc.open();
-  iframeDoc.write(htmlModifie);
-  iframeDoc.close();
-
-  iframe.onload = () => {
-    setTimeout(() => {
-      // Forcer aussi via JS
-      const styleEl = iframeDoc.createElement('style');
-      styleEl.textContent = `
-        * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
-        @media print { * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; } }
+// ── Génération PDF réelle sur web (PWA compatible) ────────────────────────
+const genererPDFWeb = async (html: string): Promise<void> => {
+  return new Promise((resolve, reject) => {
+    try {
+      // Créer un div caché pour rendre le HTML
+      const container = document.createElement('div');
+      container.style.cssText = `
+        position: fixed;
+        left: -9999px;
+        top: 0;
+        width: 794px;
+        min-height: 1123px;
+        background: white;
+        z-index: -1;
+        visibility: hidden;
       `;
-      iframeDoc.head?.appendChild(styleEl);
+      container.innerHTML = html;
+      document.body.appendChild(container);
 
-      iframe.contentWindow?.print();
-      setTimeout(() => {
-        try { document.body.removeChild(iframe); } catch(e) {}
-      }, 1000);
-    }, 800);
-  };
+      // Attendre que les styles soient appliqués
+      setTimeout(async () => {
+        try {
+          const html2canvas = (await import('html2canvas')).default;
+          const jsPDF = (await import('jspdf')).jsPDF;
+
+          const canvas = await html2canvas(container, {
+            scale: 2,
+            useCORS: true,
+            allowTaint: true,
+            backgroundColor: null,
+            width: 794,
+            windowWidth: 794,
+            logging: false,
+          });
+
+          const imgData = canvas.toDataURL('image/jpeg', 0.95);
+          const pdf = new jsPDF({
+            orientation: 'portrait',
+            unit: 'mm',
+            format: 'a4',
+          });
+
+          const pdfWidth = pdf.internal.pageSize.getWidth();
+          const pdfHeight = pdf.internal.pageSize.getHeight();
+          const imgWidth = canvas.width;
+          const imgHeight = canvas.height;
+          const ratio = Math.min(pdfWidth / imgWidth * (25.4 / 25.4), pdfHeight / imgHeight);
+          const imgX = 0;
+          const imgY = 0;
+
+          pdf.addImage(
+            imgData, 'JPEG',
+            imgX, imgY,
+            pdfWidth, pdfWidth * imgHeight / imgWidth
+          );
+
+          // Télécharger le PDF
+          pdf.save(`CV_${new Date().getTime()}.pdf`);
+
+          document.body.removeChild(container);
+          resolve();
+        } catch (err) {
+          document.body.removeChild(container);
+          reject(err);
+        }
+      }, 500);
+    } catch (err) {
+      reject(err);
+    }
+  });
 };
 
 
