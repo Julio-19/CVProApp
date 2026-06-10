@@ -30,83 +30,79 @@ const getTemplateColor = (templateId: string): string => {
   return colors[templateId] ?? '#534AB7';
 };
 
-// ── Génération PDF réelle sur web (PWA compatible) ────────────────────────
-const genererPDFWeb = async (html: string): Promise<void> => {
-  return new Promise((resolve, reject) => {
-    try {
-      // Créer un div caché pour rendre le HTML
-      const container = document.createElement('div');
-      container.style.cssText = `
-        position: fixed;
-        left: -9999px;
-        top: 0;
-        width: 794px;
-        min-height: 1123px;
-        background: white;
-        z-index: -1;
-        visibility: hidden;
+// ── Génération PDF web via iframe caché ───────────────────────────────────────
+const genererPDFWeb = (html: string): void => {
+  // Injecter CSS pour forcer les couleurs de fond
+  const printCSS = `
+    <style>
+      * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
+      @media print {
+        * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
+        html, body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+      }
+    </style>
+  `;
+
+  // Injecter dans le <head> du HTML du CV
+  const htmlModifie = html.includes('</head>')
+    ? html.replace('</head>', printCSS + '</head>')
+    : printCSS + html;
+
+  // Créer un iframe totalement caché
+  const iframe = document.createElement('iframe');
+  iframe.setAttribute('id', 'cv-print-iframe');
+  iframe.style.cssText = [
+    'position:fixed',
+    'top:-9999px',
+    'left:-9999px',
+    'width:794px',
+    'height:1123px',
+    'border:none',
+    'opacity:0',
+    'pointer-events:none',
+    'z-index:-9999',
+  ].join(';');
+
+  document.body.appendChild(iframe);
+
+  const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+  if (!iframeDoc) {
+    document.body.removeChild(iframe);
+    return;
+  }
+
+  iframeDoc.open();
+  iframeDoc.write(htmlModifie);
+  iframeDoc.close();
+
+  iframe.onload = () => {
+    setTimeout(() => {
+      // Double injection du CSS pour s'assurer
+      const styleEl = iframeDoc.createElement('style');
+      styleEl.textContent = `
+        * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
+        @media print { * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; } }
       `;
-      container.innerHTML = html;
-      document.body.appendChild(container);
+      if (iframeDoc.head) {
+        iframeDoc.head.appendChild(styleEl);
+      }
 
-      // Attendre que les styles soient appliqués
-      setTimeout(async () => {
+      iframe.contentWindow?.focus();
+      iframe.contentWindow?.print();
+
+      setTimeout(() => {
         try {
-          const html2canvas = (await import('html2canvas')).default;
-          const jsPDF = (await import('jspdf')).jsPDF;
-
-          const canvas = await html2canvas(container, {
-            scale: 2,
-            useCORS: true,
-            allowTaint: true,
-            backgroundColor: null,
-            width: 794,
-            windowWidth: 794,
-            logging: false,
-          });
-
-          const imgData = canvas.toDataURL('image/jpeg', 0.95);
-          const pdf = new jsPDF({
-            orientation: 'portrait',
-            unit: 'mm',
-            format: 'a4',
-          });
-
-          const pdfWidth = pdf.internal.pageSize.getWidth();
-          const pdfHeight = pdf.internal.pageSize.getHeight();
-          const imgWidth = canvas.width;
-          const imgHeight = canvas.height;
-          const ratio = Math.min(pdfWidth / imgWidth * (25.4 / 25.4), pdfHeight / imgHeight);
-          const imgX = 0;
-          const imgY = 0;
-
-          pdf.addImage(
-            imgData, 'JPEG',
-            imgX, imgY,
-            pdfWidth, pdfWidth * imgHeight / imgWidth
-          );
-
-          // Télécharger le PDF
-          pdf.save(`CV_${new Date().getTime()}.pdf`);
-
-          document.body.removeChild(container);
-          resolve();
-        } catch (err) {
-          document.body.removeChild(container);
-          reject(err);
-        }
-      }, 500);
-    } catch (err) {
-      reject(err);
-    }
-  });
+          const el = document.getElementById('cv-print-iframe');
+          if (el) document.body.removeChild(el);
+        } catch(e) {}
+      }, 2000);
+    }, 600);
+  };
 };
-
 
 export default function SavedScreen() {
   const cv = useCVStore();
 
-  // ── TOUS les useState en haut ─────────────────────────────────────────────
   const [loading, setLoading]         = useState(false);
   const [saving, setSaving]           = useState(false);
   const [pdfUri, setPdfUri]           = useState<string | null>(null);
@@ -114,18 +110,17 @@ export default function SavedScreen() {
   const [activeTab, setActiveTab]     = useState<'apercu' | 'actions'>('apercu');
   const [cvIdActuel, setCvIdActuel]   = useState<string | null>(null);
 
-  // ── Tous les useRef ───────────────────────────────────────────────────────
   const fadeAnim  = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(30)).current;
   const scaleAnim = useRef(new Animated.Value(0.95)).current;
 
-  // ── Tous les useEffect ────────────────────────────────────────────────────
   useEffect(() => {
     console.log('=== CV STORE ===');
     console.log('PRENOM:', cv.prenom);
     console.log('NOM:', cv.nom);
     console.log('EMAIL:', cv.email);
     console.log('TITRE:', cv.titre);
+    console.log('TEMPLATE:', cv.templateId);
     console.log('===============');
   }, []);
 
@@ -139,7 +134,6 @@ export default function SavedScreen() {
     ]).start();
   }, [cv.templateId]);
 
-  // ── Helpers ───────────────────────────────────────────────────────────────
   const getPhotoData = async (): Promise<string | null> => {
     if (!cv.photo) return null;
     if (cv.photo.startsWith('data:image')) return cv.photo;
@@ -170,71 +164,75 @@ export default function SavedScreen() {
 
   // ── Handlers ──────────────────────────────────────────────────────────────
   const handleGenerate = async () => {
-  try {
-    setLoading(true);
+    try {
+      setLoading(true);
 
-    console.log('=== GÉNÉRATION PDF ===');
-    console.log('TEMPLATE ID:', cv.templateId);
-    console.log('PRENOM:', cv.prenom);
-    console.log('NOM:', cv.nom);
-    console.log('=====================');
+      console.log('=== GÉNÉRATION PDF ===');
+      console.log('TEMPLATE ID:', cv.templateId);
+      console.log('PRENOM:', cv.prenom);
+      console.log('NOM:', cv.nom);
+      console.log('=====================');
 
-    const photoData = await getPhotoData();
-    setPhotoBase64(photoData);
-    const html = generateCVHTML(cv, photoData, cv.templateId ?? 'sidebar_bleu');
+      const photoData = await getPhotoData();
+      setPhotoBase64(photoData);
+      const templateId = cv.templateId ?? 'sidebar_bleu';
+      const html = generateCVHTML(cv, photoData, templateId);
+
+      if (Platform.OS === 'web') {
+        genererPDFWeb(html);
+        setPdfUri('web-generated');
+        setActiveTab('actions');
+      } else {
+        const { uri } = await Print.printToFileAsync({ html, base64: false });
+        setPdfUri(uri);
+        await notifPDFGenere(`${cv.prenom ?? ''} ${cv.nom ?? ''}`);
+        setActiveTab('actions');
+      }
+
+    } catch (err: any) {
+      console.error('Erreur génération:', err);
+      Alert.alert('Erreur', 'Impossible de générer le PDF : ' + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDownload = async () => {
+    if (!pdfUri) return;
 
     if (Platform.OS === 'web') {
-      await genererPDFWeb(html);
-      setPdfUri('web-generated');
-      setActiveTab('actions');
-    } else {
-      const { uri } = await Print.printToFileAsync({ html, base64: false });
-      setPdfUri(uri);
-      await notifPDFGenere(`${cv.prenom ?? ''} ${cv.nom ?? ''}`);
-      setActiveTab('actions');
+      const photoData = await getPhotoData();
+      const templateId = cv.templateId ?? 'sidebar_bleu';
+      const html = generateCVHTML(cv, photoData, templateId);
+      genererPDFWeb(html);
+      return;
     }
 
-  } catch (err: any) {
-    console.error('Erreur génération:', err);
-    Alert.alert('Erreur', 'Impossible de générer le PDF : ' + err.message);
-  } finally {
-    setLoading(false);
-  }
-};
+    try {
+      await Sharing.shareAsync(pdfUri, {
+        mimeType: 'application/pdf',
+        dialogTitle: 'Télécharger votre CV',
+        UTI: 'com.adobe.pdf',
+      });
+    } catch (e) { console.error(e); }
+  };
 
-const handleDownload = async () => {
-  if (!pdfUri) return;
+  const handlePrint = async () => {
+    if (Platform.OS === 'web') {
+      const photoData = await getPhotoData();
+      const templateId = cv.templateId ?? 'sidebar_bleu';
+      const html = generateCVHTML(cv, photoData, templateId);
+      genererPDFWeb(html);
+      return;
+    }
 
-  if (Platform.OS === 'web') {
-    const photoData = await getPhotoData();
-    const html = generateCVHTML(cv, photoData, cv.templateId ?? 'sidebar_bleu');
-    await genererPDFWeb(html);
-    return;
-  }
-
-  try {
-    await Sharing.shareAsync(pdfUri, {
-      mimeType: 'application/pdf',
-      dialogTitle: 'Télécharger votre CV',
-      UTI: 'com.adobe.pdf',
-    });
-  } catch (e) { console.error(e); }
-};
-
-const handlePrint = async () => {
-  if (Platform.OS === 'web') {
-    const photoData = await getPhotoData();
-    const html = generateCVHTML(cv, photoData, cv.templateId ?? 'sidebar_bleu');
-    await genererPDFWeb(html);
-    return;
-  }
-
-  try {
-    const photoData = await getPhotoData();
-    const html = generateCVHTML(cv, photoData, cv.templateId ?? 'sidebar_bleu');
-    await Print.printAsync({ html });
-  } catch (e) { console.error(e); }
-};
+    try {
+      const photoData = await getPhotoData();
+      const templateId = cv.templateId ?? 'sidebar_bleu';
+      const html = generateCVHTML(cv, photoData, templateId);
+      await Print.printAsync({ html });
+    } catch (e) { console.error(e); }
+  };
 
   const handleSauvegarder = async () => {
     try {
@@ -297,7 +295,6 @@ const handlePrint = async () => {
     }
   };
 
-  // ── Composant InfoRow ─────────────────────────────────────────────────────
   const InfoRow = ({ label, value, color }: { label: string; value: string; color?: string }) => (
     <View style={styles.infoRow}>
       <Text style={styles.infoLabel}>{label}</Text>
@@ -305,11 +302,9 @@ const handlePrint = async () => {
     </View>
   );
 
-  // ── Rendu ─────────────────────────────────────────────────────────────────
   return (
     <View style={styles.container}>
 
-      {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
           <Text style={styles.backText}>←</Text>
@@ -323,7 +318,6 @@ const handlePrint = async () => {
         </TouchableOpacity>
       </View>
 
-      {/* Score */}
       <Animated.View style={[styles.scoreBar, { opacity: fadeAnim }]}>
         <View style={styles.scoreRow}>
           <Text style={styles.scoreLabel}>Complétion du CV</Text>
@@ -339,7 +333,6 @@ const handlePrint = async () => {
         </View>
       </Animated.View>
 
-      {/* Tabs */}
       <View style={styles.tabs}>
         <TouchableOpacity
           style={[styles.tab, activeTab === 'apercu' && styles.tabActive]}
@@ -365,7 +358,6 @@ const handlePrint = async () => {
           transform: [{ translateY: slideAnim }, { scale: scaleAnim }]
         }}>
 
-          {/* ── TAB APERÇU ── */}
           {activeTab === 'apercu' && (
             <>
               <View style={styles.templateCard}>
@@ -422,32 +414,31 @@ const handlePrint = async () => {
                   {loading
                     ? <ActivityIndicator color="#fff" size="small" />
                     : <Text style={styles.btnGenererText}>
-                        {Platform.OS === 'web' ? '🖨️ Générer et imprimer le CV' : '🔄 Générer le PDF'}
+                        {Platform.OS === 'web' ? '📄 Générer le CV PDF' : '🔄 Générer le PDF'}
                       </Text>
                   }
                 </TouchableOpacity>
               ) : (
                 <TouchableOpacity style={styles.btnDownload} onPress={handleDownload}>
                   <Text style={styles.btnDownloadText}>
-                    {Platform.OS === 'web' ? '🖨️ Imprimer / Sauvegarder PDF' : '⬇️ Télécharger le PDF'}
+                    {Platform.OS === 'web' ? '📄 Télécharger le CV PDF' : '⬇️ Télécharger le PDF'}
                   </Text>
                 </TouchableOpacity>
               )}
             </>
           )}
 
-          {/* ── TAB ACTIONS ── */}
           {activeTab === 'actions' && (
             <>
               <View style={[styles.statusCard, { borderColor: pdfUri ? '#16a34a' : '#f59e0b' }]}>
                 <Text style={styles.statusEmoji}>{pdfUri ? '✅' : '⏳'}</Text>
                 <View style={styles.statusInfo}>
                   <Text style={styles.statusTitle}>
-                    {pdfUri ? 'CV prêt à imprimer' : 'CV non généré'}
+                    {pdfUri ? 'CV prêt' : 'CV non généré'}
                   </Text>
                   <Text style={styles.statusSub}>
                     {pdfUri
-                      ? `${cv.prenom ?? ''}_${cv.nom ?? ''}_CV`
+                      ? `${cv.prenom ?? ''}_${cv.nom ?? ''}_CV.pdf`
                       : 'Cliquez sur "Générer" pour créer le CV'
                     }
                   </Text>
@@ -468,10 +459,10 @@ const handlePrint = async () => {
                       <Text style={styles.actionBtnIcon}>{'🔄'}</Text>
                       <View style={styles.actionBtnInfo}>
                         <Text style={styles.actionBtnTitle}>
-                          {pdfUri ? 'Regénérer' : Platform.OS === 'web' ? 'Générer et imprimer' : 'Générer le PDF'}
+                          {pdfUri ? 'Regénérer' : Platform.OS === 'web' ? 'Générer le PDF' : 'Générer le PDF'}
                         </Text>
                         <Text style={styles.actionBtnSub}>
-                          {Platform.OS === 'web' ? 'Ouvre la boîte d\'impression' : 'Crée un fichier PDF'}
+                          {Platform.OS === 'web' ? 'Télécharge un fichier PDF' : 'Crée un fichier PDF'}
                         </Text>
                       </View>
                     </>
@@ -484,10 +475,10 @@ const handlePrint = async () => {
                       <Text style={styles.actionBtnIcon}>{'⬇️'}</Text>
                       <View style={styles.actionBtnInfo}>
                         <Text style={styles.actionBtnTitle}>
-                          {Platform.OS === 'web' ? 'Imprimer / Sauvegarder PDF' : 'Télécharger / Partager'}
+                          {Platform.OS === 'web' ? 'Télécharger le PDF' : 'Télécharger / Partager'}
                         </Text>
                         <Text style={styles.actionBtnSub}>
-                          {Platform.OS === 'web' ? 'Sauvegardez en PDF depuis la boîte d\'impression' : 'Enregistrez ou envoyez le PDF'}
+                          {Platform.OS === 'web' ? 'Enregistre le PDF sur votre appareil' : 'Enregistrez ou envoyez le PDF'}
                         </Text>
                       </View>
                     </TouchableOpacity>
