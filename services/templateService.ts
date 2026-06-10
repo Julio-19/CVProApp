@@ -167,11 +167,11 @@ case 'harbor_blue':       return templateHarborBlue(cv, photo);
 };
 
 const base = `
-* { margin:0; padding:0; box-sizing:border-box; }
-body { font-family: Arial, sans-serif; font-size:12px; }
+* { margin:0; padding:0; box-sizing:border-box; -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; color-adjust:exact !important; }
+body { font-family: Arial, sans-serif; font-size:12px; -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
 @media print {
-  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
-  body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  * { -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; color-adjust:exact !important; }
+  html, body { -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
 }`;
 
 // ═══════════════════════════════════════════════════════
