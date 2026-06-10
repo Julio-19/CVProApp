@@ -30,23 +30,7 @@ const getTemplateColor = (templateId: string): string => {
   return colors[templateId] ?? '#534AB7';
 };
 
-// ── Fonction impression iframe (web uniquement) ───────────────────────────────
 const imprimerViaIframe = (html: string) => {
-  // Injecter le CSS d'impression AVANT d'écrire le HTML
-  const htmlAvecPrint = html.replace(
-    '<style>',
-    `<style>
-@media print {
-  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
-  body { -webkit-print-color-adjust: exact !important; }
-}
-`
-  ).replace(
-    '* { margin:0; padding:0; box-sizing:border-box; } body { font-family: Arial, sans-serif; font-size:12px; }',
-    `* { margin:0; padding:0; box-sizing:border-box; } body { font-family: Arial, sans-serif; font-size:12px; }
-@media print { * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; } }`
-  );
-
   const iframe = document.createElement('iframe');
   iframe.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:none;visibility:hidden;';
   document.body.appendChild(iframe);
@@ -54,22 +38,34 @@ const imprimerViaIframe = (html: string) => {
   const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
   if (!iframeDoc) { document.body.removeChild(iframe); return; }
 
+  // Injecter le CSS d'impression avant tout
+  const printCSS = `
+    <style>
+      * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
+      @media print {
+        * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
+        html, body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+      }
+    </style>
+  `;
+
+  // Injecter le CSS DANS le HTML du template
+  const htmlModifie = html.replace('</head>', printCSS + '</head>');
+
   iframeDoc.open();
-  iframeDoc.write(htmlAvecPrint);
+  iframeDoc.write(htmlModifie);
   iframeDoc.close();
 
   iframe.onload = () => {
     setTimeout(() => {
-      // Forcer les couleurs dans l'iframe aussi
-      if (iframe.contentWindow) {
-        const style = iframeDoc.createElement('style');
-        style.textContent = `
-          @media print {
-            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
-          }
-        `;
-        iframeDoc.head.appendChild(style);
-      }
+      // Forcer aussi via JS
+      const styleEl = iframeDoc.createElement('style');
+      styleEl.textContent = `
+        * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
+        @media print { * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; } }
+      `;
+      iframeDoc.head?.appendChild(styleEl);
+
       iframe.contentWindow?.print();
       setTimeout(() => {
         try { document.body.removeChild(iframe); } catch(e) {}
@@ -77,6 +73,7 @@ const imprimerViaIframe = (html: string) => {
     }, 800);
   };
 };
+
 
 export default function SavedScreen() {
   const cv = useCVStore();
