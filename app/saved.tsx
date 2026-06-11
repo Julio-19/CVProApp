@@ -115,6 +115,7 @@ const genererPDFWeb = async (html: string, nomCV: string = 'CV'): Promise<void> 
     }, 800);
 
   } else {
+    
     // ── Sur PC : ouvrir dans un nouvel onglet avec impression automatique ──
     const newWindow = window.open(blobUrl, '_blank');
 
