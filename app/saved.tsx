@@ -30,84 +30,104 @@ const getTemplateColor = (templateId: string): string => {
   return colors[templateId] ?? '#534AB7';
 };
 
-// ── Génération et téléchargement avec couleurs forcées ───────────────────
 const genererPDFWeb = async (html: string, nomCV: string = 'Mon_CV'): Promise<void> => {
-  // Détecter si on est sur mobile
   const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
+  // CSS forcé pour les couleurs de fond
+  const forcedCSS = `
+    <style id="force-print-colors">
+      *, *::before, *::after {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        color-adjust: exact !important;
+      }
+      html, body {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+    </style>
+  `;
+
+  const htmlFinal = html.includes('</head>')
+    ? html.replace('</head>', forcedCSS + '</head>')
+    : forcedCSS + html;
+
   if (isMobile) {
-    // ── Sur mobile : Utiliser html2pdf pour garantir les couleurs ──────────
+    // ── Sur mobile : html2pdf.js pour générer PDF avec couleurs ──────────
     try {
-      // Créer un conteneur temporaire
-      const container = document.createElement('div');
-      container.style.position = 'fixed';
-      container.style.top = '0';
-      container.style.left = '0';
-      container.style.width = '794px';
-      container.style.zIndex = '-9999';
-      container.style.opacity = '0';
-      container.style.pointerEvents = 'none';
-      container.innerHTML = html;
-      document.body.appendChild(container);
-
-      // Attendre le chargement
-      await new Promise(resolve => setTimeout(resolve, 1500));
-
-      // Vérifier si html2pdf est disponible (chargé via CDN)
+      // Vérifier que html2pdf est chargé
       if (typeof (window as any).html2pdf === 'undefined') {
         throw new Error('html2pdf non disponible');
       }
 
-      // Configuration pour html2pdf
+      // Créer conteneur temporaire avec le HTML du CV
+      const container = document.createElement('div');
+      container.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 794px;
+        min-height: 1123px;
+        z-index: -9999;
+        opacity: 0;
+        pointer-events: none;
+        background: white;
+      `;
+      container.innerHTML = htmlFinal;
+      document.body.appendChild(container);
+
+      // Attendre rendu des styles
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
       const opt = {
         margin: 0,
         filename: `${nomCV}_CV.pdf`,
         image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { 
+        html2canvas: {
           scale: 2,
           useCORS: true,
+          allowTaint: true,
           backgroundColor: null,
           logging: false,
+          width: 794,
+          windowWidth: 794,
         },
-        jsPDF: { 
-          unit: 'mm', 
-          format: 'a4', 
-          orientation: 'portrait' 
+        jsPDF: {
+          unit: 'mm',
+          format: 'a4',
+          orientation: 'portrait',
         },
-        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
       };
 
-      // Générer le PDF avec la bibliothèque chargée via CDN
       await (window as any).html2pdf().set(opt).from(container).save();
-      
+
       // Nettoyer
       if (document.body.contains(container)) {
         document.body.removeChild(container);
       }
-      
-      // Notification de succès
+
       setTimeout(() => {
         Alert.alert(
-          '✅ CV généré avec succès !',
-          'Votre CV avec toutes les couleurs a été téléchargé.\n\n' +
-          'Le fichier se trouve dans vos téléchargements.',
-          [{ text: 'Super !', style: 'default' }]
+          '✅ CV téléchargé !',
+          'Votre CV PDF avec toutes les couleurs a été téléchargé dans vos fichiers.',
+          [{ text: 'Super !' }]
         );
       }, 500);
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erreur html2pdf:', error);
-      
-      // Nettoyer le conteneur si erreur
-      const oldContainer = document.querySelector('div[style*="z-index: -9999"]');
-      if (oldContainer) {
-        document.body.removeChild(oldContainer);
-      }
-      
-      // Fallback: Télécharger le HTML avec instructions
-      const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+
+      // Nettoyer si erreur
+      const containers = document.querySelectorAll('div[style*="z-index: -9999"]');
+      containers.forEach(c => {
+        try { document.body.removeChild(c); } catch(e) {}
+      });
+
+      // Fallback : télécharger HTML
+      const blob = new Blob([htmlFinal], { type: 'text/html;charset=utf-8' });
       const blobUrl = URL.createObjectURL(blob);
-      
       const a = document.createElement('a');
       a.href = blobUrl;
       a.download = `${nomCV}_CV.html`;
@@ -115,80 +135,69 @@ const genererPDFWeb = async (html: string, nomCV: string = 'Mon_CV'): Promise<vo
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
-
-      setTimeout(() => {
-        try { URL.revokeObjectURL(blobUrl); } catch(e) {}
-      }, 5000);
+      setTimeout(() => { try { URL.revokeObjectURL(blobUrl); } catch(e) {} }, 5000);
 
       setTimeout(() => {
         Alert.alert(
           '📄 CV téléchargé en HTML',
-          'Pour obtenir un PDF avec couleurs :\n\n' +
-          '1️⃣ Ouvrez le fichier dans Chrome\n' +
-          '2️⃣ Menu → Imprimer\n' +
-          '3️⃣ Activez "Arrière-plan"\n' +
-          '4️⃣ Enregistrez en PDF',
-          [{ text: 'OK' }]
+          'Pour un PDF avec couleurs :\n\n' +
+          '1️⃣ Ouvrez le fichier avec Chrome\n' +
+          '2️⃣ Menu ⋮ → Imprimer\n' +
+          '3️⃣ Enregistrer en PDF\n\n' +
+          '✅ Toutes les couleurs seront présentes !',
+          [{ text: 'OK, compris !' }]
         );
-      }, 300);
+      }, 500);
     }
 
   } else {
-    // ── Sur PC : Impression directe avec popup ────────────────────────────
-    const newWindow = window.open('', '_blank', 'width=1200,height=800');
-    
-    if (newWindow) {
-      const htmlWithPrint = html.replace('</head>', `
-        <style>
-          @media print {
-            * { 
-              -webkit-print-color-adjust: exact !important;
-              print-color-adjust: exact !important;
-            }
-            @page { 
-              margin: 0; 
-              size: A4 portrait; 
-            }
+    // ── Sur PC : ouvrir nouvel onglet avec impression auto ────────────────
+    const htmlPC = htmlFinal.replace('</head>', `
+      <style>
+        @media print {
+          *, *::before, *::after {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+            color-adjust: exact !important;
           }
-        </style>
-        <script>
-          window.onload = function() {
-            setTimeout(function() {
-              window.print();
-            }, 500);
-          };
-          window.onafterprint = function() {
-            window.close();
-          };
-        </script>
-        </head>
-      `);
-      
-      newWindow.document.write(htmlWithPrint);
-      newWindow.document.close();
+          @page { margin: 0; size: A4 portrait; }
+          body { margin: 0 !important; }
+        }
+      </style>
+      <script>
+        window.addEventListener('load', function() {
+          setTimeout(function() { window.print(); }, 600);
+        });
+        window.addEventListener('afterprint', function() {
+          setTimeout(function() { window.close(); }, 300);
+        });
+      </script>
+    </head>`);
 
+    const newWindow = window.open('', '_blank', 'width=1200,height=800');
+    if (newWindow) {
+      newWindow.document.write(htmlPC);
+      newWindow.document.close();
     } else {
-      // Popups bloquées → fallback téléchargement
-      const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+      // Popups bloquées → télécharger HTML
+      const blob = new Blob([htmlFinal], { type: 'text/html;charset=utf-8' });
       const blobUrl = URL.createObjectURL(blob);
-      
       const a = document.createElement('a');
       a.href = blobUrl;
       a.download = `${nomCV}_CV.html`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
-
-      setTimeout(() => URL.revokeObjectURL(blobUrl), 5000);
-
+      setTimeout(() => { try { URL.revokeObjectURL(blobUrl); } catch(e) {} }, 5000);
       Alert.alert(
         '📄 CV téléchargé',
-        'Ouvrez le fichier et faites Ctrl+P pour imprimer en PDF avec couleurs.',
+        'Ouvrez le fichier HTML dans Chrome et faites Ctrl+P pour imprimer en PDF avec toutes les couleurs.',
         [{ text: 'OK' }]
       );
     }
   }
 };
+
 
 export default function SavedScreen() {
   const cv = useCVStore();
