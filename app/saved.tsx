@@ -36,130 +36,82 @@ const getTemplateColor = (templateId: string): string => {
   return colors[templateId] ?? '#534AB7';
 };
 
-// ── Génération et téléchargement HTML avec couleurs forcées ───────────────────
 // ── Génération et téléchargement avec couleurs forcées ───────────────────
 const genererPDFWeb = async (html: string, nomCV: string = 'Mon_CV'): Promise<void> => {
-  // CSS qui force ABSOLUMENT toutes les couleurs de fond
-  const forcedCSS = `
-    <style>
-      * {
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
-        color-adjust: exact !important;
-      }
-      
-      html, body {
-        margin: 0 !important;
-        padding: 0 !important;
-        width: 210mm !important;
-        min-height: 297mm !important;
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
-        background-color: white !important;
-      }
-      
-      @media print {
-        * {
-          -webkit-print-color-adjust: exact !important;
-          print-color-adjust: exact !important;
-          color-adjust: exact !important;
-        }
-        
-        html, body {
-          -webkit-print-color-adjust: exact !important;
-          print-color-adjust: exact !important;
-          margin: 0 !important;
-          padding: 0 !important;
-        }
-        
-        @page {
-          margin: 0;
-          size: A4 portrait;
-        }
-      }
-    </style>
-  `;
-
-  // Injecter le CSS dans le <head> du HTML du template
-  const htmlFinal = html.includes('</head>')
-    ? html.replace('</head>', forcedCSS + '</head>')
-    : forcedCSS + html;
-
   // Détecter si on est sur mobile
   const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
   if (isMobile) {
-    // ── Sur mobile : solution iframe pour forcer les couleurs ──────────────
+    // ── Sur mobile : Utiliser html2pdf pour garantir les couleurs ──────────
     try {
-      // Créer une iframe visible pour le rendu
-      const iframe = document.createElement('iframe');
-      iframe.style.position = 'fixed';
-      iframe.style.top = '0';
-      iframe.style.left = '0';
-      iframe.style.width = '100%';
-      iframe.style.height = '100%';
-      iframe.style.border = 'none';
-      iframe.style.zIndex = '999999';
-      iframe.style.backgroundColor = 'white';
-      document.body.appendChild(iframe);
+      // Créer un conteneur temporaire
+      const container = document.createElement('div');
+      container.style.position = 'fixed';
+      container.style.top = '0';
+      container.style.left = '0';
+      container.style.width = '794px';
+      container.style.zIndex = '-9999';
+      container.style.opacity = '0';
+      container.style.pointerEvents = 'none';
+      container.innerHTML = html;
+      document.body.appendChild(container);
 
-      const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
-      if (!iframeDoc) {
-        throw new Error('Impossible d\'accéder au document de l\'iframe');
-      }
-
-      iframeDoc.open();
-      iframeDoc.write(htmlFinal);
-      iframeDoc.close();
-
-      // Attendre que le contenu soit chargé
+      // Attendre le chargement
       await new Promise(resolve => setTimeout(resolve, 1500));
 
-      // Afficher les instructions avant l'impression
+      // Vérifier si html2pdf est disponible (chargé via CDN)
+      if (typeof (window as any).html2pdf === 'undefined') {
+        throw new Error('html2pdf non disponible');
+      }
+
+      // Configuration pour html2pdf
+      const opt = {
+        margin: 0,
+        filename: `${nomCV}_CV.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { 
+          scale: 2,
+          useCORS: true,
+          backgroundColor: null,
+          logging: false,
+        },
+        jsPDF: { 
+          unit: 'mm', 
+          format: 'a4', 
+          orientation: 'portrait' 
+        },
+        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+      };
+
+      // Générer le PDF avec la bibliothèque chargée via CDN
+      await (window as any).html2pdf().set(opt).from(container).save();
+      
+      // Nettoyer
+      if (document.body.contains(container)) {
+        document.body.removeChild(container);
+      }
+      
+      // Notification de succès
       setTimeout(() => {
         Alert.alert(
-          '📱 Impression du CV',
-          'La boîte de dialogue d\'impression va s\'ouvrir.\n\n' +
-          '⚠️ ÉTAPE CRUCIALE : Dans les options d\'impression :\n\n' +
-          '1️⃣ Cherchez "Plus de paramètres" ou "Options avancées"\n' +
-          '2️⃣ Activez OBLIGATOIREMENT "Arrière-plan" ou "Graphiques d\'arrière-plan"\n' +
-          '3️⃣ Choisissez "Enregistrer en PDF"\n\n' +
-          '✅ Sans cette option, les couleurs ne s\'afficheront pas !',
-          [
-            {
-              text: 'OK, imprimer',
-              onPress: () => {
-                setTimeout(() => {
-                  iframe.contentWindow?.focus();
-                  iframe.contentWindow?.print();
-                  
-                  // Nettoyer l'iframe après l'impression
-                  setTimeout(() => {
-                    if (document.body.contains(iframe)) {
-                      document.body.removeChild(iframe);
-                    }
-                  }, 3000);
-                }, 500);
-              }
-            },
-            {
-              text: 'Annuler',
-              style: 'cancel',
-              onPress: () => {
-                if (document.body.contains(iframe)) {
-                  document.body.removeChild(iframe);
-                }
-              }
-            }
-          ]
+          '✅ CV généré avec succès !',
+          'Votre CV avec toutes les couleurs a été téléchargé.\n\n' +
+          'Le fichier se trouve dans vos téléchargements.',
+          [{ text: 'Super !', style: 'default' }]
         );
       }, 500);
 
     } catch (error) {
-      console.error('Erreur impression mobile:', error);
+      console.error('Erreur html2pdf:', error);
       
-      // Fallback: Télécharger le HTML avec instructions détaillées
-      const blob = new Blob([htmlFinal], { type: 'text/html;charset=utf-8' });
+      // Nettoyer le conteneur si erreur
+      const oldContainer = document.querySelector('div[style*="z-index: -9999"]');
+      if (oldContainer) {
+        document.body.removeChild(oldContainer);
+      }
+      
+      // Fallback: Télécharger le HTML avec instructions
+      const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
       const blobUrl = URL.createObjectURL(blob);
       
       const a = document.createElement('a');
@@ -174,77 +126,70 @@ const genererPDFWeb = async (html: string, nomCV: string = 'Mon_CV'): Promise<vo
         try { URL.revokeObjectURL(blobUrl); } catch(e) {}
       }, 5000);
 
-      Alert.alert(
-        '📄 CV téléchargé !',
-        'Pour obtenir un PDF avec toutes les couleurs :\n\n' +
-        '1️⃣ Ouvrez le fichier téléchargé avec Chrome\n' +
-        '2️⃣ Appuyez sur ⋮ (menu) → "Partager" ou "Imprimer"\n' +
-        '3️⃣ Dans les options, activez "Arrière-plan"\n' +
-        '4️⃣ Choisissez "Enregistrer en PDF"\n\n' +
-        '✅ Votre CV aura toutes les couleurs !',
-        [{ text: 'OK, compris !', style: 'default' }]
-      );
+      setTimeout(() => {
+        Alert.alert(
+          '📄 CV téléchargé en HTML',
+          'Pour obtenir un PDF avec couleurs :\n\n' +
+          '1️⃣ Ouvrez le fichier dans Chrome\n' +
+          '2️⃣ Menu → Imprimer\n' +
+          '3️⃣ Activez "Arrière-plan"\n' +
+          '4️⃣ Enregistrez en PDF',
+          [{ text: 'OK' }]
+        );
+      }, 300);
     }
 
   } else {
-    // ── Sur PC : ouvrir dans une popup avec instructions ──────────────────
+    // ── Sur PC : Impression directe avec popup ────────────────────────────
     const newWindow = window.open('', '_blank', 'width=1200,height=800');
     
     if (newWindow) {
-      newWindow.document.write(htmlFinal);
-      newWindow.document.close();
-      
-      // Attendre le chargement complet
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Instructions pour PC
-      Alert.alert(
-        '🖨️ Impression du CV',
-        'La boîte de dialogue d\'impression va s\'ouvrir.\n\n' +
-        '⚠️ IMPORTANT :\n' +
-        '• Cochez "Graphiques d\'arrière-plan"\n' +
-        '• Choisissez "Enregistrer en PDF"\n' +
-        '• Marges : Aucune\n\n' +
-        '✅ Votre CV aura toutes les couleurs !',
-        [
-          {
-            text: 'OK, imprimer',
-            onPress: () => {
-              newWindow.print();
-              
-              // Fermer la fenêtre après l'impression
-              newWindow.addEventListener('afterprint', () => {
-                newWindow.close();
-              });
+      const htmlWithPrint = html.replace('</head>', `
+        <style>
+          @media print {
+            * { 
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
+            }
+            @page { 
+              margin: 0; 
+              size: A4 portrait; 
             }
           }
-        ]
-      );
+        </style>
+        <script>
+          window.onload = function() {
+            setTimeout(function() {
+              window.print();
+            }, 500);
+          };
+          window.onafterprint = function() {
+            window.close();
+          };
+        </script>
+        </head>
+      `);
       
+      newWindow.document.write(htmlWithPrint);
+      newWindow.document.close();
+
     } else {
-      // Popups bloquées → télécharger le fichier
-      const blob = new Blob([htmlFinal], { type: 'text/html;charset=utf-8' });
+      // Popups bloquées → fallback téléchargement
+      const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
       const blobUrl = URL.createObjectURL(blob);
       
       const a = document.createElement('a');
       a.href = blobUrl;
       a.download = `${nomCV}_CV.html`;
-      a.style.display = 'none';
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
 
-      setTimeout(() => {
-        try { URL.revokeObjectURL(blobUrl); } catch(e) {}
-      }, 5000);
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 5000);
 
       Alert.alert(
-        '📄 CV téléchargé !',
-        'Les popups sont bloquées.\n\n' +
-        '1️⃣ Ouvrez le fichier téléchargé avec Chrome\n' +
-        '2️⃣ Appuyez sur Ctrl+P\n' +
-        '3️⃣ Activez "Graphiques d\'arrière-plan"\n' +
-        '4️⃣ Enregistrez en PDF',
+        '📄 CV téléchargé',
+        'Ouvrez le fichier et faites Ctrl+P pour imprimer en PDF avec couleurs.',
         [{ text: 'OK' }]
       );
     }
