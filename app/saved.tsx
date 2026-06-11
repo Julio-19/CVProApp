@@ -8,16 +8,12 @@ import { sauvegarderCV, uploaderPhoto } from '../services/cvService';
 import { useState, useEffect, useRef } from 'react';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
-import html2pdf from 'html2pdf.js';
 import * as FileSystem from 'expo-file-system/legacy';
 import { useCVStore } from '../store/cvStore';
 import { Colors } from '../constants/colors';
 import { generateCVHTML } from '../services/templateService';
 import { notifCVSauvegarde, notifPDFGenere } from '../services/notificationService';
-// En haut du fichier, après les imports
-declare global {
-  function html2pdf(): any;
-}
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
 const { width } = Dimensions.get('window');
