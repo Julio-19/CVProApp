@@ -32,45 +32,47 @@ const getTemplateColor = (templateId: string): string => {
 };
 
 // ── Génération et téléchargement HTML avec couleurs forcées ───────────────────
-const genererPDFWeb = async (html: string, nomCV: string = 'CV'): Promise<void> => {
-
+// ── Génération et téléchargement avec couleurs forcées ───────────────────
+const genererPDFWeb = async (html: string, nomCV: string = 'Mon_CV'): Promise<void> => {
   // CSS qui force ABSOLUMENT toutes les couleurs de fond
   const forcedCSS = `
-    <style id="force-print-colors">
-      *, *::before, *::after {
+    <style>
+      * {
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
         color-adjust: exact !important;
       }
+      
       html, body {
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 210mm !important;
+        min-height: 297mm !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
+        background-color: white !important;
       }
+      
       @media print {
-        *, *::before, *::after {
+        * {
           -webkit-print-color-adjust: exact !important;
           print-color-adjust: exact !important;
           color-adjust: exact !important;
         }
+        
         html, body {
           -webkit-print-color-adjust: exact !important;
           print-color-adjust: exact !important;
           margin: 0 !important;
           padding: 0 !important;
         }
+        
         @page {
           margin: 0;
           size: A4 portrait;
         }
       }
     </style>
-    <script>
-      window.addEventListener('load', function() {
-        setTimeout(function() {
-          window.print();
-        }, 800);
-      });
-    </script>
   `;
 
   // Injecter le CSS dans le <head> du HTML du template
@@ -78,49 +80,83 @@ const genererPDFWeb = async (html: string, nomCV: string = 'CV'): Promise<void> 
     ? html.replace('</head>', forcedCSS + '</head>')
     : forcedCSS + html;
 
-  // Créer un Blob HTML
-  const blob = new Blob([htmlFinal], { type: 'text/html;charset=utf-8' });
-  const blobUrl = URL.createObjectURL(blob);
-
   // Détecter si on est sur mobile
   const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
   if (isMobile) {
-    // ── Sur mobile : télécharger le fichier HTML directement ──────────────
-    const a = document.createElement('a');
-    a.href = blobUrl;
-    a.download = `${nomCV}_CV.html`;
-    a.style.display = 'none';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+    // ── Sur mobile : solution iframe pour forcer les couleurs ──────────────
+    try {
+      // Créer une iframe visible pour le rendu
+      const iframe = document.createElement('iframe');
+      iframe.style.position = 'fixed';
+      iframe.style.top = '0';
+      iframe.style.left = '0';
+      iframe.style.width = '100%';
+      iframe.style.height = '100%';
+      iframe.style.border = 'none';
+      iframe.style.zIndex = '999999';
+      iframe.style.backgroundColor = 'white';
+      document.body.appendChild(iframe);
 
-    // Libérer l'URL après 5 secondes
-    setTimeout(() => {
-      try { URL.revokeObjectURL(blobUrl); } catch(e) {}
-    }, 5000);
+      const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+      if (!iframeDoc) {
+        throw new Error('Impossible d\'accéder au document de l\'iframe');
+      }
 
-    // Message d'instruction clair pour l'utilisateur
-    setTimeout(() => {
-      Alert.alert(
-        '📄 CV téléchargé !',
-        'Pour obtenir un PDF avec toutes les couleurs :\n\n' +
-        '1️⃣ Ouvrez le fichier téléchargé avec Chrome\n' +
-        '2️⃣ Appuyez sur ⋮ (menu)\n' +
-        '3️⃣ Choisissez "Partager" ou "Imprimer"\n' +
-        '4️⃣ Sélectionnez "Enregistrer en PDF"\n\n' +
-        '✅ Votre CV aura toutes les couleurs !',
-        [{ text: 'OK, compris !', style: 'default' }]
-      );
-    }, 800);
+      iframeDoc.open();
+      iframeDoc.write(htmlFinal);
+      iframeDoc.close();
 
-  } else {
-    
-    // ── Sur PC : ouvrir dans un nouvel onglet avec impression automatique ──
-    const newWindow = window.open(blobUrl, '_blank');
+      // Attendre que le contenu soit chargé
+      await new Promise(resolve => setTimeout(resolve, 1500));
 
-    if (!newWindow) {
-      // Popups bloquées → télécharger le fichier
+      // Afficher les instructions avant l'impression
+      setTimeout(() => {
+        Alert.alert(
+          '📱 Impression du CV',
+          'La boîte de dialogue d\'impression va s\'ouvrir.\n\n' +
+          '⚠️ ÉTAPE CRUCIALE : Dans les options d\'impression :\n\n' +
+          '1️⃣ Cherchez "Plus de paramètres" ou "Options avancées"\n' +
+          '2️⃣ Activez OBLIGATOIREMENT "Arrière-plan" ou "Graphiques d\'arrière-plan"\n' +
+          '3️⃣ Choisissez "Enregistrer en PDF"\n\n' +
+          '✅ Sans cette option, les couleurs ne s\'afficheront pas !',
+          [
+            {
+              text: 'OK, imprimer',
+              onPress: () => {
+                setTimeout(() => {
+                  iframe.contentWindow?.focus();
+                  iframe.contentWindow?.print();
+                  
+                  // Nettoyer l'iframe après l'impression
+                  setTimeout(() => {
+                    if (document.body.contains(iframe)) {
+                      document.body.removeChild(iframe);
+                    }
+                  }, 3000);
+                }, 500);
+              }
+            },
+            {
+              text: 'Annuler',
+              style: 'cancel',
+              onPress: () => {
+                if (document.body.contains(iframe)) {
+                  document.body.removeChild(iframe);
+                }
+              }
+            }
+          ]
+        );
+      }, 500);
+
+    } catch (error) {
+      console.error('Erreur impression mobile:', error);
+      
+      // Fallback: Télécharger le HTML avec instructions détaillées
+      const blob = new Blob([htmlFinal], { type: 'text/html;charset=utf-8' });
+      const blobUrl = URL.createObjectURL(blob);
+      
       const a = document.createElement('a');
       a.href = blobUrl;
       a.download = `${nomCV}_CV.html`;
@@ -129,17 +165,84 @@ const genererPDFWeb = async (html: string, nomCV: string = 'CV'): Promise<void> 
       a.click();
       document.body.removeChild(a);
 
+      setTimeout(() => {
+        try { URL.revokeObjectURL(blobUrl); } catch(e) {}
+      }, 5000);
+
       Alert.alert(
         '📄 CV téléchargé !',
-        'Ouvrez le fichier HTML dans Chrome et appuyez sur Ctrl+P pour imprimer en PDF avec toutes les couleurs.',
-        [{ text: 'OK' }]
+        'Pour obtenir un PDF avec toutes les couleurs :\n\n' +
+        '1️⃣ Ouvrez le fichier téléchargé avec Chrome\n' +
+        '2️⃣ Appuyez sur ⋮ (menu) → "Partager" ou "Imprimer"\n' +
+        '3️⃣ Dans les options, activez "Arrière-plan"\n' +
+        '4️⃣ Choisissez "Enregistrer en PDF"\n\n' +
+        '✅ Votre CV aura toutes les couleurs !',
+        [{ text: 'OK, compris !', style: 'default' }]
       );
     }
 
-    // Libérer l'URL après 30 secondes
-    setTimeout(() => {
-      try { URL.revokeObjectURL(blobUrl); } catch(e) {}
-    }, 30000);
+  } else {
+    // ── Sur PC : ouvrir dans une popup avec instructions ──────────────────
+    const newWindow = window.open('', '_blank', 'width=1200,height=800');
+    
+    if (newWindow) {
+      newWindow.document.write(htmlFinal);
+      newWindow.document.close();
+      
+      // Attendre le chargement complet
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Instructions pour PC
+      Alert.alert(
+        '🖨️ Impression du CV',
+        'La boîte de dialogue d\'impression va s\'ouvrir.\n\n' +
+        '⚠️ IMPORTANT :\n' +
+        '• Cochez "Graphiques d\'arrière-plan"\n' +
+        '• Choisissez "Enregistrer en PDF"\n' +
+        '• Marges : Aucune\n\n' +
+        '✅ Votre CV aura toutes les couleurs !',
+        [
+          {
+            text: 'OK, imprimer',
+            onPress: () => {
+              newWindow.print();
+              
+              // Fermer la fenêtre après l'impression
+              newWindow.addEventListener('afterprint', () => {
+                newWindow.close();
+              });
+            }
+          }
+        ]
+      );
+      
+    } else {
+      // Popups bloquées → télécharger le fichier
+      const blob = new Blob([htmlFinal], { type: 'text/html;charset=utf-8' });
+      const blobUrl = URL.createObjectURL(blob);
+      
+      const a = document.createElement('a');
+      a.href = blobUrl;
+      a.download = `${nomCV}_CV.html`;
+      a.style.display = 'none';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+
+      setTimeout(() => {
+        try { URL.revokeObjectURL(blobUrl); } catch(e) {}
+      }, 5000);
+
+      Alert.alert(
+        '📄 CV téléchargé !',
+        'Les popups sont bloquées.\n\n' +
+        '1️⃣ Ouvrez le fichier téléchargé avec Chrome\n' +
+        '2️⃣ Appuyez sur Ctrl+P\n' +
+        '3️⃣ Activez "Graphiques d\'arrière-plan"\n' +
+        '4️⃣ Enregistrez en PDF',
+        [{ text: 'OK' }]
+      );
+    }
   }
 };
 
