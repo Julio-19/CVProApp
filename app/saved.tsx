@@ -8,7 +8,6 @@ import { sauvegarderCV, uploaderPhoto } from '../services/cvService';
 import { useState, useEffect, useRef } from 'react';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
-import html2pdf from 'html2pdf.js';
 import * as FileSystem from 'expo-file-system/legacy';
 import { useCVStore } from '../store/cvStore';
 import { Colors } from '../constants/colors';
