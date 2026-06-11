@@ -2,7 +2,6 @@ import {
   View, Text, StyleSheet, TouchableOpacity, ScrollView,
   ActivityIndicator, Alert, Animated, Dimensions
 } from 'react-native';
-import html2pdf from 'html2pdf.js';
 import { router } from 'expo-router';
 import { Platform } from 'react-native';
 import { sauvegarderCV, uploaderPhoto } from '../services/cvService';
