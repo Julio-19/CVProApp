@@ -15,6 +15,7 @@ import { useCVStore } from '../store/cvStore';
 import { Colors } from '../constants/colors';
 import { generateCVHTML } from '../services/templateService';
 import { notifCVSauvegarde, notifPDFGenere } from '../services/notificationService';
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
 const { width } = Dimensions.get('window');
 
