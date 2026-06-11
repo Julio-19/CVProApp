@@ -19,26 +19,31 @@ const { width } = Dimensions.get('window');
 // ── Couleur du template ───────────────────────────────────────────────────────
 const getTemplateColor = (templateId: string): string => {
   const colors: Record<string, string> = {
-    sidebar_bleu:  '#1a3a5c', gagnant:      '#1a3a5c', minimaliste:  '#111',
-    teal_student:  '#3d9b8a', dark_sidebar: '#2c2c2c', violet:       '#6b21a8',
-    classique_pro: '#6b7280', bold_noir:    '#111',    bleu_arrondi: '#2563eb',
-    brun_elegant:  '#2a2520', fresher_vert: '#2d5a27', geometrique:  '#e85d30',
-    vert_nature:   '#1e3422', navy_pro:     '#1e3a6e', fresher_dark: '#1a2744',
-    rouge_moderne: '#dc2626', jaune_pro:    '#ca8a04', vert_minimal: '#14532d',
-    orange_sidebar:'#ea580c', rose_elegant: '#831843', dark_orange:  '#f97316',
+    sidebar_bleu:   '#1a3a5c', gagnant:       '#1a3a5c', minimaliste:   '#111',
+    teal_student:   '#3d9b8a', dark_sidebar:  '#2c2c2c', violet:        '#6b21a8',
+    classique_pro:  '#6b7280', bold_noir:     '#111',    bleu_arrondi:  '#2563eb',
+    brun_elegant:   '#2a2520', fresher_vert:  '#2d5a27', geometrique:   '#e85d30',
+    vert_nature:    '#1e3422', navy_pro:      '#1e3a6e', fresher_dark:  '#1a2744',
+    rouge_moderne:  '#dc2626', jaune_pro:     '#ca8a04', vert_minimal:  '#14532d',
+    orange_sidebar: '#ea580c', rose_elegant:  '#831843', dark_orange:   '#f97316',
   };
   return colors[templateId] ?? '#534AB7';
 };
 
-// ── Génération PDF web via iframe caché ───────────────────────────────────────
+// ── Génération et téléchargement HTML avec couleurs forcées ───────────────────
 const genererPDFWeb = async (html: string, nomCV: string = 'CV'): Promise<void> => {
-  // CSS forcé pour toutes les couleurs
+
+  // CSS qui force ABSOLUMENT toutes les couleurs de fond
   const forcedCSS = `
-    <style id="force-colors">
+    <style id="force-print-colors">
       *, *::before, *::after {
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
         color-adjust: exact !important;
+      }
+      html, body {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
       }
       @media print {
         *, *::before, *::after {
@@ -46,17 +51,28 @@ const genererPDFWeb = async (html: string, nomCV: string = 'CV'): Promise<void> 
           print-color-adjust: exact !important;
           color-adjust: exact !important;
         }
-        @page { margin: 0; size: A4 portrait; }
-        body { margin: 0 !important; }
+        html, body {
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+          margin: 0 !important;
+          padding: 0 !important;
+        }
+        @page {
+          margin: 0;
+          size: A4 portrait;
+        }
       }
     </style>
     <script>
       window.addEventListener('load', function() {
-        setTimeout(function() { window.print(); }, 800);
+        setTimeout(function() {
+          window.print();
+        }, 800);
       });
     </script>
   `;
 
+  // Injecter le CSS dans le <head> du HTML du template
   const htmlFinal = html.includes('</head>')
     ? html.replace('</head>', forcedCSS + '</head>')
     : forcedCSS + html;
@@ -69,35 +85,59 @@ const genererPDFWeb = async (html: string, nomCV: string = 'CV'): Promise<void> 
   const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
   if (isMobile) {
-    // Sur mobile : télécharger le fichier HTML
+    // ── Sur mobile : télécharger le fichier HTML directement ──────────────
     const a = document.createElement('a');
     a.href = blobUrl;
     a.download = `${nomCV}_CV.html`;
+    a.style.display = 'none';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
 
-    setTimeout(() => URL.revokeObjectURL(blobUrl), 5000);
+    // Libérer l'URL après 5 secondes
+    setTimeout(() => {
+      try { URL.revokeObjectURL(blobUrl); } catch(e) {}
+    }, 5000);
 
-    // Informer l'utilisateur
+    // Message d'instruction clair pour l'utilisateur
     setTimeout(() => {
       Alert.alert(
         '📄 CV téléchargé !',
-        'Votre CV a été téléchargé en HTML.\n\n1. Ouvrez le fichier avec Chrome\n2. Appuyez sur ⋮ → Imprimer\n3. Choisissez "Enregistrer en PDF"\n4. Le PDF aura toutes les couleurs !',
-        [{ text: 'OK, compris !' }]
+        'Pour obtenir un PDF avec toutes les couleurs :\n\n' +
+        '1️⃣ Ouvrez le fichier téléchargé avec Chrome\n' +
+        '2️⃣ Appuyez sur ⋮ (menu)\n' +
+        '3️⃣ Choisissez "Partager" ou "Imprimer"\n' +
+        '4️⃣ Sélectionnez "Enregistrer en PDF"\n\n' +
+        '✅ Votre CV aura toutes les couleurs !',
+        [{ text: 'OK, compris !', style: 'default' }]
       );
-    }, 500);
+    }, 800);
+
   } else {
-    // Sur PC : ouvrir dans nouvel onglet avec impression auto
+    // ── Sur PC : ouvrir dans un nouvel onglet avec impression automatique ──
     const newWindow = window.open(blobUrl, '_blank');
+
     if (!newWindow) {
-      // Popups bloquées
+      // Popups bloquées → télécharger le fichier
       const a = document.createElement('a');
       a.href = blobUrl;
       a.download = `${nomCV}_CV.html`;
+      a.style.display = 'none';
+      document.body.appendChild(a);
       a.click();
+      document.body.removeChild(a);
+
+      Alert.alert(
+        '📄 CV téléchargé !',
+        'Ouvrez le fichier HTML dans Chrome et appuyez sur Ctrl+P pour imprimer en PDF avec toutes les couleurs.',
+        [{ text: 'OK' }]
+      );
     }
-    setTimeout(() => URL.revokeObjectURL(blobUrl), 30000);
+
+    // Libérer l'URL après 30 secondes
+    setTimeout(() => {
+      try { URL.revokeObjectURL(blobUrl); } catch(e) {}
+    }, 30000);
   }
 };
 
@@ -157,7 +197,7 @@ export default function SavedScreen() {
     return Math.round(((filled + extras) / 12) * 100);
   };
 
-  const score = getCompletionScore();
+  const score    = getCompletionScore();
   const nomComplet = [cv.prenom, cv.nom].filter(Boolean).join(' ') || '—';
   const templateNom = (cv.templateId ?? 'sidebar_bleu')
     .replace(/_/g, ' ')
@@ -165,61 +205,75 @@ export default function SavedScreen() {
 
   // ── Handlers ──────────────────────────────────────────────────────────────
   const handleGenerate = async () => {
-  try {
-    setLoading(true);
-    const photoData = await getPhotoData();
-    setPhotoBase64(photoData);
-    const templateId = cv.templateId ?? 'sidebar_bleu';
-    const html = generateCVHTML(cv, photoData, templateId);
-    const nomCV = `${cv.prenom ?? ''}_${cv.nom ?? ''}`.trim() || 'Mon';
+    try {
+      setLoading(true);
 
-    if (Platform.OS === 'web') {
-      await genererPDFWeb(html, nomCV);
-      setPdfUri('web-generated');
-      setActiveTab('actions');
-    } else {
-      const { uri } = await Print.printToFileAsync({ html, base64: false });
-      setPdfUri(uri);
-      await notifPDFGenere(`${cv.prenom ?? ''} ${cv.nom ?? ''}`);
-      setActiveTab('actions');
-    }
-  } catch (err: any) {
-    Alert.alert('Erreur', 'Impossible de générer le PDF : ' + err.message);
-  } finally {
-    setLoading(false);
-  }
-};
+      console.log('=== GÉNÉRATION PDF ===');
+      console.log('TEMPLATE ID:', cv.templateId);
+      console.log('PRENOM:', cv.prenom);
+      console.log('NOM:', cv.nom);
+      console.log('=====================');
 
-const handleDownload = async () => {
-  if (!pdfUri) return;
-  if (Platform.OS === 'web') {
-    const photoData = await getPhotoData();
-    const html = generateCVHTML(cv, photoData, cv.templateId ?? 'sidebar_bleu');
-    const nomCV = `${cv.prenom ?? ''}_${cv.nom ?? ''}`.trim() || 'Mon';
-    await genererPDFWeb(html, nomCV);
-    return;
-  }
-  try {
-    await Sharing.shareAsync(pdfUri, {
-      mimeType: 'application/pdf',
-      dialogTitle: 'Télécharger votre CV',
-      UTI: 'com.adobe.pdf',
-    });
-  } catch (e) { console.error(e); }
-};
-  const handlePrint = async () => {
-    if (Platform.OS === 'web') {
-      const photoData = await getPhotoData();
+      const photoData  = await getPhotoData();
+      setPhotoBase64(photoData);
       const templateId = cv.templateId ?? 'sidebar_bleu';
-      const html = generateCVHTML(cv, photoData, templateId);
-      genererPDFWeb(html);
+      const html       = generateCVHTML(cv, photoData, templateId);
+      const nomCV      = `${cv.prenom ?? ''}_${cv.nom ?? ''}`.trim() || 'Mon';
+
+      if (Platform.OS === 'web') {
+        await genererPDFWeb(html, nomCV);
+        setPdfUri('web-generated');
+        setActiveTab('actions');
+      } else {
+        const { uri } = await Print.printToFileAsync({ html, base64: false });
+        setPdfUri(uri);
+        await notifPDFGenere(`${cv.prenom ?? ''} ${cv.nom ?? ''}`);
+        setActiveTab('actions');
+      }
+
+    } catch (err: any) {
+      console.error('Erreur génération:', err);
+      Alert.alert('Erreur', 'Impossible de générer le PDF : ' + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDownload = async () => {
+    if (!pdfUri) return;
+
+    if (Platform.OS === 'web') {
+      const photoData  = await getPhotoData();
+      const templateId = cv.templateId ?? 'sidebar_bleu';
+      const html       = generateCVHTML(cv, photoData, templateId);
+      const nomCV      = `${cv.prenom ?? ''}_${cv.nom ?? ''}`.trim() || 'Mon';
+      await genererPDFWeb(html, nomCV);
       return;
     }
 
     try {
-      const photoData = await getPhotoData();
+      await Sharing.shareAsync(pdfUri, {
+        mimeType: 'application/pdf',
+        dialogTitle: 'Télécharger votre CV',
+        UTI: 'com.adobe.pdf',
+      });
+    } catch (e) { console.error(e); }
+  };
+
+  const handlePrint = async () => {
+    if (Platform.OS === 'web') {
+      const photoData  = await getPhotoData();
       const templateId = cv.templateId ?? 'sidebar_bleu';
-      const html = generateCVHTML(cv, photoData, templateId);
+      const html       = generateCVHTML(cv, photoData, templateId);
+      const nomCV      = `${cv.prenom ?? ''}_${cv.nom ?? ''}`.trim() || 'Mon';
+      await genererPDFWeb(html, nomCV);
+      return;
+    }
+
+    try {
+      const photoData  = await getPhotoData();
+      const templateId = cv.templateId ?? 'sidebar_bleu';
+      const html       = generateCVHTML(cv, photoData, templateId);
       await Print.printAsync({ html });
     } catch (e) { console.error(e); }
   };
@@ -295,6 +349,7 @@ const handleDownload = async () => {
   return (
     <View style={styles.container}>
 
+      {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
           <Text style={styles.backText}>←</Text>
@@ -308,6 +363,7 @@ const handleDownload = async () => {
         </TouchableOpacity>
       </View>
 
+      {/* Score */}
       <Animated.View style={[styles.scoreBar, { opacity: fadeAnim }]}>
         <View style={styles.scoreRow}>
           <Text style={styles.scoreLabel}>Complétion du CV</Text>
@@ -323,6 +379,7 @@ const handleDownload = async () => {
         </View>
       </Animated.View>
 
+      {/* Tabs */}
       <View style={styles.tabs}>
         <TouchableOpacity
           style={[styles.tab, activeTab === 'apercu' && styles.tabActive]}
@@ -348,6 +405,7 @@ const handleDownload = async () => {
           transform: [{ translateY: slideAnim }, { scale: scaleAnim }]
         }}>
 
+          {/* ── TAB APERÇU ── */}
           {activeTab === 'apercu' && (
             <>
               <View style={styles.templateCard}>
@@ -404,39 +462,53 @@ const handleDownload = async () => {
                   {loading
                     ? <ActivityIndicator color="#fff" size="small" />
                     : <Text style={styles.btnGenererText}>
-                        {Platform.OS === 'web' ? '📄 Générer le CV PDF' : '🔄 Générer le PDF'}
+                        {Platform.OS === 'web' ? '📄 Télécharger le CV' : '🔄 Générer le PDF'}
                       </Text>
                   }
                 </TouchableOpacity>
               ) : (
                 <TouchableOpacity style={styles.btnDownload} onPress={handleDownload}>
                   <Text style={styles.btnDownloadText}>
-                    {Platform.OS === 'web' ? '📄 Télécharger le CV PDF' : '⬇️ Télécharger le PDF'}
+                    {Platform.OS === 'web' ? '📄 Retélécharger le CV' : '⬇️ Télécharger le PDF'}
                   </Text>
                 </TouchableOpacity>
               )}
             </>
           )}
 
+          {/* ── TAB ACTIONS ── */}
           {activeTab === 'actions' && (
             <>
               <View style={[styles.statusCard, { borderColor: pdfUri ? '#16a34a' : '#f59e0b' }]}>
                 <Text style={styles.statusEmoji}>{pdfUri ? '✅' : '⏳'}</Text>
                 <View style={styles.statusInfo}>
                   <Text style={styles.statusTitle}>
-                    {pdfUri ? 'CV prêt' : 'CV non généré'}
+                    {pdfUri ? 'CV prêt !' : 'CV non généré'}
                   </Text>
                   <Text style={styles.statusSub}>
                     {pdfUri
-                      ? `${cv.prenom ?? ''}_${cv.nom ?? ''}_CV.pdf`
-                      : 'Cliquez sur "Générer" pour créer le CV'
+                      ? Platform.OS === 'web'
+                        ? `${cv.prenom ?? ''}_${cv.nom ?? ''}_CV.html téléchargé`
+                        : `${cv.prenom ?? ''}_${cv.nom ?? ''}_CV.pdf`
+                      : 'Cliquez sur "Télécharger" pour créer le CV'
                     }
                   </Text>
                 </View>
               </View>
 
+              {/* Instruction mobile PWA */}
+              {Platform.OS === 'web' && pdfUri && (
+                <View style={styles.instructionCard}>
+                  <Text style={styles.instructionTitle}>📱 Comment obtenir le PDF coloré ?</Text>
+                  <Text style={styles.instructionStep}>1️⃣ Ouvrez le fichier .html téléchargé avec Chrome</Text>
+                  <Text style={styles.instructionStep}>2️⃣ Appuyez sur ⋮ → Imprimer</Text>
+                  <Text style={styles.instructionStep}>3️⃣ Choisissez "Enregistrer en PDF"</Text>
+                  <Text style={styles.instructionStep}>✅ Le PDF aura toutes les couleurs !</Text>
+                </View>
+              )}
+
               <View style={styles.card}>
-                <Text style={styles.cardTitle}>{'📄 PDF'}</Text>
+                <Text style={styles.cardTitle}>{'📄 CV'}</Text>
                 <TouchableOpacity
                   style={[styles.actionBtn, styles.actionBtnPrimary, loading && styles.btnDisabled]}
                   onPress={handleGenerate}
@@ -446,13 +518,16 @@ const handleDownload = async () => {
                     <ActivityIndicator color="#fff" size="small" />
                   ) : (
                     <>
-                      <Text style={styles.actionBtnIcon}>{'🔄'}</Text>
+                      <Text style={styles.actionBtnIcon}>{'📄'}</Text>
                       <View style={styles.actionBtnInfo}>
                         <Text style={styles.actionBtnTitle}>
-                          {pdfUri ? 'Regénérer' : Platform.OS === 'web' ? 'Générer le PDF' : 'Générer le PDF'}
+                          {pdfUri ? 'Regénérer le CV' : Platform.OS === 'web' ? 'Télécharger le CV' : 'Générer le PDF'}
                         </Text>
                         <Text style={styles.actionBtnSub}>
-                          {Platform.OS === 'web' ? 'Télécharge un fichier PDF' : 'Crée un fichier PDF'}
+                          {Platform.OS === 'web'
+                            ? 'Télécharge le fichier HTML du CV'
+                            : 'Crée un fichier PDF de votre CV'
+                          }
                         </Text>
                       </View>
                     </>
@@ -465,10 +540,13 @@ const handleDownload = async () => {
                       <Text style={styles.actionBtnIcon}>{'⬇️'}</Text>
                       <View style={styles.actionBtnInfo}>
                         <Text style={styles.actionBtnTitle}>
-                          {Platform.OS === 'web' ? 'Télécharger le PDF' : 'Télécharger / Partager'}
+                          {Platform.OS === 'web' ? 'Retélécharger le CV' : 'Télécharger / Partager'}
                         </Text>
                         <Text style={styles.actionBtnSub}>
-                          {Platform.OS === 'web' ? 'Enregistre le PDF sur votre appareil' : 'Enregistrez ou envoyez le PDF'}
+                          {Platform.OS === 'web'
+                            ? 'Télécharge à nouveau le fichier CV'
+                            : 'Enregistrez ou envoyez le PDF'
+                          }
                         </Text>
                       </View>
                     </TouchableOpacity>
@@ -626,6 +704,9 @@ const styles = StyleSheet.create({
   statusInfo:       { flex: 1 },
   statusTitle:      { fontSize: 14, fontWeight: '700', color: '#111' },
   statusSub:        { fontSize: 11, color: '#888', marginTop: 2 },
+  instructionCard:  { backgroundColor: '#eff6ff', borderRadius: 12, padding: 14, gap: 6, borderWidth: 1, borderColor: '#bfdbfe' },
+  instructionTitle: { fontSize: 13, fontWeight: '700', color: '#1e40af', marginBottom: 4 },
+  instructionStep:  { fontSize: 12, color: '#374151', lineHeight: 20 },
   actionBtn:        { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#f5f5f5' },
   actionBtnPrimary: { backgroundColor: '#534AB71A', borderRadius: 12, padding: 12, borderBottomWidth: 0 },
   actionBtnDanger:  { borderBottomWidth: 0 },
