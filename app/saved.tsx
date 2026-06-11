@@ -31,73 +31,74 @@ const getTemplateColor = (templateId: string): string => {
 };
 
 // ── Génération PDF web via iframe caché ───────────────────────────────────────
-const genererPDFWeb = (html: string): void => {
-  // Injecter CSS pour forcer les couleurs de fond
-  const printCSS = `
-    <style>
-      * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
+const genererPDFWeb = async (html: string, nomCV: string = 'CV'): Promise<void> => {
+  // CSS forcé pour toutes les couleurs
+  const forcedCSS = `
+    <style id="force-colors">
+      *, *::before, *::after {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        color-adjust: exact !important;
+      }
       @media print {
-        * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
-        html, body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+        *, *::before, *::after {
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+          color-adjust: exact !important;
+        }
+        @page { margin: 0; size: A4 portrait; }
+        body { margin: 0 !important; }
       }
     </style>
+    <script>
+      window.addEventListener('load', function() {
+        setTimeout(function() { window.print(); }, 800);
+      });
+    </script>
   `;
 
-  // Injecter dans le <head> du HTML du CV
-  const htmlModifie = html.includes('</head>')
-    ? html.replace('</head>', printCSS + '</head>')
-    : printCSS + html;
+  const htmlFinal = html.includes('</head>')
+    ? html.replace('</head>', forcedCSS + '</head>')
+    : forcedCSS + html;
 
-  // Créer un iframe totalement caché
-  const iframe = document.createElement('iframe');
-  iframe.setAttribute('id', 'cv-print-iframe');
-  iframe.style.cssText = [
-    'position:fixed',
-    'top:-9999px',
-    'left:-9999px',
-    'width:794px',
-    'height:1123px',
-    'border:none',
-    'opacity:0',
-    'pointer-events:none',
-    'z-index:-9999',
-  ].join(';');
+  // Créer un Blob HTML
+  const blob = new Blob([htmlFinal], { type: 'text/html;charset=utf-8' });
+  const blobUrl = URL.createObjectURL(blob);
 
-  document.body.appendChild(iframe);
+  // Détecter si on est sur mobile
+  const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
-  const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
-  if (!iframeDoc) {
-    document.body.removeChild(iframe);
-    return;
-  }
+  if (isMobile) {
+    // Sur mobile : télécharger le fichier HTML
+    const a = document.createElement('a');
+    a.href = blobUrl;
+    a.download = `${nomCV}_CV.html`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
 
-  iframeDoc.open();
-  iframeDoc.write(htmlModifie);
-  iframeDoc.close();
+    setTimeout(() => URL.revokeObjectURL(blobUrl), 5000);
 
-  iframe.onload = () => {
+    // Informer l'utilisateur
     setTimeout(() => {
-      // Double injection du CSS pour s'assurer
-      const styleEl = iframeDoc.createElement('style');
-      styleEl.textContent = `
-        * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
-        @media print { * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; } }
-      `;
-      if (iframeDoc.head) {
-        iframeDoc.head.appendChild(styleEl);
-      }
-
-      iframe.contentWindow?.focus();
-      iframe.contentWindow?.print();
-
-      setTimeout(() => {
-        try {
-          const el = document.getElementById('cv-print-iframe');
-          if (el) document.body.removeChild(el);
-        } catch(e) {}
-      }, 2000);
-    }, 600);
-  };
+      Alert.alert(
+        '📄 CV téléchargé !',
+        'Votre CV a été téléchargé en HTML.\n\n1. Ouvrez le fichier avec Chrome\n2. Appuyez sur ⋮ → Imprimer\n3. Choisissez "Enregistrer en PDF"\n4. Le PDF aura toutes les couleurs !',
+        [{ text: 'OK, compris !' }]
+      );
+    }, 500);
+  } else {
+    // Sur PC : ouvrir dans nouvel onglet avec impression auto
+    const newWindow = window.open(blobUrl, '_blank');
+    if (!newWindow) {
+      // Popups bloquées
+      const a = document.createElement('a');
+      a.href = blobUrl;
+      a.download = `${nomCV}_CV.html`;
+      a.click();
+    }
+    setTimeout(() => URL.revokeObjectURL(blobUrl), 30000);
+  }
 };
 
 export default function SavedScreen() {
