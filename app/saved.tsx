@@ -165,59 +165,48 @@ export default function SavedScreen() {
 
   // ── Handlers ──────────────────────────────────────────────────────────────
   const handleGenerate = async () => {
-    try {
-      setLoading(true);
-
-      console.log('=== GÉNÉRATION PDF ===');
-      console.log('TEMPLATE ID:', cv.templateId);
-      console.log('PRENOM:', cv.prenom);
-      console.log('NOM:', cv.nom);
-      console.log('=====================');
-
-      const photoData = await getPhotoData();
-      setPhotoBase64(photoData);
-      const templateId = cv.templateId ?? 'sidebar_bleu';
-      const html = generateCVHTML(cv, photoData, templateId);
-
-      if (Platform.OS === 'web') {
-        genererPDFWeb(html);
-        setPdfUri('web-generated');
-        setActiveTab('actions');
-      } else {
-        const { uri } = await Print.printToFileAsync({ html, base64: false });
-        setPdfUri(uri);
-        await notifPDFGenere(`${cv.prenom ?? ''} ${cv.nom ?? ''}`);
-        setActiveTab('actions');
-      }
-
-    } catch (err: any) {
-      console.error('Erreur génération:', err);
-      Alert.alert('Erreur', 'Impossible de générer le PDF : ' + err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleDownload = async () => {
-    if (!pdfUri) return;
+  try {
+    setLoading(true);
+    const photoData = await getPhotoData();
+    setPhotoBase64(photoData);
+    const templateId = cv.templateId ?? 'sidebar_bleu';
+    const html = generateCVHTML(cv, photoData, templateId);
+    const nomCV = `${cv.prenom ?? ''}_${cv.nom ?? ''}`.trim() || 'Mon';
 
     if (Platform.OS === 'web') {
-      const photoData = await getPhotoData();
-      const templateId = cv.templateId ?? 'sidebar_bleu';
-      const html = generateCVHTML(cv, photoData, templateId);
-      genererPDFWeb(html);
-      return;
+      await genererPDFWeb(html, nomCV);
+      setPdfUri('web-generated');
+      setActiveTab('actions');
+    } else {
+      const { uri } = await Print.printToFileAsync({ html, base64: false });
+      setPdfUri(uri);
+      await notifPDFGenere(`${cv.prenom ?? ''} ${cv.nom ?? ''}`);
+      setActiveTab('actions');
     }
+  } catch (err: any) {
+    Alert.alert('Erreur', 'Impossible de générer le PDF : ' + err.message);
+  } finally {
+    setLoading(false);
+  }
+};
 
-    try {
-      await Sharing.shareAsync(pdfUri, {
-        mimeType: 'application/pdf',
-        dialogTitle: 'Télécharger votre CV',
-        UTI: 'com.adobe.pdf',
-      });
-    } catch (e) { console.error(e); }
-  };
-
+const handleDownload = async () => {
+  if (!pdfUri) return;
+  if (Platform.OS === 'web') {
+    const photoData = await getPhotoData();
+    const html = generateCVHTML(cv, photoData, cv.templateId ?? 'sidebar_bleu');
+    const nomCV = `${cv.prenom ?? ''}_${cv.nom ?? ''}`.trim() || 'Mon';
+    await genererPDFWeb(html, nomCV);
+    return;
+  }
+  try {
+    await Sharing.shareAsync(pdfUri, {
+      mimeType: 'application/pdf',
+      dialogTitle: 'Télécharger votre CV',
+      UTI: 'com.adobe.pdf',
+    });
+  } catch (e) { console.error(e); }
+};
   const handlePrint = async () => {
     if (Platform.OS === 'web') {
       const photoData = await getPhotoData();
