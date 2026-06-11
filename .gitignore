@@ -47,3 +47,5 @@ app-example
 
 # Local Netlify folder
 .netlify
+
+.vercel
