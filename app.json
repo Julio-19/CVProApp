@@ -40,13 +40,7 @@
       "favicon": "./assets/images/favicon.png",
       "name": "CVProApp",
       "short_name": "CVPro",
-      "description": "Application de gestion de CV professionnelle",
-      "theme_color": "#534AB7",
-      "background_color": "#ffffff",
-      "display": "standalone",
       "start_url": "/CVProApp/",
-      "orientation": "portrait",
-      "lang": "fr",
       "scope": "/CVProApp/",
       "build": {
         "publicPath": "/CVProApp/"
