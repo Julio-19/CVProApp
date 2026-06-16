@@ -33,9 +33,7 @@
     "web": {
       "output": "single",
       "favicon": "./assets/images/favicon.png",
-      "build": {
-        "publicPath": "/CVProApp/"
-      }
+      "bundler": "metro"
     },
     "plugins": [
       "expo-router",
