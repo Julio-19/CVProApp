@@ -35,8 +35,7 @@
       "favicon": "./assets/images/favicon.png",
       "build": {
         "publicPath": "/CVProApp/"
-      }
-    },
+      },
     "plugins": [
       "expo-router",
       [
