@@ -37,7 +37,6 @@
       ]
     },
     "web": {
-      
       "favicon": "./assets/images/favicon.png",
       "name": "CVProApp",
       "short_name": "CVPro",
@@ -45,7 +44,6 @@
       "scope": "/CVProApp/",
       "build": {
         "publicPath": "/CVProApp/"
-        
       },
       "icons": [
         {
