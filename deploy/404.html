@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Redirection</title>
+  <script>
+    var path = window.location.pathname;
+    if (path === '/' || path === '/index.html') {
+      window.location.href = '/CVProApp/';
+    } else {
+      window.location.href = '/CVProApp/' + path.replace('/CVProApp/', '');
+    }
+  </script>
+</head>
+<body>
+  <p>Redirection vers CVProApp...</p>
+</body>
+</html>
