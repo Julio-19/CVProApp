@@ -37,10 +37,6 @@
       ]
     },
     "web": {
-	"output": "single",
- 	 "favicon": "./assets/images/favicon.png",
-  	"bundler": "metro",
-      "bundler": "metro",
       "favicon": "./assets/images/favicon.png",
       "name": "CVProApp",
       "short_name": "CVPro",
@@ -48,14 +44,12 @@
       "theme_color": "#534AB7",
       "background_color": "#ffffff",
       "display": "standalone",
-      "start_url": "/",
+      "start_url": "/CVProApp/",
       "orientation": "portrait",
       "lang": "fr",
-      "scope": "/",
+      "scope": "/CVProApp/",
       "build": {
-        "babel": {
-          "include": ["@expo/metro-runtime"]
-        }
+        "publicPath": "/CVProApp/"
       },
       "icons": [
         {
