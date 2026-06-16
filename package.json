@@ -4,8 +4,9 @@
   "version": "1.0.0",
   "scripts": {
     "deploy": "npx gh-pages -d dist",
-    "deploy:clean": "rm -rf dist && npm run build:web && npx gh-pages -d dist --repo https://github.com/julio-19/CVProApp.git",
+    "deploy:clean": "rm -rf dist && npm run build:web && npm run fix:html && npx gh-pages -d dist --repo https://github.com/julio-19/CVProApp.git",
     "build:web": "expo export --platform web",
+    "fix:html": "node fix-html.js",
     "start": "expo start",
     "reset-project": "node ./scripts/reset-project.js",
     "android": "expo run:android",
