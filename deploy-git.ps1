@@ -8,10 +8,10 @@ Remove-Item -Recurse -Force deploy -ErrorAction SilentlyContinue
 Write-Host "📁 Préparation..." -ForegroundColor Yellow
 New-Item -ItemType Directory -Path deploy -Force | Out-Null
 Copy-Item -Path dist\* -Destination deploy\ -Recurse -Force
-Copy-Item -Path dist\_expo -Destination deploy\ -Recurse -Force
+Copy-Item -Path dist\/CVProApp/_expo/ -Destination deploy\ -Recurse -Force
 
 # Copier app.js
-$jsFile = Get-ChildItem deploy\_expo\static\js\web\*.js | Select-Object -First 1
+$jsFile = Get-ChildItem deploy\/CVProApp/_expo/\static\js\web\*.js | Select-Object -First 1
 Copy-Item -Path $jsFile.FullName -Destination deploy\app.js -Force
 Write-Host "✅ app.js créé" -ForegroundColor Green
 
