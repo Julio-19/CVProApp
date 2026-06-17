@@ -38,7 +38,7 @@ const copyRecursive = (src, dest) => {
 copyRecursive(distPath, deployPath);
 
 // 4. Copier le fichier JS à la racine
-const jsFiles = fs.readdirSync(path.join(distPath, '_expo', 'static', 'js', 'web'))
+const jsFiles = fs.readdirSync(path.join(distPath, '/CVProApp/_expo/', 'static', 'js', 'web'))
   .filter(f => f.endsWith('.js'));
 
 if (jsFiles.length === 0) {
@@ -47,7 +47,7 @@ if (jsFiles.length === 0) {
 }
 
 const jsFile = jsFiles[0];
-const jsSource = path.join(distPath, '_expo', 'static', 'js', 'web', jsFile);
+const jsSource = path.join(distPath, '/CVProApp/_expo/', 'static', 'js', 'web', jsFile);
 const jsDest = path.join(deployPath, 'app.js');
 fs.copyFileSync(jsSource, jsDest);
 console.log(`✅ app.js créé (${jsFile})`);
