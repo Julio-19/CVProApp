@@ -4,7 +4,7 @@
     "slug": "CVProApp",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./CVProApp/assets/images/icon.png",
     "scheme": "cvproapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -20,7 +20,7 @@
       "package": "com.votrecompany.cvpro",
       "adaptiveIcon": {
         "backgroundColor": "#534AB7",
-        "foregroundImage": "./assets/images/adaptive-icon.png"
+        "foregroundImage": "./CVProApp/assets/images/adaptive-icon.png"
       },
       "edgeToEdgeEnabled": true,
       "permissions": [
@@ -32,7 +32,7 @@
     },
     "web": {
       "output": "single",
-      "favicon": "./assets/images/favicon.png",
+      "favicon": "./CVProApp/assets/images/favicon.png",
       "build": {
         "publicPath": "/CVProApp/"
       }

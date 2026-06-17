@@ -40,7 +40,7 @@
       [
         "expo-notifications",
         {
-          "icon": "./assets/images/icon.png",
+          "icon": "./CVProApp/assets/images/icon.png",
           "color": "#534AB7",
           "sounds": []
         }
@@ -55,7 +55,7 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
+          "image": "./CVProApp/assets/images/splash-icon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#534AB7"
