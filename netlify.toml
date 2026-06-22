@@ -1,5 +1,5 @@
 [build]
-  command = "npx expo export --platform web && sed -i 's/<script src=\"/<script type=\"module\" src=\"/g' dist/index.html && sed -i 's/ defer><\\/script>/ defer><\\/script>/g' dist/index.html && sed -i 's|</head>|<script src=\"https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js\"></script></head>|' dist/index.html && cp dist/index.html dist/404.html"
+  command = "npx expo export --platform web && sed -i 's/<script src=\"\\/_expo/<script type=\"module\" src=\"\\/_expo/g' dist/index.html && sed -i 's|</head>|<script src=\"https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js\"></script></head>|' dist/index.html && cp dist/index.html dist/404.html"
   publish = "dist"
 
 [build.environment]
