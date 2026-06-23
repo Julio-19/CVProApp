@@ -1,50 +1,67 @@
-﻿import { Redirect } from "expo-router";
-import { useEffect, useState } from "react";
-import { View, Text } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { supabase } from "../config/supabase";
+﻿import { useEffect, useState } from 'react';
+import { View, ActivityIndicator } from 'react-native';
+import { router } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { supabase } from '../config/supabase';
+import { Platform } from 'react-native';
 
-export default function Index() {
-  const [isReady, setIsReady] = useState(false);
-  const [targetRoute, setTargetRoute] = useState("/login");
+export default function IndexScreen() {
+  const [checking, setChecking] = useState(true);
 
   useEffect(() => {
-    const checkSession = async () => {
+    let mounted = true;
+
+    const init = async () => {
       try {
-        // 1. Vérifier onboarding
-        const onboardingDone = await AsyncStorage.getItem("onboarding_done");
-        if (!onboardingDone) {
-          setTargetRoute("/onboarding");
-          setIsReady(true);
+        // Vérifier onboarding
+        let vuOnboarding = false;
+        try {
+          if (Platform.OS === 'web') {
+            vuOnboarding = localStorage.getItem('onboarding_done') === 'true';
+          } else {
+            const val = await AsyncStorage.getItem('onboarding_done');
+            vuOnboarding = val === 'true';
+          }
+        } catch (e) {
+          vuOnboarding = false;
+        }
+
+        if (!vuOnboarding) {
+          if (mounted) router.replace('/onboarding');
           return;
         }
 
-        // 2. Vérifier session
+        // Vérifier session
         const { data: { session } } = await supabase.auth.getSession();
-        
-        if (session?.user) {
-          setTargetRoute("/cv/step1-profil");
-        } else {
-          setTargetRoute("/login");
+        console.log('SESSION CHECK:', session ? '✅ Connecté' : '❌ Non connecté');
+
+        if (mounted) {
+          if (session) {
+            router.replace('/saved');
+          } else {
+            router.replace('/login');
+          }
         }
       } catch (error) {
-        console.error("Erreur:", error);
-        setTargetRoute("/login");
+        console.error('Erreur init:', error);
+        if (mounted) router.replace('/login');
       } finally {
-        setIsReady(true);
+        if (mounted) setChecking(false);
       }
     };
 
-    checkSession();
+    // Délai pour éviter la boucle
+    const timer = setTimeout(init, 100);
+
+    return () => {
+      mounted = false;
+      clearTimeout(timer);
+    };
   }, []);
 
-  if (!isReady) {
-    return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <Text>Chargement...</Text>
-      </View>
-    );
-  }
-
-  return <Redirect href={targetRoute} />;
+  return (
+    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#534AB7' }}>
+      <ActivityIndicator color="#fff" size="large" />
+    </View>
+  );
 }
