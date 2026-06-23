@@ -147,3 +147,4 @@ const styles = StyleSheet.create({
   nextBtn:       { backgroundColor: '#fff', borderRadius: 16, paddingVertical: 18, alignItems: 'center' },
   nextText:      { fontSize: 16, fontWeight: '700', color: '#534AB7' },
 });
+
