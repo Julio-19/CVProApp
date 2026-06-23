@@ -1,5 +1,6 @@
 import { View, Text, StyleSheet, TouchableOpacity, Dimensions, Animated } from 'react-native';
 import { router } from 'expo-router';
+import { Platform } from 'react-native';
 import { useEffect, useRef, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { programmerRappel } from '../services/notificationService';
@@ -153,8 +154,11 @@ const terminerOnboarding = async () => {
     if (Platform.OS === 'web') {
       localStorage.setItem('onboarding_done', 'true');
     } else {
+      const AsyncStorage = (await import('@react-native-async-storage/async-storage')).default;
       await AsyncStorage.setItem('onboarding_done', 'true');
     }
-  } catch (e) {}
+  } catch(e) {
+    console.log('Erreur storage:', e);
+  }
   router.replace('/login');
 };
