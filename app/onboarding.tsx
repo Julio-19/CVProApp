@@ -148,3 +148,13 @@ const styles = StyleSheet.create({
   nextText:      { fontSize: 16, fontWeight: '700', color: '#534AB7' },
 });
 
+const terminerOnboarding = async () => {
+  try {
+    if (Platform.OS === 'web') {
+      localStorage.setItem('onboarding_done', 'true');
+    } else {
+      await AsyncStorage.setItem('onboarding_done', 'true');
+    }
+  } catch (e) {}
+  router.replace('/login');
+};

@@ -6,23 +6,6 @@
   NODE_VERSION = "20"
 
 [[redirects]]
-  from = "/CVProApp"
-  to = "/"
-  status = 301
-  force = true
-
-[[redirects]]
-  from = "/CVProApp/*"
-  to = "/"
-  status = 301
-  force = true
-
-[[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
-
-[[headers]]
-  for = "/sw.js"
-  [headers.values]
-    Cache-Control = "no-cache, no-store, must-revalidate"
