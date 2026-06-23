@@ -1,62 +1,63 @@
-﻿import { useEffect, useState } from 'react';
+﻿import { useEffect, useRef } from 'react';
 import { View, ActivityIndicator } from 'react-native';
 import { router } from 'expo-router';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { supabase } from '../config/supabase';
 import { Platform } from 'react-native';
+import { supabase } from '../config/supabase';
 
 export default function IndexScreen() {
-  const [checking, setChecking] = useState(true);
+  const navigated = useRef(false);
 
   useEffect(() => {
-    let mounted = true;
+    if (navigated.current) return;
 
     const init = async () => {
       try {
-        // Vérifier onboarding
+        // Vérifier si onboarding déjà vu
         let vuOnboarding = false;
         try {
           if (Platform.OS === 'web') {
             vuOnboarding = localStorage.getItem('onboarding_done') === 'true';
           } else {
+            const AsyncStorage = (await import('@react-native-async-storage/async-storage')).default;
             const val = await AsyncStorage.getItem('onboarding_done');
             vuOnboarding = val === 'true';
           }
-        } catch (e) {
+        } catch(e) {
           vuOnboarding = false;
         }
 
         if (!vuOnboarding) {
-          if (mounted) router.replace('/onboarding');
+          if (!navigated.current) {
+            navigated.current = true;
+            router.replace('/onboarding');
+          }
           return;
         }
 
-        // Vérifier session
+        // Vérifier session Supabase
         const { data: { session } } = await supabase.auth.getSession();
         console.log('SESSION CHECK:', session ? '✅ Connecté' : '❌ Non connecté');
 
-        if (mounted) {
+        if (!navigated.current) {
+          navigated.current = true;
           if (session) {
             router.replace('/saved');
           } else {
             router.replace('/login');
           }
         }
-      } catch (error) {
+
+      } catch (error: any) {
         console.error('Erreur init:', error);
-        if (mounted) router.replace('/login');
-      } finally {
-        if (mounted) setChecking(false);
+        if (!navigated.current) {
+          navigated.current = true;
+          router.replace('/onboarding');
+        }
       }
     };
 
-    // Délai pour éviter la boucle
-    const timer = setTimeout(init, 100);
-
-    return () => {
-      mounted = false;
-      clearTimeout(timer);
-    };
+    const timer = setTimeout(init, 200);
+    return () => clearTimeout(timer);
   }, []);
 
   return (
