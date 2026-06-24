@@ -55,110 +55,104 @@ const genererPDFWeb = async (html: string, nomCV: string = 'Mon_CV'): Promise<vo
     : forcedCSS + html;
 
   if (isMobile) {
-    // Sur mobile : html2pdf avec conteneur visible hors écran
-    try {
-      if (typeof (window as any).html2pdf === 'undefined') {
-        throw new Error('html2pdf non disponible');
-      }
-
-      // Conteneur VISIBLE mais hors écran (pas opacity:0 !)
-      const container = document.createElement('div');
-      container.id = 'cv-pdf-container';
-      container.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: -9999px;
-        width: 794px;
-        min-height: 1123px;
-        z-index: 9999;
-        background: white;
-        overflow: visible;
-      `;
-
-      // Écrire le HTML complet du CV
-      container.innerHTML = htmlFinal
-        .replace(/<!DOCTYPE html>/i, '')
-        .replace(/<html[^>]*>/i, '')
-        .replace(/<\/html>/i, '')
-        .replace(/<head>[\s\S]*<\/head>/i, '')
-        .replace(/<\/?body[^>]*>/gi, '');
-
-      document.body.appendChild(container);
-
-      // Attendre rendu complet
-      await new Promise(resolve => setTimeout(resolve, 2000));
-
-      const opt = {
-        margin: 0,
-        filename: `${nomCV}_CV.pdf`,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: {
-          scale: 2,
-          useCORS: true,
-          allowTaint: true,
-          backgroundColor: '#ffffff',
-          logging: false,
-          width: 794,
-          windowWidth: 794,
-          scrollX: 0,
-          scrollY: 0,
-          x: 0,
-          y: 0,
-        },
-        jsPDF: {
-          unit: 'mm',
-          format: 'a4',
-          orientation: 'portrait',
-        },
-      };
-
-      await (window as any).html2pdf().set(opt).from(container).save();
-
-      // Nettoyer
-      const el = document.getElementById('cv-pdf-container');
-      if (el) document.body.removeChild(el);
-
-      setTimeout(() => {
-        Alert.alert(
-          '✅ CV téléchargé !',
-          'Votre CV PDF avec toutes les couleurs a été téléchargé.',
-          [{ text: 'Super !' }]
-        );
-      }, 500);
-
-    } catch (error: any) {
-      console.error('Erreur html2pdf:', error);
-
-      // Nettoyer
-      const el = document.getElementById('cv-pdf-container');
-      if (el) try { document.body.removeChild(el); } catch(e) {}
-
-      // Fallback HTML
-      const blob = new Blob([htmlFinal], { type: 'text/html;charset=utf-8' });
-      const blobUrl = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = blobUrl;
-      a.download = `${nomCV}_CV.html`;
-      a.style.display = 'none';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      setTimeout(() => { try { URL.revokeObjectURL(blobUrl); } catch(e) {} }, 5000);
-
-      setTimeout(() => {
-        Alert.alert(
-          '📄 CV téléchargé en HTML',
-          'Pour obtenir un PDF avec couleurs :\n\n' +
-          '1️⃣ Ouvrez le fichier avec Chrome\n' +
-          '2️⃣ Menu ⋮ → Imprimer\n' +
-          '3️⃣ Enregistrer en PDF\n\n' +
-          '✅ Toutes les couleurs seront présentes !',
-          [{ text: 'OK, compris !' }]
-        );
-      }, 500);
+  try {
+    if (typeof (window as any).html2pdf === 'undefined') {
+      throw new Error('html2pdf non disponible');
     }
 
-  } else {
+    // ── Créer un iframe caché pour rendre le HTML complet ──────────────
+    const iframe = document.createElement('iframe');
+    iframe.id = 'cv-pdf-iframe';
+    iframe.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: -9999px;
+      width: 794px;
+      height: 1123px;
+      border: none;
+      z-index: 9999;
+    `;
+    document.body.appendChild(iframe);
+
+    // Écrire le HTML complet dans l'iframe
+    const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+    if (!iframeDoc) throw new Error('iframe non disponible');
+
+    iframeDoc.open();
+    iframeDoc.write(htmlFinal);
+    iframeDoc.close();
+
+    // Attendre rendu complet
+    await new Promise(resolve => setTimeout(resolve, 2500));
+
+    const opt = {
+      margin: 0,
+      filename: `${nomCV}_CV.pdf`,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: null,
+        logging: false,
+        width: 794,
+        windowWidth: 794,
+      },
+      jsPDF: {
+        unit: 'mm',
+        format: 'a4',
+        orientation: 'portrait',
+      },
+    };
+
+    // Capturer depuis l'iframe
+    const iframeBody = iframeDoc.body;
+    await (window as any).html2pdf().set(opt).from(iframeBody).save();
+
+    // Nettoyer
+    const el = document.getElementById('cv-pdf-iframe');
+    if (el) document.body.removeChild(el);
+
+    setTimeout(() => {
+      Alert.alert(
+        '✅ CV téléchargé !',
+        'Votre CV PDF avec toutes les couleurs a été téléchargé.',
+        [{ text: 'Super !' }]
+      );
+    }, 500);
+
+  } catch (error: any) {
+    console.error('Erreur html2pdf:', error);
+
+    // Nettoyer
+    const el = document.getElementById('cv-pdf-iframe');
+    if (el) try { document.body.removeChild(el); } catch(e) {}
+
+    // Fallback HTML
+    const blob = new Blob([htmlFinal], { type: 'text/html;charset=utf-8' });
+    const blobUrl = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = blobUrl;
+    a.download = `${nomCV}_CV.html`;
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => { try { URL.revokeObjectURL(blobUrl); } catch(e) {} }, 5000);
+
+    setTimeout(() => {
+      Alert.alert(
+        '📄 CV téléchargé en HTML',
+        'Pour obtenir un PDF avec couleurs :\n\n' +
+        '1️⃣ Ouvrez le fichier avec Chrome\n' +
+        '2️⃣ Menu ⋮ → Imprimer\n' +
+        '3️⃣ Enregistrer en PDF\n\n' +
+        '✅ Toutes les couleurs seront présentes !',
+        [{ text: 'OK, compris !' }]
+      );
+    }, 500);
+  }
+} else {
     // Sur PC : nouvel onglet avec impression auto
     const htmlPC = htmlFinal.replace('</head>', `
       <style>
