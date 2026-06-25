@@ -8,7 +8,7 @@ export default function RootLayout() {
     if (Platform.OS === 'web') {
       // Rediriger si on est sur la racine sans /CVProApp/
       if (window.location.pathname === '/' || window.location.pathname === '/index.html') {
-        window.location.href = '/onboarding';
+        window.location.href = '/CVProApp/';
       }
     }
   }, []);
@@ -16,7 +16,6 @@ export default function RootLayout() {
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="index" />
-      <Stack.Screen name="CVProApp" />
       <Stack.Screen name="onboarding" />
       <Stack.Screen name="login" />
       <Stack.Screen name="signup" />
