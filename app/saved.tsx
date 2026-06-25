@@ -701,6 +701,7 @@ export default function SavedScreen() {
                     <Text style={styles.actionBtnSub}>Recommencer depuis zéro</Text>
                   </View>
                 </TouchableOpacity>
+                
                 <TouchableOpacity style={styles.actionBtn} onPress={() => router.push('/parametres')}>
                   <Text style={styles.actionBtnIcon}>{'⚙️'}</Text>
                   <View style={styles.actionBtnInfo}>
