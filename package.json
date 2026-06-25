@@ -3,6 +3,8 @@
   "main": "expo-router/entry",
   "version": "1.0.0",
   "scripts": {
+    "build:web": "bash build.sh",
+    "deploy": "bash build.sh && wrangler pages deploy dist --project-name cvpro-app",
     "build:web": "expo export --platform web",
     "deploy": "node deploy.js",
     "deploy:full": "npm run build:web && node deploy.js"
