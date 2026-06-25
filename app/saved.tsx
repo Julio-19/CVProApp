@@ -55,102 +55,156 @@ const genererPDFWeb = async (html: string, nomCV: string = 'Mon_CV'): Promise<vo
     : forcedCSS + html;
 
   if (isMobile) {
-  try {
-    if (typeof (window as any).html2pdf === 'undefined') {
-      throw new Error('html2pdf non disponible');
+    try {
+      if (typeof (window as any).html2pdf === 'undefined') {
+        throw new Error('html2pdf non disponible');
+      }
+
+      // ── Créer une page dédiée au CV dans un blob ────────────────────────
+      const blob = new Blob([htmlFinal], { type: 'text/html;charset=utf-8' });
+      const blobUrl = URL.createObjectURL(blob);
+
+      // Ouvrir dans un iframe caché
+      const iframe = document.createElement('iframe');
+      iframe.id = 'cv-render-iframe';
+      iframe.src = blobUrl;
+      iframe.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: -9999px;
+        width: 794px;
+        height: 1123px;
+        border: none;
+        z-index: -1;
+        visibility: hidden;
+      `;
+      document.body.appendChild(iframe);
+
+      // Attendre le chargement complet de l'iframe
+      await new Promise<void>((resolve) => {
+        iframe.onload = () => resolve();
+        setTimeout(resolve, 3000); // timeout de sécurité
+      });
+
+      // Attendre rendu des styles
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+      if (!iframeDoc || !iframeDoc.body) {
+        throw new Error('iframe body non disponible');
+      }
+
+      const opt = {
+        margin: 0,
+        filename: `${nomCV}_CV.pdf`,
+        image: { type: 'jpeg', quality: 0.95 },
+        html2canvas: {
+          scale: 2,
+          useCORS: true,
+          allowTaint: true,
+          backgroundColor: '#ffffff',
+          logging: false,
+          width: 794,
+          windowWidth: 794,
+          scrollX: 0,
+          scrollY: 0,
+        },
+        jsPDF: {
+          unit: 'mm',
+          format: 'a4',
+          orientation: 'portrait',
+        },
+      };
+
+      // Capturer depuis le body de l'iframe
+      await (window as any).html2pdf()
+        .set(opt)
+        .from(iframeDoc.documentElement)
+        .save();
+
+      // Nettoyer
+      URL.revokeObjectURL(blobUrl);
+      const el = document.getElementById('cv-render-iframe');
+      if (el) document.body.removeChild(el);
+
+      setTimeout(() => {
+        Alert.alert(
+          '✅ CV téléchargé !',
+          'Votre CV PDF a été téléchargé dans vos fichiers.',
+          [{ text: 'Super !' }]
+        );
+      }, 500);
+
+    } catch (error: any) {
+      console.error('Erreur html2pdf:', error);
+
+      // Nettoyer
+      const el = document.getElementById('cv-render-iframe');
+      if (el) try { document.body.removeChild(el); } catch(e) {}
+
+      // Fallback : télécharger HTML
+      const blob = new Blob([htmlFinal], { type: 'text/html;charset=utf-8' });
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = blobUrl;
+      a.download = `${nomCV}_CV.html`;
+      a.style.display = 'none';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => { try { URL.revokeObjectURL(blobUrl); } catch(e) {} }, 5000);
+
+      setTimeout(() => {
+        Alert.alert(
+          '📄 CV téléchargé en HTML',
+          'Pour un PDF avec couleurs :\n\n' +
+          '1️⃣ Ouvrez le fichier avec Chrome\n' +
+          '2️⃣ Menu ⋮ → Imprimer\n' +
+          '3️⃣ Enregistrer en PDF\n\n' +
+          '✅ Toutes les couleurs seront présentes !',
+          [{ text: 'OK, compris !' }]
+        );
+      }, 500);
     }
 
-    // ── Créer un iframe caché pour rendre le HTML complet ──────────────
-    const iframe = document.createElement('iframe');
-    iframe.id = 'cv-pdf-iframe';
-    iframe.style.cssText = `
-      position: fixed;
-      top: 0;
-      left: -9999px;
-      width: 794px;
-      height: 1123px;
-      border: none;
-      z-index: 9999;
-    `;
-    document.body.appendChild(iframe);
+  } else {
+    // Sur PC : nouvel onglet avec impression auto
+    const htmlPC = htmlFinal.replace('</head>', `
+      <style>
+        @media print {
+          *, *::before, *::after {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+            color-adjust: exact !important;
+          }
+          @page { margin: 0; size: A4 portrait; }
+        }
+      </style>
+      <script>
+        window.addEventListener('load', function() {
+          setTimeout(function() { window.print(); }, 600);
+        });
+        window.addEventListener('afterprint', function() {
+          setTimeout(function() { window.close(); }, 300);
+        });
+      </script>
+    </head>`);
 
-    // Écrire le HTML complet dans l'iframe
-    const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
-    if (!iframeDoc) throw new Error('iframe non disponible');
-
-    iframeDoc.open();
-    iframeDoc.write(htmlFinal);
-    iframeDoc.close();
-
-    // Attendre rendu complet
-    await new Promise(resolve => setTimeout(resolve, 2500));
-
-    const opt = {
-      margin: 0,
-      filename: `${nomCV}_CV.pdf`,
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: {
-        scale: 2,
-        useCORS: true,
-        allowTaint: true,
-        backgroundColor: null,
-        logging: false,
-        width: 794,
-        windowWidth: 794,
-      },
-      jsPDF: {
-        unit: 'mm',
-        format: 'a4',
-        orientation: 'portrait',
-      },
-    };
-
-    // Capturer depuis l'iframe
-    const iframeBody = iframeDoc.body;
-    await (window as any).html2pdf().set(opt).from(iframeBody).save();
-
-    // Nettoyer
-    const el = document.getElementById('cv-pdf-iframe');
-    if (el) document.body.removeChild(el);
-
-    setTimeout(() => {
-      Alert.alert(
-        '✅ CV téléchargé !',
-        'Votre CV PDF avec toutes les couleurs a été téléchargé.',
-        [{ text: 'Super !' }]
-      );
-    }, 500);
-
-  } catch (error: any) {
-    console.error('Erreur html2pdf:', error);
-
-    // Nettoyer
-    const el = document.getElementById('cv-pdf-iframe');
-    if (el) try { document.body.removeChild(el); } catch(e) {}
-
-    // Fallback HTML
-    const blob = new Blob([htmlFinal], { type: 'text/html;charset=utf-8' });
-    const blobUrl = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = blobUrl;
-    a.download = `${nomCV}_CV.html`;
-    a.style.display = 'none';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    setTimeout(() => { try { URL.revokeObjectURL(blobUrl); } catch(e) {} }, 5000);
-
-    setTimeout(() => {
-      Alert.alert(
-        '📄 CV téléchargé en HTML',
-        'Pour obtenir un PDF avec couleurs :\n\n' +
-        '1️⃣ Ouvrez le fichier avec Chrome\n' +
-        '2️⃣ Menu ⋮ → Imprimer\n' +
-        '3️⃣ Enregistrer en PDF\n\n' +
-        '✅ Toutes les couleurs seront présentes !',
-        [{ text: 'OK, compris !' }]
-      );
-    }, 500);
+    const newWindow = window.open('', '_blank', 'width=1200,height=800');
+    if (newWindow) {
+      newWindow.document.write(htmlPC);
+      newWindow.document.close();
+    } else {
+      const blob = new Blob([htmlFinal], { type: 'text/html;charset=utf-8' });
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = blobUrl;
+      a.download = `${nomCV}_CV.html`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => { try { URL.revokeObjectURL(blobUrl); } catch(e) {} }, 5000);
+    }
   }
 } else {
     // Sur PC : nouvel onglet avec impression auto
