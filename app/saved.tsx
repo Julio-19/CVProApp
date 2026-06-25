@@ -206,45 +206,6 @@ const genererPDFWeb = async (html: string, nomCV: string = 'Mon_CV'): Promise<vo
       setTimeout(() => { try { URL.revokeObjectURL(blobUrl); } catch(e) {} }, 5000);
     }
   }
-} else {
-    // Sur PC : nouvel onglet avec impression auto
-    const htmlPC = htmlFinal.replace('</head>', `
-      <style>
-        @media print {
-          *, *::before, *::after {
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
-            color-adjust: exact !important;
-          }
-          @page { margin: 0; size: A4 portrait; }
-        }
-      </style>
-      <script>
-        window.addEventListener('load', function() {
-          setTimeout(function() { window.print(); }, 600);
-        });
-        window.addEventListener('afterprint', function() {
-          setTimeout(function() { window.close(); }, 300);
-        });
-      </script>
-    </head>`);
-
-    const newWindow = window.open('', '_blank', 'width=1200,height=800');
-    if (newWindow) {
-      newWindow.document.write(htmlPC);
-      newWindow.document.close();
-    } else {
-      const blob = new Blob([htmlFinal], { type: 'text/html;charset=utf-8' });
-      const blobUrl = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = blobUrl;
-      a.download = `${nomCV}_CV.html`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      setTimeout(() => { try { URL.revokeObjectURL(blobUrl); } catch(e) {} }, 5000);
-    }
-  }
 };
 
 
