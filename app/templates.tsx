@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, Animated } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, Animated, Platform } from 'react-native';
 import { router } from 'expo-router';
 import { useState, useEffect, useRef } from 'react';
 import { useCVStore } from '../store/cvStore';
