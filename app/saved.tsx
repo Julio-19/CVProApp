@@ -675,6 +675,7 @@ export default function SavedScreen() {
                   <Text style={styles.actionBtnSub}>150 designs disponibles</Text>
                   </View>
                 </TouchableOpacity>
+                
                 <TouchableOpacity
                   style={[styles.actionBtn, styles.actionBtnDanger]}
                   onPress={() => {
@@ -686,9 +687,17 @@ export default function SavedScreen() {
                         {
                           text: 'Nouveau CV',
                           style: 'destructive',
-                          onPress: () => {
+                          onPress: async () => {
                             useCVStore.getState().reset();
-                            router.push('/cv/step1-profil');
+                            // Vider le localStorage aussi
+                            if (Platform.OS === 'web') {
+                              try {
+                                localStorage.removeItem('cv-storage');
+                              } catch(e) {}
+                            }
+                            setTimeout(() => {
+                              router.replace('/cv/step1-profil');
+                            }, 100);
                           }
                         },
                       ]
@@ -701,7 +710,7 @@ export default function SavedScreen() {
                     <Text style={styles.actionBtnSub}>Recommencer depuis zéro</Text>
                   </View>
                 </TouchableOpacity>
-                
+
                 <TouchableOpacity style={styles.actionBtn} onPress={() => router.push('/parametres')}>
                   <Text style={styles.actionBtnIcon}>{'⚙️'}</Text>
                   <View style={styles.actionBtnInfo}>
