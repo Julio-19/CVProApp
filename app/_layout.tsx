@@ -11,7 +11,7 @@ export default function RootLayout() {
         window.location.pathname === "/" ||
         window.location.pathname === "/index.html"
       ) {
-        window.location.href = "/onboarding";
+        window.location.href = "/profil.tsx";
       }
     }
   }, []);
