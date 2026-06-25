@@ -36,60 +36,33 @@ export const uploaderPhoto = async (uri: string): Promise<string> => {
   }
 };
 
-// ── Sauvegarder CV — TOUJOURS créer un nouveau ───────────────────────────────
-export const sauvegarderCV = async (cvData: any, cvId?: string): Promise<string> => {
-  const user = (await supabase.auth.getUser()).data.user;
+export const sauvegarderCV = async (cv: any, id?: string): Promise<string> => {
+  const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error('Non connecté');
 
-  console.log('💾 Sauvegarde CV:', cvData.prenom, cvData.nom, '| cvId:', cvId);
-
-  const cvToSave = {
-    user_id:        user.id,
-    prenom:         cvData.prenom         ?? '',
-    nom:            cvData.nom            ?? '',
-    titre:          cvData.titre          ?? '',
-    objectif:       cvData.objectif       ?? '',
-    email:          cvData.email          ?? '',
-    telephone:      cvData.telephone      ?? '',
-    ville:          cvData.ville          ?? '',
-    photo_url:      cvData.photo          ?? null,
-    experiences:    cvData.experiences    ?? [],
-    formations:     cvData.formations     ?? [],
-    competences:    cvData.competences    ?? [],
-    langues:        cvData.langues        ?? [],
-    loisirs:        cvData.loisirs        ?? [],
-    reseaux:        cvData.reseaux        ?? [],
-    certifications: cvData.certifications ?? [],
-    projets:        cvData.projets        ?? [],
-    template_id:    cvData.templateId     ?? 'sidebar_bleu',
-    updated_at:     new Date().toISOString(),
+  const payload = {
+    user_id:     user.id,
+    prenom:      cv.prenom      ?? '',
+    nom:         cv.nom         ?? '',
+    titre:       cv.titre       ?? '',
+    template_id: cv.templateId  ?? 'sidebar_bleu',
+    data:        cv, // ← IMPORTANT : toutes les données ici
+    updated_at:  new Date().toISOString(),
   };
 
-  // Si cvId fourni → mettre à jour ce CV spécifique
-  if (cvId) {
-    console.log('📝 Mise à jour CV:', cvId);
-    const { error } = await supabase
+  if (id) {
+    const { error } = await supabase.from('cvs').update(payload).eq('id', id);
+    if (error) throw error;
+    return id;
+  } else {
+    const { data, error } = await supabase
       .from('cvs')
-      .update(cvToSave)
-      .eq('id', cvId)
-      .eq('user_id', user.id); // sécurité
-
-    if (error) throw new Error(error.message);
-    return cvId;
+      .insert({ ...payload, created_at: new Date().toISOString() })
+      .select('id')
+      .single();
+    if (error) throw error;
+    return data.id;
   }
-
-  // Sinon → toujours créer un NOUVEAU CV
-  console.log('✨ Création nouveau CV');
-  const { data, error } = await supabase
-    .from('cvs')
-    .insert(cvToSave)
-    .select('id')
-    .single();
-
-  if (error) throw new Error(error.message);
-
-  console.log('✅ Nouveau CV créé:', data.id);
-  return data.id;
 };
 
 // ── Mettre à jour un CV spécifique par ID ────────────────────────────────────
