@@ -1,241 +1,120 @@
-import {
-  View, Text, StyleSheet, FlatList, TouchableOpacity,
-  Alert, ActivityIndicator, Animated, RefreshControl
-} from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator, Alert } from 'react-native';
 import { router } from 'expo-router';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '../config/supabase';
 import { useCVStore } from '../store/cvStore';
+import { generateCVHTML } from '../services/templateService';
 
 type CVSauvegarde = {
   id: string;
+  created_at: string;
+  updated_at: string;
   prenom: string;
   nom: string;
   titre: string;
   template_id: string;
-  created_at: string;
-  updated_at: string;
-  experiences: any[];
-  formations: any[];
-  competences: string[];
-};
-
-const TEMPLATE_COLORS: Record<string, string> = {
-  sidebar_bleu: '#1a3a5c', gagnant: '#1a3a5c', minimaliste: '#111',
-  teal_student: '#3d9b8a', dark_sidebar: '#2c2c2c', violet: '#6b21a8',
-  classique_pro: '#6b7280', bold_noir: '#111', bleu_arrondi: '#2563eb',
-  brun_elegant: '#2a2520', fresher_vert: '#2d5a27', geometrique: '#e85d30',
-  vert_nature: '#1e3422', navy_pro: '#1e3a6e', fresher_dark: '#1a2744',
-  rouge_moderne: '#dc2626', jaune_pro: '#ca8a04', vert_minimal: '#14532d',
-  orange_sidebar: '#ea580c', rose_elegant: '#831843', dark_orange: '#f97316',
+  data: any;
 };
 
 export default function MesCVsScreen() {
   const [cvs, setCvs]           = useState<CVSauvegarde[]>([]);
   const [loading, setLoading]   = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-  const setField    = useCVStore(s => s.setField);
-  const setTemplate = useCVStore(s => s.setTemplate);
-  const fadeAnim    = useRef(new Animated.Value(0)).current;
-  const slideAnim   = useRef(new Animated.Value(20)).current;
+  const [deleting, setDeleting] = useState<string | null>(null);
+  const store = useCVStore();
 
-  useEffect(() => { chargerCVs(); }, []);
+  useEffect(() => {
+    chargerCVs();
+  }, []);
 
-const chargerCVs = async () => {
-  try {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) { router.replace('/login'); return; }
+  const chargerCVs = async () => {
+    try {
+      setLoading(true);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) { router.replace('/login'); return; }
 
-    console.log('📂 Chargement CVs pour user:', user.id);
+      const { data, error } = await supabase
+        .from('cvs')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('updated_at', { ascending: false });
 
-    const { data, error } = await supabase
-      .from('cvs')
-      .select(`
-        id,
-        prenom,
-        nom,
-        titre,
-        template_id,
-        created_at,
-        updated_at,
-        experiences,
-        formations,
-        competences
-      `)
-      .eq('user_id', user.id)
-      .order('updated_at', { ascending: false });
-
-    if (error) {
-      console.error('Erreur CVs:', error.message);
-      Alert.alert('Erreur', error.message);
-      return;
+      if (error) throw error;
+      setCvs(data ?? []);
+    } catch (err: any) {
+      console.error('Erreur chargement CVs:', err);
+      Alert.alert('Erreur', 'Impossible de charger vos CVs : ' + err.message);
+    } finally {
+      setLoading(false);
     }
+  };
 
-    console.log('✅ CVs trouvés:', data?.length ?? 0);
-    data?.forEach((cv, i) => {
-      console.log(`CV ${i+1}: ${cv.prenom} ${cv.nom} | ${cv.titre} | ${cv.template_id}`);
-    });
+  const handleOuvrirCV = (cv: CVSauvegarde) => {
+    try {
+      // Charger les données du CV dans le store
+      const data = cv.data ?? {};
+      store.setField('prenom',       data.prenom       ?? cv.prenom ?? '');
+      store.setField('nom',          data.nom          ?? cv.nom    ?? '');
+      store.setField('email',        data.email        ?? '');
+      store.setField('telephone',    data.telephone    ?? '');
+      store.setField('ville',        data.ville        ?? '');
+      store.setField('titre',        data.titre        ?? cv.titre  ?? '');
+      store.setField('objectif',     data.objectif     ?? '');
+      store.setField('photo',        data.photo        ?? null);
+      store.setField('experiences',  data.experiences  ?? []);
+      store.setField('formations',   data.formations   ?? []);
+      store.setField('competences',  data.competences  ?? []);
+      store.setField('langues',      data.langues      ?? []);
+      store.setField('loisirs',      data.loisirs      ?? []);
+      store.setField('reseaux',      data.reseaux      ?? []);
+      store.setField('certifications', data.certifications ?? []);
+      store.setField('projets',      data.projets      ?? []);
+      store.setTemplate(data.templateId ?? cv.template_id ?? 'sidebar_bleu');
 
-    setCvs(data ?? []);
+      console.log('CV chargé:', cv.prenom, cv.nom, 'template:', data.templateId ?? cv.template_id);
 
-    Animated.parallel([
-      Animated.timing(fadeAnim,  { toValue: 1, duration: 400, useNativeDriver: Platform.OS !== 'web' }),
-      Animated.spring(slideAnim, { toValue: 0, tension: 80, friction: 8, useNativeDriver: Platform.OS !== 'web' }),
-    ]).start();
+      // Naviguer vers saved
+      setTimeout(() => {
+        router.push('/saved');
+      }, 150);
 
-  } catch (error: any) {
-    console.error('Erreur:', error.message);
-    Alert.alert('Erreur', error.message);
-  } finally {
-    setLoading(false);
-    setRefreshing(false);
-  }
-};
-  const onRefresh = () => { setRefreshing(true); chargerCVs(); };
+    } catch (err: any) {
+      console.error('Erreur ouverture CV:', err);
+      Alert.alert('Erreur', 'Impossible d\'ouvrir ce CV');
+    }
+  };
 
-  const ouvrirCV = async (cv: CVSauvegarde) => {
-  try {
-    const { data, error } = await supabase
-      .from('cvs')
-      .select('*')
-      .eq('id', cv.id)
-      .single();
-
-    if (error) throw error;
-
-    // Charger dans le store
-    const fields: Record<string, any> = {
-      prenom:         data.prenom         ?? '',
-      nom:            data.nom            ?? '',
-      email:          data.email          ?? '',
-      telephone:      data.telephone      ?? '',
-      ville:          data.ville          ?? '',
-      titre:          data.titre          ?? '',
-      objectif:       data.objectif       ?? '',
-      photo:          data.photo_url      ?? null,  // ← photo_url → photo
-      experiences:    data.experiences    ?? [],
-      formations:     data.formations     ?? [],
-      competences:    data.competences    ?? [],
-      langues:        data.langues        ?? [],
-      loisirs:        data.loisirs        ?? [],
-      reseaux:        data.reseaux        ?? [],
-      certifications: data.certifications ?? [],
-      projets:        data.projets        ?? [],
-    };
-
-    Object.entries(fields).forEach(([key, value]) => {
-      (setField as any)(key, value);
-    });
-
-    setTemplate(data.template_id ?? 'sidebar_bleu');
-    router.push('/saved');
-  } catch (error: any) {
-    Alert.alert('Erreur', error.message);
-  }
-};
-
-  const supprimerCV = (cv: CVSauvegarde) => {
+  const handleSupprimerCV = (cv: CVSauvegarde) => {
     Alert.alert(
-      'Supprimer ce CV ?',
-      `${cv.prenom} ${cv.nom} — ${cv.titre || 'Sans titre'}`,
+      '🗑️ Supprimer ce CV ?',
+      `Voulez-vous supprimer le CV de ${cv.prenom} ${cv.nom} ?`,
       [
         { text: 'Annuler', style: 'cancel' },
         {
           text: 'Supprimer',
           style: 'destructive',
           onPress: async () => {
-            const { error } = await supabase.from('cvs').delete().eq('id', cv.id);
-            if (error) { Alert.alert('Erreur', error.message); return; }
-            setCvs(prev => prev.filter(c => c.id !== cv.id));
-          },
-        },
+            try {
+              setDeleting(cv.id);
+              const { error } = await supabase.from('cvs').delete().eq('id', cv.id);
+              if (error) throw error;
+              setCvs(prev => prev.filter(c => c.id !== cv.id));
+            } catch (err: any) {
+              Alert.alert('Erreur', 'Impossible de supprimer : ' + err.message);
+            } finally {
+              setDeleting(null);
+            }
+          }
+        }
       ]
     );
   };
 
-  const formatDate = (d: string) => new Date(d).toLocaleDateString('fr-FR', {
-    day: '2-digit', month: 'short', year: 'numeric'
-  });
-
-  const getColor = (templateId: string) => TEMPLATE_COLORS[templateId] ?? '#534AB7';
-
-  const getInitiales = (prenom: string, nom: string) =>
-    `${prenom?.[0] ?? ''}${nom?.[0] ?? ''}`.toUpperCase() || '?';
-
-  const renderCV = ({ item: cv, index }: { item: CVSauvegarde; index: number }) => {
-    const color    = getColor(cv.template_id);
-    const initials = getInitiales(cv.prenom, cv.nom);
-
-    return (
-      <Animated.View style={[
-        styles.card,
-        {
-          opacity:   fadeAnim,
-          transform: [{ translateY: slideAnim }],
-        }
-      ]}>
-        <TouchableOpacity
-          style={styles.cardInner}
-          onPress={() => ouvrirCV(cv)}
-          activeOpacity={0.85}
-        >
-          {/* Avatar */}
-          <View style={[styles.avatar, { backgroundColor: color }]}>
-            <Text style={styles.avatarText}>{initials}</Text>
-          </View>
-
-          {/* Infos */}
-          <View style={styles.cardInfo}>
-            <Text style={styles.cardName} numberOfLines={1}>
-              {cv.prenom} {cv.nom}
-            </Text>
-            <Text style={styles.cardTitre} numberOfLines={1}>
-              {cv.titre || 'Sans titre'}
-            </Text>
-
-            {/* Stats */}
-            <View style={styles.statsRow}>
-              {[
-                { n: cv.experiences?.length ?? 0, l: 'exp' },
-                { n: cv.formations?.length ?? 0,  l: 'form' },
-                { n: cv.competences?.length ?? 0, l: 'comp' },
-              ].map((s, i) => (
-                <View key={i} style={styles.statItem}>
-                  <Text style={styles.statNum}>{s.n}</Text>
-                  <Text style={styles.statLbl}>{s.l}</Text>
-                </View>
-              ))}
-            </View>
-
-            {/* Template badge + date */}
-            <View style={styles.cardMeta}>
-              <View style={[styles.badge, { backgroundColor: color + '22' }]}>
-                <Text style={[styles.badgeText, { color }]}>
-                  {cv.template_id?.replace(/_/g, ' ')}
-                </Text>
-              </View>
-              <Text style={styles.cardDate}>{formatDate(cv.updated_at)}</Text>
-            </View>
-          </View>
-
-          {/* Actions */}
-          <View style={styles.cardActions}>
-            <TouchableOpacity
-              style={[styles.actionBtn, { backgroundColor: color + '15' }]}
-              onPress={() => ouvrirCV(cv)}
-            >
-              <Text style={[styles.actionIcon, { color }]}>↗</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.deleteBtn}
-              onPress={() => supprimerCV(cv)}
-            >
-              <Text style={styles.deleteIcon}>🗑</Text>
-            </TouchableOpacity>
-          </View>
-        </TouchableOpacity>
-      </Animated.View>
-    );
+  const formatDate = (dateStr: string) => {
+    try {
+      return new Date(dateStr).toLocaleDateString('fr-FR', {
+        day: '2-digit', month: 'short', year: 'numeric'
+      });
+    } catch { return dateStr; }
   };
 
   return (
@@ -246,135 +125,123 @@ const chargerCVs = async () => {
           <Text style={styles.backText}>←</Text>
         </TouchableOpacity>
         <View style={styles.headerCenter}>
-          <Text style={styles.headerTitle}>Mes CVs</Text>
-          <Text style={styles.headerSub}>
-            {cvs.length} CV{cvs.length > 1 ? 's' : ''} sauvegardé{cvs.length > 1 ? 's' : ''}
-          </Text>
+          <Text style={styles.headerTitle}>Mes CVs sauvegardés</Text>
+          <Text style={styles.headerSub}>{cvs.length} CV(s)</Text>
         </View>
-        <TouchableOpacity style={styles.refreshBtn} onPress={onRefresh}>
-          <Text style={styles.refreshText}>↺</Text>
+        <TouchableOpacity style={styles.refreshBtn} onPress={chargerCVs}>
+          <Text style={styles.refreshText}>↻</Text>
         </TouchableOpacity>
       </View>
 
-      {/* Stats globales */}
-      {!loading && cvs.length > 0 && (
-        <View style={styles.globalStats}>
-          <View style={styles.globalStat}>
-            <Text style={styles.globalStatNum}>{cvs.length}</Text>
-            <Text style={styles.globalStatLbl}>CVs</Text>
-          </View>
-          <View style={styles.globalStatDivider} />
-          <View style={styles.globalStat}>
-            <Text style={styles.globalStatNum}>
-              {new Set(cvs.map(c => c.template_id)).size}
-            </Text>
-            <Text style={styles.globalStatLbl}>Templates</Text>
-          </View>
-          <View style={styles.globalStatDivider} />
-          <View style={styles.globalStat}>
-            <Text style={styles.globalStatNum}>
-              {cvs.reduce((acc, c) => acc + (c.experiences?.length ?? 0), 0)}
-            </Text>
-            <Text style={styles.globalStatLbl}>Expériences</Text>
-          </View>
-        </View>
-      )}
-
-      {/* Contenu */}
       {loading ? (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#534AB7" />
+          <ActivityIndicator color="#534AB7" size="large" />
           <Text style={styles.loadingText}>Chargement de vos CVs...</Text>
         </View>
       ) : cvs.length === 0 ? (
         <View style={styles.emptyContainer}>
-          <Text style={styles.emptyEmoji}>📭</Text>
+          <Text style={styles.emptyEmoji}>📂</Text>
           <Text style={styles.emptyTitle}>Aucun CV sauvegardé</Text>
           <Text style={styles.emptySub}>
-            Créez votre premier CV et sauvegardez-le en ligne pour le retrouver ici.
+            Créez et sauvegardez votre premier CV pour le retrouver ici.
           </Text>
-          <TouchableOpacity
-            style={styles.emptyBtn}
-            onPress={() => { useCVStore.getState().reset(); router.push('/cv/step1-profil'); }}
-          >
-            <Text style={styles.emptyBtnText}>✨ Créer un CV</Text>
+          <TouchableOpacity style={styles.emptyBtn} onPress={() => router.push('/cv/step1-profil')}>
+            <Text style={styles.emptyBtnText}>Créer un CV →</Text>
           </TouchableOpacity>
         </View>
       ) : (
-        <FlatList
-          data={cvs}
-          keyExtractor={item => item.id}
-          renderItem={renderCV}
-          contentContainerStyle={styles.list}
-          showsVerticalScrollIndicator={false}
-          ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={onRefresh}
-              colors={['#534AB7']}
-            />
-          }
-        />
-      )}
+        <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+          {cvs.map((cv) => (
+            <TouchableOpacity
+              key={cv.id}
+              style={styles.cvCard}
+              onPress={() => handleOuvrirCV(cv)}
+              activeOpacity={0.85}
+            >
+              {/* Indicateur couleur template */}
+              <View style={[styles.cvColor, {
+                backgroundColor: cv.data?.templateId
+                  ? (cv.data.templateId.includes('bleu')  ? '#1a3a5c' :
+                     cv.data.templateId.includes('rouge') ? '#dc2626' :
+                     cv.data.templateId.includes('vert')  ? '#1e3422' :
+                     cv.data.templateId.includes('violet')? '#6b21a8' :
+                     cv.data.templateId.includes('dark')  ? '#2c2c2c' :
+                     '#534AB7')
+                  : '#534AB7'
+              }]} />
 
-      {/* FAB */}
-      {!loading && cvs.length > 0 && (
-        <TouchableOpacity
-          style={styles.fab}
-          onPress={() => { useCVStore.getState().reset(); router.push('/cv/step1-profil'); }}
-        >
-          <Text style={styles.fabText}>+ Nouveau CV</Text>
-        </TouchableOpacity>
+              <View style={styles.cvInfo}>
+                <Text style={styles.cvNom}>
+                  {cv.prenom || cv.data?.prenom || '—'} {cv.nom || cv.data?.nom || ''}
+                </Text>
+                <Text style={styles.cvTitre} numberOfLines={1}>
+                  {cv.titre || cv.data?.titre || 'Sans titre'}
+                </Text>
+                <Text style={styles.cvDate}>
+                  Modifié le {formatDate(cv.updated_at || cv.created_at)}
+                </Text>
+                <Text style={styles.cvTemplate}>
+                  🎨 {(cv.data?.templateId ?? cv.template_id ?? 'sidebar_bleu')
+                    .replace(/_/g, ' ')
+                    .replace(/\b\w/g, (l: string) => l.toUpperCase())}
+                </Text>
+              </View>
+
+              <View style={styles.cvActions}>
+                <TouchableOpacity
+                  style={styles.btnOuvrir}
+                  onPress={() => handleOuvrirCV(cv)}
+                >
+                  <Text style={styles.btnOuvrirText}>Ouvrir</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.btnSupprimer}
+                  onPress={() => handleSupprimerCV(cv)}
+                  disabled={deleting === cv.id}
+                >
+                  {deleting === cv.id
+                    ? <ActivityIndicator size="small" color="#dc2626" />
+                    : <Text style={styles.btnSupprimerText}>🗑️</Text>
+                  }
+                </TouchableOpacity>
+              </View>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
       )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container:         { flex: 1, backgroundColor: '#f5f7fa' },
-  header:            { backgroundColor: '#534AB7', paddingTop: 52, paddingBottom: 16, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center' },
-  backBtn:           { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
-  backText:          { color: '#fff', fontSize: 24, fontWeight: '300' },
-  headerCenter:      { flex: 1, alignItems: 'center' },
-  headerTitle:       { color: '#fff', fontSize: 18, fontWeight: '600' },
-  headerSub:         { color: 'rgba(255,255,255,0.7)', fontSize: 12, marginTop: 2 },
-  refreshBtn:        { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
-  refreshText:       { color: '#fff', fontSize: 22 },
-  globalStats:       { backgroundColor: '#fff', flexDirection: 'row', padding: 16, borderBottomWidth: 1, borderBottomColor: '#eee' },
-  globalStat:        { flex: 1, alignItems: 'center' },
-  globalStatNum:     { fontSize: 22, fontWeight: '800', color: '#534AB7' },
-  globalStatLbl:     { fontSize: 11, color: '#888', marginTop: 2 },
-  globalStatDivider: { width: 1, backgroundColor: '#eee' },
-  loadingContainer:  { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 12 },
-  loadingText:       { color: '#888', fontSize: 14 },
-  emptyContainer:    { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 32, gap: 16 },
-  emptyEmoji:        { fontSize: 64 },
-  emptyTitle:        { fontSize: 20, fontWeight: '700', color: '#1a1a1a' },
-  emptySub:          { fontSize: 14, color: '#888', textAlign: 'center', lineHeight: 22 },
-  emptyBtn:          { backgroundColor: '#534AB7', borderRadius: 16, paddingVertical: 16, paddingHorizontal: 32 },
-  emptyBtnText:      { color: '#fff', fontSize: 15, fontWeight: '700' },
-  list:              { padding: 16, paddingBottom: 100 },
-  card:              { backgroundColor: '#fff', borderRadius: 16, elevation: 2, shadowColor: '#000', shadowOpacity: 0.06, shadowOffset: { width: 0, height: 2 }, shadowRadius: 6 },
-  cardInner:         { flexDirection: 'row', alignItems: 'center', padding: 14, gap: 12 },
-  avatar:            { width: 54, height: 54, borderRadius: 27, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
-  avatarText:        { color: '#fff', fontSize: 18, fontWeight: '800' },
-  cardInfo:          { flex: 1, gap: 4 },
-  cardName:          { fontSize: 15, fontWeight: '700', color: '#1a1a1a' },
-  cardTitre:         { fontSize: 12, color: '#555' },
-  statsRow:          { flexDirection: 'row', gap: 8, marginTop: 4 },
-  statItem:          { flexDirection: 'row', alignItems: 'center', gap: 3 },
-  statNum:           { fontSize: 11, fontWeight: '700', color: '#534AB7' },
-  statLbl:           { fontSize: 10, color: '#888' },
-  cardMeta:          { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 4 },
-  badge:             { paddingHorizontal: 7, paddingVertical: 2, borderRadius: 8 },
-  badgeText:         { fontSize: 9, fontWeight: '700' },
-  cardDate:          { fontSize: 10, color: '#aaa' },
-  cardActions:       { gap: 8, flexShrink: 0 },
-  actionBtn:         { width: 34, height: 34, borderRadius: 17, alignItems: 'center', justifyContent: 'center' },
-  actionIcon:        { fontSize: 16, fontWeight: '700' },
-  deleteBtn:         { width: 34, height: 34, backgroundColor: '#fee2e2', borderRadius: 17, alignItems: 'center', justifyContent: 'center' },
-  deleteIcon:        { fontSize: 14 },
-  fab:               { position: 'absolute', bottom: 24, right: 24, backgroundColor: '#534AB7', borderRadius: 28, paddingVertical: 14, paddingHorizontal: 24, elevation: 6, shadowColor: '#534AB7', shadowOpacity: 0.4, shadowOffset: { width: 0, height: 4 }, shadowRadius: 8 },
-  fabText:           { color: '#fff', fontSize: 15, fontWeight: '700' },
+  container:        { flex: 1, backgroundColor: '#f5f7fa' },
+  header:           { backgroundColor: '#534AB7', paddingTop: 52, paddingBottom: 16, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center' },
+  backBtn:          { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
+  backText:         { color: '#fff', fontSize: 24, fontWeight: '300' },
+  headerCenter:     { flex: 1, alignItems: 'center' },
+  headerTitle:      { color: '#fff', fontSize: 18, fontWeight: '600' },
+  headerSub:        { color: 'rgba(255,255,255,0.7)', fontSize: 12, marginTop: 2 },
+  refreshBtn:       { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
+  refreshText:      { color: '#fff', fontSize: 24, fontWeight: '300' },
+  loadingContainer: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 16 },
+  loadingText:      { fontSize: 14, color: '#888' },
+  emptyContainer:   { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 32, gap: 16 },
+  emptyEmoji:       { fontSize: 56 },
+  emptyTitle:       { fontSize: 20, fontWeight: '800', color: '#111', textAlign: 'center' },
+  emptySub:         { fontSize: 14, color: '#888', textAlign: 'center', lineHeight: 22 },
+  emptyBtn:         { backgroundColor: '#534AB7', borderRadius: 16, paddingVertical: 14, paddingHorizontal: 28 },
+  emptyBtnText:     { color: '#fff', fontSize: 14, fontWeight: '700' },
+  content:          { padding: 16, gap: 12, paddingBottom: 40 },
+  cvCard:           { backgroundColor: '#fff', borderRadius: 16, flexDirection: 'row', alignItems: 'center', overflow: 'hidden', elevation: 2, shadowColor: '#000', shadowOpacity: 0.06, shadowOffset: { width: 0, height: 2 }, shadowRadius: 4 },
+  cvColor:          { width: 8, alignSelf: 'stretch', minHeight: 90 },
+  cvInfo:           { flex: 1, padding: 14, gap: 3 },
+  cvNom:            { fontSize: 15, fontWeight: '700', color: '#111' },
+  cvTitre:          { fontSize: 12, color: '#534AB7', fontWeight: '500' },
+  cvDate:           { fontSize: 10, color: '#aaa', marginTop: 4 },
+  cvTemplate:       { fontSize: 10, color: '#888' },
+  cvActions:        { flexDirection: 'column', padding: 12, gap: 8, alignItems: 'center' },
+  btnOuvrir:        { backgroundColor: '#534AB7', borderRadius: 8, paddingVertical: 6, paddingHorizontal: 12 },
+  btnOuvrirText:    { color: '#fff', fontSize: 11, fontWeight: '600' },
+  btnSupprimer:     { backgroundColor: '#fef2f2', borderRadius: 8, padding: 8 },
+  btnSupprimerText: { fontSize: 16 },
 });
