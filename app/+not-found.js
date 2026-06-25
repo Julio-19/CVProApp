@@ -7,8 +7,8 @@ export default function NotFoundScreen() {
     <View style={styles.container}>
       <Text style={styles.title}>Page non trouvée</Text>
       <Text>Oups ! Cette page n'existe pas.</Text>
-      <Link href="/">
-        <Text style={styles.link}>Retour à l'accueil</Text>
+      <Link href="/" style={styles.link}>
+        <Text>Retour à l'accueil</Text>
       </Link>
     </View>
   );

@@ -1,5 +1,5 @@
 // app/CVProApp.js
-import { StyleSheet, Text, View } from "react-native";
+import { View, Text, StyleSheet } from 'react-native';
 
 export default function CVProApp() {
   return (
@@ -13,13 +13,13 @@ export default function CVProApp() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     padding: 20,
   },
   title: {
     fontSize: 24,
-    fontWeight: "bold",
+    fontWeight: 'bold',
     marginBottom: 20,
   },
 });
