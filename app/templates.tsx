@@ -242,12 +242,12 @@ export default function TemplatesScreen() {
 
   const handleChoisir = (t: Template) => {
   if (achetes.includes(t.id)) {
-    // Déjà acheté → utiliser directement
     setTemplate(t.id);
     console.log('Template sélectionné:', t.id);
-    router.push('/saved');
+    setTimeout(() => {
+      router.replace('/saved');
+    }, 100);
   } else {
-    // Aller au paiement — passer le templateId en params
     console.log('Redirection paiement pour template:', t.id);
     router.push({
       pathname: '/paiement',
