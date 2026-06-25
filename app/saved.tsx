@@ -670,11 +670,11 @@ export default function SavedScreen() {
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.actionBtn} onPress={() => router.push('/templates')}>
                   <Text style={styles.actionBtnIcon}>{'🎨'}</Text>
-  <View style={styles.actionBtnInfo}>
-    <Text style={styles.actionBtnTitle}>Changer de template</Text>
-    <Text style={styles.actionBtnSub}>150 designs disponibles</Text>
-  </View>
-</TouchableOpacity>
+                  <View style={styles.actionBtnInfo}>
+                  <Text style={styles.actionBtnTitle}>Changer de template</Text>
+                  <Text style={styles.actionBtnSub}>150 designs disponibles</Text>
+                  </View>
+                </TouchableOpacity>
                 <TouchableOpacity
                   style={[styles.actionBtn, styles.actionBtnDanger]}
                   onPress={() => {
