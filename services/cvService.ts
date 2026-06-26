@@ -2,8 +2,6 @@ import { decode } from "base64-arraybuffer";
 import * as FileSystem from "expo-file-system/legacy";
 import { supabase } from "../config/supabase";
 
-import { supabase } from '../config/supabase';
-
 export const sauvegarderCV = async (cv: any, id?: string): Promise<string> => {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error('Non connecté');
