@@ -54,115 +54,115 @@ const TEMPLATES: Template[] = [
   { id: 'orange_sidebar', nom: 'Orange Sidebar',   prix: 1500, description: 'Sidebar orange vif' },
   { id: 'rose_elegant',   nom: 'Rose Élégant',     prix: 2000, description: 'Rose poudré élégant' },
   { id: 'dark_orange',    nom: 'Dark Orange',      prix: 2500, description: 'Fond sombre + orange' },
-  { id: 'crimson_pro',      nom: 'Crimson Pro',       prix: 1500, description: 'Corporate' },
-  { id: 'ocean_blue',       nom: 'Ocean Blue',         prix: 1500,  description: 'Moderne' },
-  { id: 'slate_modern',     nom: 'Slate Modern',       prix: 2000, description: 'Tech' },
-  { id: 'emerald_tech',     nom: 'Emerald Tech',       prix: 2000, description: 'Tech' },
-  { id: 'sunset_warm',      nom: 'Sunset Warm',        prix: 1500, description: 'Créatif' },
-  { id: 'arctic_white',     nom: 'Arctic White',       prix: 1000, description: 'Minimal' },
-  { id: 'midnight_pro',     nom: 'Midnight Pro',       prix: 2000, description: 'Luxe' },
-  { id: 'copper_elegant',   nom: 'Copper Elegant',     prix: 2000, description: 'Luxe' },
-  { id: 'forest_green',     nom: 'Forest Green',       prix: 1500, description: 'Nature' },
-  { id: 'royal_purple',     nom: 'Royal Purple',       prix: 2000, description: 'Luxe' },
-  { id: 'sand_minimal',     nom: 'Sand Minimal',       prix: 1000, description: 'Minimal' },
-  { id: 'tech_dark',        nom: 'Tech Dark',          prix: 2500, description: 'Tech' },
-  { id: 'coral_fresh',      nom: 'Coral Fresh',        prix: 1500, description: 'Créatif' },
-  { id: 'gold_black',       nom: 'Gold & Black',       prix: 2500, description: 'Luxe' },
-  { id: 'mint_clean',       nom: 'Mint Clean',         prix: 1000, description: 'Minimal' },
-  { id: 'burgundy_classic', nom: 'Burgundy Classic',   prix: 1500, description: 'Corporate' },
-  { id: 'sky_creative',     nom: 'Sky Creative',       prix: 1500, description: 'Créatif' },
-  { id: 'charcoal_pro',     nom: 'Charcoal Pro',       prix: 2000, description: 'Corporate' },
-  { id: 'peach_soft',       nom: 'Peach Soft',         prix: 1000, description: 'Doux' },
-  { id: 'indigo_modern',    nom: 'Indigo Modern',      prix: 2000, description: 'Moderne' },
-  { id: 'olive_natural',    nom: 'Olive Natural',      prix: 1500, description: 'Nature' },
-  { id: 'ruby_luxe',        nom: 'Ruby Luxe',          prix: 2500, description: 'Luxe' },
-  { id: 'steel_corporate',  nom: 'Steel Corporate',    prix: 2000, description: 'Corporate' },
-  { id: 'lavender_soft',    nom: 'Lavender Soft',      prix: 1000, description: 'Doux' },
-  { id: 'amber_warm',       nom: 'Amber Warm',         prix: 1500, description: 'Chaud' },
-  { id: 'ink_minimal',      nom: 'Ink Minimal',        prix: 1000, description: 'Minimal' },
-  { id: 'azure_clean',      nom: 'Azure Clean',        prix: 1500, description: 'Moderne' },
-  { id: 'mahogany_rich',    nom: 'Mahogany Rich',      prix: 2000, description: 'Luxe' },
-  { id: 'lime_tech',        nom: 'Lime Tech',          prix: 2000, description: 'Tech' },
-  { id: 'plum_elegant',     nom: 'Plum Elegant',       prix: 2000, description: 'Luxe' },
-  { id: 'graphite_pro',     nom: 'Graphite Pro',       prix: 1500, description: 'Corporate' },
-  { id: 'jade_fresh',       nom: 'Jade Fresh',         prix: 1500, description: 'Nature' },
-  { id: 'terracotta_warm',  nom: 'Terracotta Warm',    prix: 1500, description: 'Chaud' },
-  { id: 'cobalt_modern',    nom: 'Cobalt Modern',      prix: 2000, description: 'Moderne' },
-  { id: 'cream_luxe',       nom: 'Cream Luxe',         prix: 2000, description: 'Luxe' },
-  { id: 'carbon_tech',      nom: 'Carbon Tech',        prix: 2500, description: 'Tech' },
-  { id: 'sage_minimal',     nom: 'Sage Minimal',       prix: 1000, description: 'Minimal' },
-  { id: 'wine_classic',     nom: 'Wine Classic',       prix: 1500, description: 'Classic' },
-  { id: 'topaz_bright',     nom: 'Topaz Bright',       prix: 1500, description: 'Coloré' },
-  { id: 'ebony_gold',       nom: 'Ebony Gold',         prix: 2500, description: 'Luxe' },
-  { id: 'blush_modern',     nom: 'Blush Modern',       prix: 1000, description: 'Doux' },
-  { id: 'pine_forest',      nom: 'Pine Forest',        prix: 1500, description: 'Nature' },
-  { id: 'denim_casual',     nom: 'Denim Casual',       prix: 1000, description: 'Décontracté' },
-  { id: 'rose_gold',        nom: 'Rose Gold',          prix: 2500, description: 'Luxe' },
-  { id: 'space_dark',       nom: 'Space Dark',         prix: 2000, description: 'Tech' },
-  { id: 'citrus_fresh',     nom: 'Citrus Fresh',       prix: 1000, description: 'Coloré' },
-  { id: 'mocha_warm',       nom: 'Mocha Warm',         prix: 1500, description: 'Chaud' },
-  { id: 'glacier_cool',     nom: 'Glacier Cool',       prix: 1500, description: 'Cool' },
-  { id: 'amber_dark',       nom: 'Amber Dark',         prix: 2000, description: 'Sombre' },
-  { id: 'electric_blue',    nom: 'Electric Blue',      prix: 2000, description: 'Coloré' },
-  { id: 'dusty_rose',       nom: 'Dusty Rose',         prix: 1000, description: 'Doux' },
-  { id: 'forest_dark',      nom: 'Forest Dark',        prix: 1500, description: 'Nature' },
-  { id: 'ivory_classic',    nom: 'Ivory Classic',      prix: 1500, description: 'Classic' },
-  { id: 'neon_dark',        nom: 'Neon Dark',          prix: 2500, description: 'Tech' },
-  { id: 'sepia_vintage',    nom: 'Sepia Vintage',      prix: 2000, description: 'Vintage' },
-  { id: 'arctic_dark',      nom: 'Arctic Dark',        prix: 2000, description: 'Sombre' },
-  { id: 'blaze_orange',     nom: 'Blaze Orange',       prix: 1500, description: 'Coloré' },
-  { id: 'storm_grey',       nom: 'Storm Grey',         prix: 1500, description: 'Corporate' },
-  { id: 'spring_green',     nom: 'Spring Green',       prix: 1000, description: 'Nature' },
-  { id: 'velvet_dark',      nom: 'Velvet Dark',        prix: 2500, description: 'Luxe' },
-  { id: 'aurora_dark',      nom: 'Aurora Dark',       prix: 2500, description: 'Luxe' },
-{ id: 'metro_pro',        nom: 'Metro Pro',          prix: 2000, description: 'Corporate' },
-{ id: 'bamboo_zen',       nom: 'Bamboo Zen',         prix: 2000, description: 'Artistique' },
-{ id: 'chrome_tech',      nom: 'Chrome Tech',        prix: 2000, description: 'Tech' },
-{ id: 'sahara_warm',      nom: 'Sahara Warm',        prix: 1500, description: 'Chaud' },
-{ id: 'nordic_clean',     nom: 'Nordic Clean',       prix: 1500, description: 'Minimal' },
-{ id: 'galaxy_dark',      nom: 'Galaxy Dark',        prix: 2500, description: 'Sombre' },
-{ id: 'terrace_med',      nom: 'Terrace Med',        prix: 1500, description: 'Nature' },
-{ id: 'flamingo_pink',    nom: 'Flamingo Pink',      prix: 1500, description: 'Coloré' },
-{ id: 'titanium_pro',     nom: 'Titanium Pro',       prix: 2000, description: 'Tech' },
-{ id: 'canopy_green',     nom: 'Canopy Green',       prix: 1500, description: 'Nature' },
-{ id: 'brick_warm',       nom: 'Brick Warm',         prix: 1500, description: 'Chaud' },
-{ id: 'diamond_luxe',     nom: 'Diamond Luxe',       prix: 2500, description: 'Luxe' },
-{ id: 'arctic_pro',       nom: 'Arctic Pro',         prix: 2000, description: 'Cool' },
-{ id: 'volcano_dark',     nom: 'Volcano Dark',       prix: 2500, description: 'Sombre' },
-{ id: 'spring_blossom',   nom: 'Spring Blossom',     prix: 1000, description: 'Doux' },
-{ id: 'urban_grey',       nom: 'Urban Grey',         prix: 1500, description: 'Corporate' },
-{ id: 'tropics_fresh',    nom: 'Tropics Fresh',      prix: 1500, description: 'Nature' },
-{ id: 'onyx_gold',        nom: 'Onyx Gold',          prix: 2500, description: 'Luxe' },
-{ id: 'pastel_dream',     nom: 'Pastel Dream',       prix: 1000, description: 'Doux' },
-{ id: 'ninja_dark',       nom: 'Ninja Dark',         prix: 2000, description: 'Sombre' },
-{ id: 'lemon_zest',       nom: 'Lemon Zest',         prix: 1000, description: 'Coloré' },
-{ id: 'marble_luxe',      nom: 'Marble Luxe',        prix: 2500, description: 'Luxe' },
-{ id: 'rust_bold',        nom: 'Rust Bold',          prix: 1500, description: 'Chaud' },
-{ id: 'lagoon_blue',      nom: 'Lagoon Blue',        prix: 1500, description: 'Cool' },
-{ id: 'obsidian_pro',     nom: 'Obsidian Pro',       prix: 2000, description: 'Tech' },
-{ id: 'meadow_soft',      nom: 'Meadow Soft',        prix: 1000, description: 'Nature' },
-{ id: 'prism_colorful',   nom: 'Prism Colorful',     prix: 2000, description: 'Coloré' },
-{ id: 'shadow_dark',      nom: 'Shadow Dark',        prix: 1500, description: 'Sombre' },
-{ id: 'cotton_soft',      nom: 'Cotton Soft',        prix: 1000, description: 'Doux' },
-{ id: 'thunder_dark',     nom: 'Thunder Dark',       prix: 2000, description: 'Sombre' },
-{ id: 'cactus_green',     nom: 'Cactus Green',       prix: 1500, description: 'Nature' },
-{ id: 'pearl_white',      nom: 'Pearl White',        prix: 2000, description: 'Luxe' },
-{ id: 'lava_hot',         nom: 'Lava Hot',           prix: 2000, description: 'Sombre' },
-{ id: 'monsoon_blue',     nom: 'Monsoon Blue',       prix: 1500, description: 'Cool' },
-{ id: 'bronze_classic',   nom: 'Bronze Classic',     prix: 2000, description: 'Luxe' },
-{ id: 'sakura_pink',      nom: 'Sakura Pink',        prix: 1000, description: 'Doux' },
-{ id: 'matrix_green',     nom: 'Matrix Green',       prix: 2500, description: 'Tech' },
-{ id: 'dusk_purple',      nom: 'Dusk Purple',        prix: 2000, description: 'Artistique' },
-{ id: 'glacier_white',    nom: 'Glacier White',      prix: 1500, description: 'Cool' },
-{ id: 'cedar_warm',       nom: 'Cedar Warm',         prix: 1500, description: 'Chaud' },
-{ id: 'phantom_dark',     nom: 'Phantom Dark',       prix: 2000, description: 'Sombre' },
-{ id: 'papaya_bright',    nom: 'Papaya Bright',      prix: 1000, description: 'Coloré' },
-{ id: 'steel_blue',       nom: 'Steel Blue',         prix: 2000, description: 'Tech' },
-{ id: 'noir_rose',        nom: 'Noir Rose',          prix: 2000, description: 'Artistique' },
-{ id: 'zen_minimal',      nom: 'Zen Minimal',        prix: 1000,description: 'Minimal' },
-{ id: 'fire_dark',        nom: 'Fire Dark',          prix: 2000, description: 'Sombre' },
-{ id: 'cloud_soft',       nom: 'Cloud Soft',         prix: 1000, description: 'Doux' },
-{ id: 'harbor_blue',      nom: 'Harbor Blue',        prix: 1500, description: 'Cool' },
+  { id: 'crimson_pro',    nom: 'Crimson Pro',      prix: 1500, description: 'Corporate' },
+  { id: 'ocean_blue',     nom: 'Ocean Blue',       prix: 1500, description: 'Moderne' },
+  { id: 'slate_modern',   nom: 'Slate Modern',     prix: 2000, description: 'Tech' },
+  { id: 'emerald_tech',   nom: 'Emerald Tech',     prix: 2000, description: 'Tech' },
+  { id: 'sunset_warm',    nom: 'Sunset Warm',      prix: 1500, description: 'Créatif' },
+  { id: 'arctic_white',   nom: 'Arctic White',     prix: 1000, description: 'Minimal' },
+  { id: 'midnight_pro',   nom: 'Midnight Pro',     prix: 2000, description: 'Luxe' },
+  { id: 'copper_elegant', nom: 'Copper Elegant',   prix: 2000, description: 'Luxe' },
+  { id: 'forest_green',   nom: 'Forest Green',     prix: 1500, description: 'Nature' },
+  { id: 'royal_purple',   nom: 'Royal Purple',     prix: 2000, description: 'Luxe' },
+  { id: 'sand_minimal',   nom: 'Sand Minimal',     prix: 1000, description: 'Minimal' },
+  { id: 'tech_dark',      nom: 'Tech Dark',        prix: 2500, description: 'Tech' },
+  { id: 'coral_fresh',    nom: 'Coral Fresh',      prix: 1500, description: 'Créatif' },
+  { id: 'gold_black',     nom: 'Gold & Black',     prix: 2500, description: 'Luxe' },
+  { id: 'mint_clean',     nom: 'Mint Clean',       prix: 1000, description: 'Minimal' },
+  { id: 'burgundy_classic',nom:'Burgundy Classic', prix: 1500, description: 'Corporate' },
+  { id: 'sky_creative',   nom: 'Sky Creative',     prix: 1500, description: 'Créatif' },
+  { id: 'charcoal_pro',   nom: 'Charcoal Pro',     prix: 2000, description: 'Corporate' },
+  { id: 'peach_soft',     nom: 'Peach Soft',       prix: 1000, description: 'Doux' },
+  { id: 'indigo_modern',  nom: 'Indigo Modern',    prix: 2000, description: 'Moderne' },
+  { id: 'olive_natural',  nom: 'Olive Natural',    prix: 1500, description: 'Nature' },
+  { id: 'ruby_luxe',      nom: 'Ruby Luxe',        prix: 2500, description: 'Luxe' },
+  { id: 'steel_corporate',nom: 'Steel Corporate',  prix: 2000, description: 'Corporate' },
+  { id: 'lavender_soft',  nom: 'Lavender Soft',    prix: 1000, description: 'Doux' },
+  { id: 'amber_warm',     nom: 'Amber Warm',       prix: 1500, description: 'Chaud' },
+  { id: 'ink_minimal',    nom: 'Ink Minimal',      prix: 1000, description: 'Minimal' },
+  { id: 'azure_clean',    nom: 'Azure Clean',      prix: 1500, description: 'Moderne' },
+  { id: 'mahogany_rich',  nom: 'Mahogany Rich',    prix: 2000, description: 'Luxe' },
+  { id: 'lime_tech',      nom: 'Lime Tech',        prix: 2000, description: 'Tech' },
+  { id: 'plum_elegant',   nom: 'Plum Elegant',     prix: 2000, description: 'Luxe' },
+  { id: 'graphite_pro',   nom: 'Graphite Pro',     prix: 1500, description: 'Corporate' },
+  { id: 'jade_fresh',     nom: 'Jade Fresh',       prix: 1500, description: 'Nature' },
+  { id: 'terracotta_warm',nom: 'Terracotta Warm',  prix: 1500, description: 'Chaud' },
+  { id: 'cobalt_modern',  nom: 'Cobalt Modern',    prix: 2000, description: 'Moderne' },
+  { id: 'cream_luxe',     nom: 'Cream Luxe',       prix: 2000, description: 'Luxe' },
+  { id: 'carbon_tech',    nom: 'Carbon Tech',      prix: 2500, description: 'Tech' },
+  { id: 'sage_minimal',   nom: 'Sage Minimal',     prix: 1000, description: 'Minimal' },
+  { id: 'wine_classic',   nom: 'Wine Classic',     prix: 1500, description: 'Classic' },
+  { id: 'topaz_bright',   nom: 'Topaz Bright',     prix: 1500, description: 'Coloré' },
+  { id: 'ebony_gold',     nom: 'Ebony Gold',       prix: 2500, description: 'Luxe' },
+  { id: 'blush_modern',   nom: 'Blush Modern',     prix: 1000, description: 'Doux' },
+  { id: 'pine_forest',    nom: 'Pine Forest',      prix: 1500, description: 'Nature' },
+  { id: 'denim_casual',   nom: 'Denim Casual',     prix: 1000, description: 'Décontracté' },
+  { id: 'rose_gold',      nom: 'Rose Gold',        prix: 2500, description: 'Luxe' },
+  { id: 'space_dark',     nom: 'Space Dark',       prix: 2000, description: 'Tech' },
+  { id: 'citrus_fresh',   nom: 'Citrus Fresh',     prix: 1000, description: 'Coloré' },
+  { id: 'mocha_warm',     nom: 'Mocha Warm',       prix: 1500, description: 'Chaud' },
+  { id: 'glacier_cool',   nom: 'Glacier Cool',     prix: 1500, description: 'Cool' },
+  { id: 'amber_dark',     nom: 'Amber Dark',       prix: 2000, description: 'Sombre' },
+  { id: 'electric_blue',  nom: 'Electric Blue',    prix: 2000, description: 'Coloré' },
+  { id: 'dusty_rose',     nom: 'Dusty Rose',       prix: 1000, description: 'Doux' },
+  { id: 'forest_dark',    nom: 'Forest Dark',      prix: 1500, description: 'Nature' },
+  { id: 'ivory_classic',  nom: 'Ivory Classic',    prix: 1500, description: 'Classic' },
+  { id: 'neon_dark',      nom: 'Neon Dark',        prix: 2500, description: 'Tech' },
+  { id: 'sepia_vintage',  nom: 'Sepia Vintage',    prix: 2000, description: 'Vintage' },
+  { id: 'arctic_dark',    nom: 'Arctic Dark',      prix: 2000, description: 'Sombre' },
+  { id: 'blaze_orange',   nom: 'Blaze Orange',     prix: 1500, description: 'Coloré' },
+  { id: 'storm_grey',     nom: 'Storm Grey',       prix: 1500, description: 'Corporate' },
+  { id: 'spring_green',   nom: 'Spring Green',     prix: 1000, description: 'Nature' },
+  { id: 'velvet_dark',    nom: 'Velvet Dark',      prix: 2500, description: 'Luxe' },
+  { id: 'aurora_dark',    nom: 'Aurora Dark',      prix: 2500, description: 'Luxe' },
+  { id: 'metro_pro',      nom: 'Metro Pro',        prix: 2000, description: 'Corporate' },
+  { id: 'bamboo_zen',     nom: 'Bamboo Zen',       prix: 2000, description: 'Artistique' },
+  { id: 'chrome_tech',    nom: 'Chrome Tech',      prix: 2000, description: 'Tech' },
+  { id: 'sahara_warm',    nom: 'Sahara Warm',      prix: 1500, description: 'Chaud' },
+  { id: 'nordic_clean',   nom: 'Nordic Clean',     prix: 1500, description: 'Minimal' },
+  { id: 'galaxy_dark',    nom: 'Galaxy Dark',      prix: 2500, description: 'Sombre' },
+  { id: 'terrace_med',    nom: 'Terrace Med',      prix: 1500, description: 'Nature' },
+  { id: 'flamingo_pink',  nom: 'Flamingo Pink',    prix: 1500, description: 'Coloré' },
+  { id: 'titanium_pro',   nom: 'Titanium Pro',     prix: 2000, description: 'Tech' },
+  { id: 'canopy_green',   nom: 'Canopy Green',     prix: 1500, description: 'Nature' },
+  { id: 'brick_warm',     nom: 'Brick Warm',       prix: 1500, description: 'Chaud' },
+  { id: 'diamond_luxe',   nom: 'Diamond Luxe',     prix: 2500, description: 'Luxe' },
+  { id: 'arctic_pro',     nom: 'Arctic Pro',       prix: 2000, description: 'Cool' },
+  { id: 'volcano_dark',   nom: 'Volcano Dark',     prix: 2500, description: 'Sombre' },
+  { id: 'spring_blossom', nom: 'Spring Blossom',   prix: 1000, description: 'Doux' },
+  { id: 'urban_grey',     nom: 'Urban Grey',       prix: 1500, description: 'Corporate' },
+  { id: 'tropics_fresh',  nom: 'Tropics Fresh',    prix: 1500, description: 'Nature' },
+  { id: 'onyx_gold',      nom: 'Onyx Gold',        prix: 2500, description: 'Luxe' },
+  { id: 'pastel_dream',   nom: 'Pastel Dream',     prix: 1000, description: 'Doux' },
+  { id: 'ninja_dark',     nom: 'Ninja Dark',       prix: 2000, description: 'Sombre' },
+  { id: 'lemon_zest',     nom: 'Lemon Zest',       prix: 1000, description: 'Coloré' },
+  { id: 'marble_luxe',    nom: 'Marble Luxe',      prix: 2500, description: 'Luxe' },
+  { id: 'rust_bold',      nom: 'Rust Bold',        prix: 1500, description: 'Chaud' },
+  { id: 'lagoon_blue',    nom: 'Lagoon Blue',      prix: 1500, description: 'Cool' },
+  { id: 'obsidian_pro',   nom: 'Obsidian Pro',     prix: 2000, description: 'Tech' },
+  { id: 'meadow_soft',    nom: 'Meadow Soft',      prix: 1000, description: 'Nature' },
+  { id: 'prism_colorful', nom: 'Prism Colorful',   prix: 2000, description: 'Coloré' },
+  { id: 'shadow_dark',    nom: 'Shadow Dark',      prix: 1500, description: 'Sombre' },
+  { id: 'cotton_soft',    nom: 'Cotton Soft',      prix: 1000, description: 'Doux' },
+  { id: 'thunder_dark',   nom: 'Thunder Dark',     prix: 2000, description: 'Sombre' },
+  { id: 'cactus_green',   nom: 'Cactus Green',     prix: 1500, description: 'Nature' },
+  { id: 'pearl_white',    nom: 'Pearl White',      prix: 2000, description: 'Luxe' },
+  { id: 'lava_hot',       nom: 'Lava Hot',         prix: 2000, description: 'Sombre' },
+  { id: 'monsoon_blue',   nom: 'Monsoon Blue',     prix: 1500, description: 'Cool' },
+  { id: 'bronze_classic', nom: 'Bronze Classic',   prix: 2000, description: 'Luxe' },
+  { id: 'sakura_pink',    nom: 'Sakura Pink',      prix: 1000, description: 'Doux' },
+  { id: 'matrix_green',   nom: 'Matrix Green',     prix: 2500, description: 'Tech' },
+  { id: 'dusk_purple',    nom: 'Dusk Purple',      prix: 2000, description: 'Artistique' },
+  { id: 'glacier_white',  nom: 'Glacier White',    prix: 1500, description: 'Cool' },
+  { id: 'cedar_warm',     nom: 'Cedar Warm',       prix: 1500, description: 'Chaud' },
+  { id: 'phantom_dark',   nom: 'Phantom Dark',     prix: 2000, description: 'Sombre' },
+  { id: 'papaya_bright',  nom: 'Papaya Bright',    prix: 1000, description: 'Coloré' },
+  { id: 'steel_blue',     nom: 'Steel Blue',       prix: 2000, description: 'Tech' },
+  { id: 'noir_rose',      nom: 'Noir Rose',        prix: 2000, description: 'Artistique' },
+  { id: 'zen_minimal',    nom: 'Zen Minimal',      prix: 1000, description: 'Minimal' },
+  { id: 'fire_dark',      nom: 'Fire Dark',        prix: 2000, description: 'Sombre' },
+  { id: 'cloud_soft',     nom: 'Cloud Soft',       prix: 1000, description: 'Doux' },
+  { id: 'harbor_blue',    nom: 'Harbor Blue',      prix: 1500, description: 'Cool' },
 ];
 
 const SIDEBAR_COLORS: Record<string, string> = {
@@ -171,22 +171,12 @@ const SIDEBAR_COLORS: Record<string, string> = {
   bleu_arrondi: '#2563eb', fresher_dark: '#1a2744', geometrique: '#e85d30',
   bold_noir: '#111', dark_sidebar: '#2c2c2c', violet: '#6b21a8',
   navy_pro: '#1e3a6e', vert_nature: '#1e3422', brun_elegant: '#2a2520',
-  teal_banner: '#5b9fa0', bleu_jaune: '#1a2f6e', gris_arche: '#5a5a5a',
-  vert_diamant: '#2d5a1b', dark_rouge: '#1a0a0a', noir_blob: '#0a0a0a',
-  wave_cyan: '#0891b2', gris_wave: '#4b5563', teal_cercle: '#0f766e',
-  orange_minimal: '#ea580c', noir_jaune: '#1a1a1a', dore_dark: '#1c1a12',
-  brun_rose: '#5c3d2e', gris_vague: '#64748b', geo_orange: '#0f172a',
-  dore_sidebar: '#292524', navy_wave: '#0f2952', dark_dore2: '#18130a',
-  dark_gris: '#1f2937', wave_noir: '#0f172a', rouge_moderne: '#dc2626',
-  jaune_pro: '#111', vert_minimal: '#14532d', orange_sidebar: '#ea580c',
-  rose_elegant: '#831843', dark_orange: '#0c0a09',
 };
 
 const MiniatureSVG = ({ templateId, dejaAchete }: { templateId: string; dejaAchete: boolean }) => {
   const w = 100, h = 130;
   const color = SIDEBAR_COLORS[templateId] ?? '#534AB7';
   const sw = 35;
-
   return (
     <Svg width={w} height={h}>
       <Rect width={w} height={h} fill="#f8f8f8" />
@@ -199,25 +189,24 @@ const MiniatureSVG = ({ templateId, dejaAchete }: { templateId: string; dejaAche
         <Rect key={i} x={sw + 8} y={y} width={w - sw - 16} height={3} rx={1.5}
           fill={color} opacity={i === 0 ? 0.8 : 0.15} />
       ))}
-      {dejaAchete && (
-        <>
-          <Rect width={w} height={h} fill="rgba(22,163,74,0.12)" />
-        </>
-      )}
+      {dejaAchete && <Rect width={w} height={h} fill="rgba(22,163,74,0.12)" />}
     </Svg>
   );
 };
 
 export default function TemplatesScreen() {
   const { setTemplate, templateId: templateActuel } = useCVStore();
-  const [filtre, setFiltre] = useState<'tous' | 'gratuits' | 'achetes'>('tous');
-  const [achetes, setAchetes] = useState<string[]>([]);
+  const [filtre, setFiltre]           = useState<'tous' | 'gratuits' | 'achetes'>('tous');
+  const [achetes, setAchetes]         = useState<string[]>([]);
   const [loadingAchetes, setLoadingAchetes] = useState(true);
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     chargerAchetes();
-    Animated.timing(fadeAnim, { toValue: 1, duration: 400, useNativeDriver: Platform.OS !== 'web' }).start();
+    Animated.timing(fadeAnim, {
+      toValue: 1, duration: 400,
+      useNativeDriver: Platform.OS !== 'web',
+    }).start();
   }, []);
 
   const chargerAchetes = async () => {
@@ -235,31 +224,39 @@ export default function TemplatesScreen() {
   };
 
   const templatesFiltres = TEMPLATES.filter(t => {
-    if (filtre === 'gratuits') return false; // aucun gratuit
+    if (filtre === 'gratuits') return false;
     if (filtre === 'achetes')  return achetes.includes(t.id);
     return true;
   });
 
+  // ── Fix principal : setTemplate puis navigate avec délai ─────────────────
   const handleChoisir = (t: Template) => {
-  if (achetes.includes(t.id)) {
-    setTemplate(t.id);
-    console.log('Template sélectionné:', t.id);
-    setTimeout(() => {
-      router.replace('/saved');
-    }, 100);
-  } else {
-    console.log('Redirection paiement pour template:', t.id);
-    router.push({
-      pathname: '/paiement',
-      params: { templateId: t.id, prix: t.prix }
-    });
-  }
-};
+    if (achetes.includes(t.id)) {
+      // Sauvegarder le template dans le store ET localStorage
+      setTemplate(t.id);
+      if (Platform.OS === 'web') {
+        try {
+          const existing = localStorage.getItem('cv-storage');
+          if (existing) {
+            const parsed = JSON.parse(existing);
+            parsed.state = { ...(parsed.state ?? {}), templateId: t.id };
+            localStorage.setItem('cv-storage', JSON.stringify(parsed));
+          }
+        } catch(e) {}
+      }
+      console.log('Template sélectionné:', t.id);
+      setTimeout(() => router.replace('/saved'), 150);
+    } else {
+      router.push({
+        pathname: '/paiement',
+        params: { templateId: t.id, prix: t.prix },
+      });
+    }
+  };
 
   const renderTemplate = ({ item: t }: { item: Template }) => {
     const selectionne = t.id === templateActuel;
     const dejaAchete  = achetes.includes(t.id);
-
     return (
       <TouchableOpacity
         style={[styles.card, selectionne && styles.cardSelected, dejaAchete && styles.cardAchete]}
@@ -268,13 +265,11 @@ export default function TemplatesScreen() {
       >
         <View style={styles.preview}>
           <MiniatureSVG templateId={t.id} dejaAchete={dejaAchete} />
-
           {selectionne && (
             <View style={styles.selectedBadge}>
               <Text style={styles.selectedBadgeText}>✓</Text>
             </View>
           )}
-
           {dejaAchete ? (
             <View style={[styles.prixBadge, styles.acheteBadge]}>
               <Text style={styles.prixBadgeText}>✓ Acheté</Text>
@@ -285,7 +280,6 @@ export default function TemplatesScreen() {
             </View>
           )}
         </View>
-
         <View style={styles.cardInfo}>
           <Text style={styles.cardNom} numberOfLines={1}>{t.nom}</Text>
           <Text style={styles.cardDesc} numberOfLines={1}>{t.description}</Text>
@@ -296,7 +290,6 @@ export default function TemplatesScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
           <Text style={styles.backText}>←</Text>
@@ -308,12 +301,11 @@ export default function TemplatesScreen() {
         <View style={{ width: 40 }} />
       </View>
 
-      {/* Filtres */}
       <View style={styles.filtres}>
         {([
-          { key: 'tous',     label: 'Tous' },
-          { key: 'achetes',  label: `Mes achats (${achetes.length})` },
-          { key: 'gratuits', label: 'Gratuits' },
+          { key: 'tous',    label: 'Tous' },
+          { key: 'achetes', label: `Mes achats (${achetes.length})` },
+          { key: 'gratuits',label: 'Gratuits' },
         ] as const).map(f => (
           <TouchableOpacity
             key={f.key}
@@ -327,36 +319,28 @@ export default function TemplatesScreen() {
         ))}
       </View>
 
-      {/* Message aucun gratuit */}
       {filtre === 'gratuits' && (
-        <Animated.View style={[styles.emptyContainer, { opacity: fadeAnim }]}>
+        <View style={styles.emptyContainer}>
           <Text style={styles.emptyEmoji}>🔒</Text>
           <Text style={styles.emptyTitle}>Aucun template gratuit</Text>
-          <Text style={styles.emptySub}>
-            Tous nos templates sont premium.{'\n'}
-            Prix à partir de 1 000 XOF seulement.
-          </Text>
+          <Text style={styles.emptySub}>Tous nos templates sont premium.{'\n'}Prix à partir de 1 000 XOF seulement.</Text>
           <TouchableOpacity style={styles.emptyBtn} onPress={() => setFiltre('tous')}>
             <Text style={styles.emptyBtnText}>Voir tous les templates →</Text>
           </TouchableOpacity>
-        </Animated.View>
+        </View>
       )}
 
-      {/* Message aucun achat */}
       {filtre === 'achetes' && achetes.length === 0 && (
-        <Animated.View style={[styles.emptyContainer, { opacity: fadeAnim }]}>
+        <View style={styles.emptyContainer}>
           <Text style={styles.emptyEmoji}>🛍️</Text>
           <Text style={styles.emptyTitle}>Aucun achat pour l'instant</Text>
-          <Text style={styles.emptySub}>
-            Achetez un template pour le retrouver ici et l'utiliser sans limites.
-          </Text>
+          <Text style={styles.emptySub}>Achetez un template pour le retrouver ici.</Text>
           <TouchableOpacity style={styles.emptyBtn} onPress={() => setFiltre('tous')}>
             <Text style={styles.emptyBtnText}>Parcourir les templates →</Text>
           </TouchableOpacity>
-        </Animated.View>
+        </View>
       )}
 
-      {/* Grille */}
       {filtre !== 'gratuits' && (filtre !== 'achetes' || achetes.length > 0) && (
         <Animated.View style={[{ flex: 1 }, { opacity: fadeAnim }]}>
           <FlatList
@@ -370,10 +354,9 @@ export default function TemplatesScreen() {
         </Animated.View>
       )}
 
-      {/* Footer */}
       {templateActuel && (
         <View style={styles.footer}>
-          <TouchableOpacity style={styles.continuerBtn} onPress={() => router.push('/saved')}>
+          <TouchableOpacity style={styles.continuerBtn} onPress={() => router.replace('/saved')}>
             <Text style={styles.continuerTxt}>Générer mon CV →</Text>
           </TouchableOpacity>
         </View>
