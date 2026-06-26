@@ -688,16 +688,35 @@ export default function SavedScreen() {
                           text: 'Nouveau CV',
                           style: 'destructive',
                           onPress: async () => {
+
+                            // 1. Reset du store Zustand
                             useCVStore.getState().reset();
-                            // Vider le localStorage aussi
+
+                            // 2. Écrire l'état vide EXPLICITEMENT dans localStorage
                             if (Platform.OS === 'web') {
                               try {
-                                localStorage.removeItem('cv-storage');
-                              } catch(e) {}
+                                const etatVide = {
+                                  state: {
+                                    prenom: '', nom: '', email: '', telephone: '',
+                                    ville: '', titre: '', objectif: '', photo: null,
+                                    experiences: [], formations: [], competences: [],
+                                    langues: [], loisirs: [], templateId: null,
+                                    reseaux: [], certifications: [], projets: [],
+                                  },
+                                  version: 0,
+                                };
+                                localStorage.setItem('cv-storage', JSON.stringify(etatVide));
+                                console.log('✅ Store réinitialisé dans localStorage');
+                              } catch(e) {
+                                console.error('Erreur reset localStorage:', e);
+                              }
                             }
-                            setTimeout(() => {
-                              router.replace('/cv/step1-profil');
-                            }, 100);
+
+                            // 3. Attendre que tout soit bien écrit
+                            await new Promise(resolve => setTimeout(resolve, 300));
+
+                            // 4. Naviguer vers step1
+                            router.replace('/cv/step1-profil');
                           }
                         },
                       ]
