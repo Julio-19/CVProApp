@@ -46,12 +46,34 @@ export const sauvegarderCV = async (cv: any, id?: string): Promise<string> => {
     nom:         cv.nom         ?? '',
     titre:       cv.titre       ?? '',
     template_id: cv.templateId  ?? 'sidebar_bleu',
-    data:        cv, // ← IMPORTANT : toutes les données ici
-    updated_at:  new Date().toISOString(),
+    data:        {
+      prenom:         cv.prenom         ?? '',
+      nom:            cv.nom            ?? '',
+      email:          cv.email          ?? '',
+      telephone:      cv.telephone      ?? '',
+      ville:          cv.ville          ?? '',
+      titre:          cv.titre          ?? '',
+      objectif:       cv.objectif       ?? '',
+      photo:          cv.photo          ?? null,
+      experiences:    cv.experiences    ?? [],
+      formations:     cv.formations     ?? [],
+      competences:    cv.competences    ?? [],
+      langues:        cv.langues        ?? [],
+      loisirs:        cv.loisirs        ?? [],
+      reseaux:        cv.reseaux        ?? [],
+      certifications: cv.certifications ?? [],
+      projets:        cv.projets        ?? [],
+      templateId:     cv.templateId     ?? 'sidebar_bleu',
+    },
+    updated_at: new Date().toISOString(),
   };
 
   if (id) {
-    const { error } = await supabase.from('cvs').update(payload).eq('id', id);
+    const { error } = await supabase
+      .from('cvs')
+      .update(payload)
+      .eq('id', id)
+      .eq('user_id', user.id);
     if (error) throw error;
     return id;
   } else {
