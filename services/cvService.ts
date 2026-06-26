@@ -5,26 +5,33 @@ import * as FileSystem from 'expo-file-system/legacy';
 // ── Upload photo ──────────────────────────────────────────────────────────────
 export const uploaderPhoto = async (uri: string): Promise<string> => {
   try {
-    const { data: { user } } = await supabase.auth.getUser();
+    const user = (await supabase.auth.getUser()).data.user;
     if (!user) throw new Error('Non connecté');
 
-    const response = await fetch(uri);
-    const blob = await response.blob();
-    const fileName = `${user.id}_${Date.now()}.jpg`;
+    if (uri.startsWith('https') || uri.startsWith('data:image')) return uri;
+
+    const base64 = await FileSystem.readAsStringAsync(uri, {
+      encoding: FileSystem.EncodingType.Base64,
+    });
+
+    const fileName = `${user.id}/photo_cv_${Date.now()}.jpg`;
 
     const { error } = await supabase.storage
       .from('photos-cv')
-      .upload(fileName, blob, { contentType: 'image/jpeg', upsert: true });
+      .upload(fileName, decode(base64), {
+        contentType: 'image/jpeg',
+        upsert: true,
+      });
 
     if (error) throw error;
 
-    const { data: { publicUrl } } = supabase.storage
+    const { data } = supabase.storage
       .from('photos-cv')
       .getPublicUrl(fileName);
 
-    return publicUrl;
-  } catch (e: any) {
-    console.error('Erreur upload photo:', e);
+    return data.publicUrl;
+  } catch (error: any) {
+    console.log('Erreur upload photo:', error.message);
     return uri;
   }
 };
@@ -39,34 +46,12 @@ export const sauvegarderCV = async (cv: any, id?: string): Promise<string> => {
     nom:         cv.nom         ?? '',
     titre:       cv.titre       ?? '',
     template_id: cv.templateId  ?? 'sidebar_bleu',
-    data:        {
-      prenom:         cv.prenom         ?? '',
-      nom:            cv.nom            ?? '',
-      email:          cv.email          ?? '',
-      telephone:      cv.telephone      ?? '',
-      ville:          cv.ville          ?? '',
-      titre:          cv.titre          ?? '',
-      objectif:       cv.objectif       ?? '',
-      photo:          cv.photo          ?? null,
-      experiences:    cv.experiences    ?? [],
-      formations:     cv.formations     ?? [],
-      competences:    cv.competences    ?? [],
-      langues:        cv.langues        ?? [],
-      loisirs:        cv.loisirs        ?? [],
-      reseaux:        cv.reseaux        ?? [],
-      certifications: cv.certifications ?? [],
-      projets:        cv.projets        ?? [],
-      templateId:     cv.templateId     ?? 'sidebar_bleu',
-    },
-    updated_at: new Date().toISOString(),
+    data:        cv, // ← IMPORTANT : toutes les données ici
+    updated_at:  new Date().toISOString(),
   };
 
   if (id) {
-    const { error } = await supabase
-      .from('cvs')
-      .update(payload)
-      .eq('id', id)
-      .eq('user_id', user.id);
+    const { error } = await supabase.from('cvs').update(payload).eq('id', id);
     if (error) throw error;
     return id;
   } else {
