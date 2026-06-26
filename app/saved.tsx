@@ -677,58 +677,56 @@ export default function SavedScreen() {
                 </TouchableOpacity>
                 
                 <TouchableOpacity
-                  style={[styles.actionBtn, styles.actionBtnDanger]}
-                  onPress={() => {
-                    Alert.alert(
-                      'Nouveau CV',
-                      'Voulez-vous créer un nouveau CV ? Le CV actuel sera perdu.',
-                      [
-                        { text: 'Annuler', style: 'cancel' },
-                        {
-                          text: 'Nouveau CV',
-                          style: 'destructive',
-                          onPress: async () => {
+  style={[styles.actionBtn, styles.actionBtnDanger]}
+  onPress={() => {
+    Alert.alert(
+      'Nouveau CV',
+      'Voulez-vous créer un nouveau CV ? Le CV actuel sera perdu.',
+      [
+        { text: 'Annuler', style: 'cancel' },
+        {
+          text: 'Nouveau CV',
+          style: 'destructive',
+          onPress: async () => {
+            // État vide explicite
+            const etatVide = {
+              prenom: '', nom: '', email: '', telephone: '',
+              ville: '', titre: '', objectif: '', photo: null,
+              experiences: [], formations: [], competences: [],
+              langues: [], loisirs: [], templateId: null,
+              reseaux: [], certifications: [], projets: [],
+            };
 
-                            // 1. Reset du store Zustand
-                            useCVStore.getState().reset();
+            // 1. Écrire l'état vide dans localStorage AVANT reset
+            if (Platform.OS === 'web') {
+              try {
+                localStorage.setItem('cv-storage', JSON.stringify({
+                  state: etatVide,
+                  version: 0,
+                }));
+              } catch(e) {}
+            }
 
-                            // 2. Écrire l'état vide EXPLICITEMENT dans localStorage
-                            if (Platform.OS === 'web') {
-                              try {
-                                const etatVide = {
-                                  state: {
-                                    prenom: '', nom: '', email: '', telephone: '',
-                                    ville: '', titre: '', objectif: '', photo: null,
-                                    experiences: [], formations: [], competences: [],
-                                    langues: [], loisirs: [], templateId: null,
-                                    reseaux: [], certifications: [], projets: [],
-                                  },
-                                  version: 0,
-                                };
-                                localStorage.setItem('cv-storage', JSON.stringify(etatVide));
-                                console.log('✅ Store réinitialisé dans localStorage');
-                              } catch(e) {
-                                console.error('Erreur reset localStorage:', e);
-                              }
-                            }
+            // 2. Mettre à jour le store directement
+            useCVStore.setState(etatVide);
 
-                            // 3. Attendre que tout soit bien écrit
-                            await new Promise(resolve => setTimeout(resolve, 300));
+            // 3. Attendre
+            await new Promise(r => setTimeout(r, 300));
 
-                            // 4. Naviguer vers step1
-                            router.replace('/cv/step1-profil');
-                          }
-                        },
-                      ]
-                    );
-                  }}
-                >
-                  <Text style={styles.actionBtnIcon}>{'➕'}</Text>
-                  <View style={styles.actionBtnInfo}>
-                    <Text style={[styles.actionBtnTitle, { color: '#dc2626' }]}>Nouveau CV</Text>
-                    <Text style={styles.actionBtnSub}>Recommencer depuis zéro</Text>
-                  </View>
-                </TouchableOpacity>
+            // 4. Naviguer
+            router.replace('/cv/step1-profil');
+          }
+        },
+      ]
+    );
+  }}
+>
+  <Text style={styles.actionBtnIcon}>{'➕'}</Text>
+  <View style={styles.actionBtnInfo}>
+    <Text style={[styles.actionBtnTitle, { color: '#dc2626' }]}>Nouveau CV</Text>
+    <Text style={styles.actionBtnSub}>Recommencer depuis zéro</Text>
+  </View>
+</TouchableOpacity>
 
                 <TouchableOpacity style={styles.actionBtn} onPress={() => router.push('/parametres')}>
                   <Text style={styles.actionBtnIcon}>{'⚙️'}</Text>
