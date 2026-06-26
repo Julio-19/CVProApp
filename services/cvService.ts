@@ -5,33 +5,26 @@ import * as FileSystem from 'expo-file-system/legacy';
 // ── Upload photo ──────────────────────────────────────────────────────────────
 export const uploaderPhoto = async (uri: string): Promise<string> => {
   try {
-    const user = (await supabase.auth.getUser()).data.user;
+    const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('Non connecté');
 
-    if (uri.startsWith('https') || uri.startsWith('data:image')) return uri;
-
-    const base64 = await FileSystem.readAsStringAsync(uri, {
-      encoding: FileSystem.EncodingType.Base64,
-    });
-
-    const fileName = `${user.id}/photo_cv_${Date.now()}.jpg`;
+    const response = await fetch(uri);
+    const blob = await response.blob();
+    const fileName = `${user.id}_${Date.now()}.jpg`;
 
     const { error } = await supabase.storage
       .from('photos-cv')
-      .upload(fileName, decode(base64), {
-        contentType: 'image/jpeg',
-        upsert: true,
-      });
+      .upload(fileName, blob, { contentType: 'image/jpeg', upsert: true });
 
     if (error) throw error;
 
-    const { data } = supabase.storage
+    const { data: { publicUrl } } = supabase.storage
       .from('photos-cv')
       .getPublicUrl(fileName);
 
-    return data.publicUrl;
-  } catch (error: any) {
-    console.log('Erreur upload photo:', error.message);
+    return publicUrl;
+  } catch (e: any) {
+    console.error('Erreur upload photo:', e);
     return uri;
   }
 };
