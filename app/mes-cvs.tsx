@@ -1,9 +1,11 @@
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator, Alert } from 'react-native';
+import {
+  View, Text, StyleSheet, TouchableOpacity,
+  ScrollView, ActivityIndicator, Alert, Platform
+} from 'react-native';
 import { router } from 'expo-router';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../config/supabase';
 import { useCVStore } from '../store/cvStore';
-import { generateCVHTML } from '../services/templateService';
 
 type CVSauvegarde = {
   id: string;
@@ -17,89 +19,110 @@ type CVSauvegarde = {
 };
 
 export default function MesCVsScreen() {
-  const [cvs, setCvs]           = useState<CVSauvegarde[]>([]);
-  const [loading, setLoading]   = useState(true);
+  const [cvs, setCvs]         = useState<CVSauvegarde[]>([]);
+  const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState<string | null>(null);
-  const store = useCVStore();
+  const [opening, setOpening]   = useState<string | null>(null);
 
-  useEffect(() => {
-    chargerCVs();
-  }, []);
-
-  const chargerCVs = async () => {
+  const chargerCVs = useCallback(async () => {
+    setLoading(true);
     try {
-      setLoading(true);
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { router.replace('/login'); return; }
 
       const { data, error } = await supabase
         .from('cvs')
-        .select('*')
+        .select('id, created_at, updated_at, prenom, nom, titre, template_id, data')
         .eq('user_id', user.id)
-        .order('updated_at', { ascending: false });
+        .order('updated_at', { ascending: false })
+        .limit(50);
 
       if (error) throw error;
       setCvs(data ?? []);
     } catch (err: any) {
-      console.error('Erreur chargement CVs:', err);
-      Alert.alert('Erreur', 'Impossible de charger vos CVs : ' + err.message);
+      console.error('Erreur chargement:', err);
+      Alert.alert('Erreur', 'Impossible de charger vos CVs');
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const handleOuvrirCV = (cv: CVSauvegarde) => {
+  useEffect(() => { chargerCVs(); }, []);
+
+  const handleOuvrirCV = async (cv: CVSauvegarde) => {
     try {
-      // Charger les données du CV dans le store
-      const data = cv.data ?? {};
-      store.setField('prenom',       data.prenom       ?? cv.prenom ?? '');
-      store.setField('nom',          data.nom          ?? cv.nom    ?? '');
-      store.setField('email',        data.email        ?? '');
-      store.setField('telephone',    data.telephone    ?? '');
-      store.setField('ville',        data.ville        ?? '');
-      store.setField('titre',        data.titre        ?? cv.titre  ?? '');
-      store.setField('objectif',     data.objectif     ?? '');
-      store.setField('photo',        data.photo        ?? null);
-      store.setField('experiences',  data.experiences  ?? []);
-      store.setField('formations',   data.formations   ?? []);
-      store.setField('competences',  data.competences  ?? []);
-      store.setField('langues',      data.langues      ?? []);
-      store.setField('loisirs',      data.loisirs      ?? []);
-      store.setField('reseaux',      data.reseaux      ?? []);
-      store.setField('certifications', data.certifications ?? []);
-      store.setField('projets',      data.projets      ?? []);
-      store.setTemplate(data.templateId ?? cv.template_id ?? 'sidebar_bleu');
+      setOpening(cv.id);
+      const d = cv.data ?? {};
+      const templateId = d.templateId ?? cv.template_id ?? 'sidebar_bleu';
 
-      console.log('CV chargé:', cv.prenom, cv.nom, 'template:', data.templateId ?? cv.template_id);
+      // Mettre à jour le store en une seule opération
+      useCVStore.setState({
+        prenom:         d.prenom         ?? cv.prenom  ?? '',
+        nom:            d.nom            ?? cv.nom     ?? '',
+        email:          d.email          ?? '',
+        telephone:      d.telephone      ?? '',
+        ville:          d.ville          ?? '',
+        titre:          d.titre          ?? cv.titre   ?? '',
+        objectif:       d.objectif       ?? '',
+        photo:          d.photo          ?? null,
+        experiences:    d.experiences    ?? [],
+        formations:     d.formations     ?? [],
+        competences:    d.competences    ?? [],
+        langues:        d.langues        ?? [],
+        loisirs:        d.loisirs        ?? [],
+        reseaux:        d.reseaux        ?? [],
+        certifications: d.certifications ?? [],
+        projets:        d.projets        ?? [],
+        templateId,
+      });
 
-      // Naviguer vers saved
-      setTimeout(() => {
-        router.push('/saved');
-      }, 150);
+      // Persister dans localStorage immédiatement
+      if (Platform.OS === 'web') {
+        try {
+          const state = useCVStore.getState();
+          localStorage.setItem('cv-storage', JSON.stringify({
+            state: {
+              prenom: state.prenom, nom: state.nom, email: state.email,
+              telephone: state.telephone, ville: state.ville, titre: state.titre,
+              objectif: state.objectif, photo: state.photo,
+              experiences: state.experiences, formations: state.formations,
+              competences: state.competences, langues: state.langues,
+              loisirs: state.loisirs, reseaux: state.reseaux,
+              certifications: state.certifications, projets: state.projets,
+              templateId: state.templateId,
+            },
+            version: 0,
+          }));
+          console.log('CV chargé:', state.prenom, state.nom, 'template:', templateId);
+        } catch(e) {}
+      }
+
+      await new Promise(r => setTimeout(r, 200));
+      router.replace('/saved');
 
     } catch (err: any) {
-      console.error('Erreur ouverture CV:', err);
       Alert.alert('Erreur', 'Impossible d\'ouvrir ce CV');
+    } finally {
+      setOpening(null);
     }
   };
 
-  const handleSupprimerCV = (cv: CVSauvegarde) => {
+  const handleSupprimer = (cv: CVSauvegarde) => {
     Alert.alert(
-      '🗑️ Supprimer ce CV ?',
-      `Voulez-vous supprimer le CV de ${cv.prenom} ${cv.nom} ?`,
+      '🗑️ Supprimer ?',
+      `Supprimer le CV de ${cv.prenom} ${cv.nom} ?`,
       [
         { text: 'Annuler', style: 'cancel' },
         {
-          text: 'Supprimer',
-          style: 'destructive',
+          text: 'Supprimer', style: 'destructive',
           onPress: async () => {
+            setDeleting(cv.id);
             try {
-              setDeleting(cv.id);
               const { error } = await supabase.from('cvs').delete().eq('id', cv.id);
               if (error) throw error;
-              setCvs(prev => prev.filter(c => c.id !== cv.id));
-            } catch (err: any) {
-              Alert.alert('Erreur', 'Impossible de supprimer : ' + err.message);
+              setCvs(p => p.filter(c => c.id !== cv.id));
+            } catch(e: any) {
+              Alert.alert('Erreur', e.message);
             } finally {
               setDeleting(null);
             }
@@ -109,17 +132,41 @@ export default function MesCVsScreen() {
     );
   };
 
-  const formatDate = (dateStr: string) => {
-    try {
-      return new Date(dateStr).toLocaleDateString('fr-FR', {
-        day: '2-digit', month: 'short', year: 'numeric'
-      });
-    } catch { return dateStr; }
+  const getColor = (id: string) => {
+    const m: Record<string, string> = {
+      sidebar_bleu: '#1a3a5c', rouge_moderne: '#dc2626', vert_nature: '#1e3422',
+      violet: '#6b21a8', dark_sidebar: '#2c2c2c', navy_pro: '#1e3a6e',
+      teal_student: '#3d9b8a', fresher_dark: '#1a2744', bold_noir: '#111',
+      bleu_arrondi: '#2563eb', dark_rouge: '#7f1d1d', vert_diamant: '#2d5a1b',
+    };
+    return m[id] ?? '#534AB7';
   };
+
+  const formatDate = (d: string) => {
+    try { return new Date(d).toLocaleDateString('fr-FR', { day:'2-digit', month:'short', year:'numeric' }); }
+    catch { return ''; }
+  };
+
+  if (loading) return (
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
+          <Text style={styles.backText}>←</Text>
+        </TouchableOpacity>
+        <View style={styles.headerCenter}>
+          <Text style={styles.headerTitle}>Mes CVs sauvegardés</Text>
+        </View>
+        <View style={{ width: 40 }} />
+      </View>
+      <View style={styles.center}>
+        <ActivityIndicator color="#534AB7" size="large" />
+        <Text style={styles.loadingText}>Chargement de vos CVs...</Text>
+      </View>
+    </View>
+  );
 
   return (
     <View style={styles.container}>
-      {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
           <Text style={styles.backText}>←</Text>
@@ -133,80 +180,61 @@ export default function MesCVsScreen() {
         </TouchableOpacity>
       </View>
 
-      {loading ? (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator color="#534AB7" size="large" />
-          <Text style={styles.loadingText}>Chargement de vos CVs...</Text>
-        </View>
-      ) : cvs.length === 0 ? (
-        <View style={styles.emptyContainer}>
+      {cvs.length === 0 ? (
+        <View style={styles.center}>
           <Text style={styles.emptyEmoji}>📂</Text>
           <Text style={styles.emptyTitle}>Aucun CV sauvegardé</Text>
-          <Text style={styles.emptySub}>
-            Créez et sauvegardez votre premier CV pour le retrouver ici.
-          </Text>
+          <Text style={styles.emptySub}>Créez et sauvegardez votre premier CV.</Text>
           <TouchableOpacity style={styles.emptyBtn} onPress={() => router.push('/cv/step1-profil')}>
             <Text style={styles.emptyBtnText}>Créer un CV →</Text>
           </TouchableOpacity>
         </View>
       ) : (
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-          {cvs.map((cv) => (
-            <TouchableOpacity
-              key={cv.id}
-              style={styles.cvCard}
-              onPress={() => handleOuvrirCV(cv)}
-              activeOpacity={0.85}
-            >
-              {/* Indicateur couleur template */}
-              <View style={[styles.cvColor, {
-                backgroundColor: cv.data?.templateId
-                  ? (cv.data.templateId.includes('bleu')  ? '#1a3a5c' :
-                     cv.data.templateId.includes('rouge') ? '#dc2626' :
-                     cv.data.templateId.includes('vert')  ? '#1e3422' :
-                     cv.data.templateId.includes('violet')? '#6b21a8' :
-                     cv.data.templateId.includes('dark')  ? '#2c2c2c' :
-                     '#534AB7')
-                  : '#534AB7'
-              }]} />
-
-              <View style={styles.cvInfo}>
-                <Text style={styles.cvNom}>
-                  {cv.prenom || cv.data?.prenom || '—'} {cv.nom || cv.data?.nom || ''}
-                </Text>
-                <Text style={styles.cvTitre} numberOfLines={1}>
-                  {cv.titre || cv.data?.titre || 'Sans titre'}
-                </Text>
-                <Text style={styles.cvDate}>
-                  Modifié le {formatDate(cv.updated_at || cv.created_at)}
-                </Text>
-                <Text style={styles.cvTemplate}>
-                  🎨 {(cv.data?.templateId ?? cv.template_id ?? 'sidebar_bleu')
-                    .replace(/_/g, ' ')
-                    .replace(/\b\w/g, (l: string) => l.toUpperCase())}
-                </Text>
+          {cvs.map((cv) => {
+            const templateId = cv.data?.templateId ?? cv.template_id ?? 'sidebar_bleu';
+            return (
+              <View key={cv.id} style={styles.cvCard}>
+                <View style={[styles.cvColor, { backgroundColor: getColor(templateId) }]} />
+                <View style={styles.cvInfo}>
+                  <Text style={styles.cvNom}>
+                    {cv.data?.prenom ?? cv.prenom ?? '—'} {cv.data?.nom ?? cv.nom ?? ''}
+                  </Text>
+                  <Text style={styles.cvTitre} numberOfLines={1}>
+                    {cv.data?.titre ?? cv.titre ?? 'Sans titre'}
+                  </Text>
+                  <Text style={styles.cvDate}>
+                    {formatDate(cv.updated_at ?? cv.created_at)}
+                  </Text>
+                  <Text style={styles.cvTemplate}>
+                    🎨 {templateId.replace(/_/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase())}
+                  </Text>
+                </View>
+                <View style={styles.cvActions}>
+                  <TouchableOpacity
+                    style={[styles.btnOuvrir, opening === cv.id && { opacity: 0.6 }]}
+                    onPress={() => handleOuvrirCV(cv)}
+                    disabled={opening === cv.id}
+                  >
+                    {opening === cv.id
+                      ? <ActivityIndicator size="small" color="#fff" />
+                      : <Text style={styles.btnOuvrirText}>Ouvrir</Text>
+                    }
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[styles.btnSupprimer, deleting === cv.id && { opacity: 0.6 }]}
+                    onPress={() => handleSupprimer(cv)}
+                    disabled={deleting === cv.id}
+                  >
+                    {deleting === cv.id
+                      ? <ActivityIndicator size="small" color="#dc2626" />
+                      : <Text style={styles.btnSupprimerText}>🗑️</Text>
+                    }
+                  </TouchableOpacity>
+                </View>
               </View>
-
-              <View style={styles.cvActions}>
-                <TouchableOpacity
-                  style={styles.btnOuvrir}
-                  onPress={() => handleOuvrirCV(cv)}
-                >
-                  <Text style={styles.btnOuvrirText}>Ouvrir</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.btnSupprimer}
-                  onPress={() => handleSupprimerCV(cv)}
-                  disabled={deleting === cv.id}
-                >
-                  {deleting === cv.id
-                    ? <ActivityIndicator size="small" color="#dc2626" />
-                    : <Text style={styles.btnSupprimerText}>🗑️</Text>
-                  }
-                </TouchableOpacity>
-              </View>
-            </TouchableOpacity>
-          ))}
+            );
+          })}
         </ScrollView>
       )}
     </View>
@@ -222,10 +250,9 @@ const styles = StyleSheet.create({
   headerTitle:      { color: '#fff', fontSize: 18, fontWeight: '600' },
   headerSub:        { color: 'rgba(255,255,255,0.7)', fontSize: 12, marginTop: 2 },
   refreshBtn:       { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
-  refreshText:      { color: '#fff', fontSize: 24, fontWeight: '300' },
-  loadingContainer: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 16 },
+  refreshText:      { color: '#fff', fontSize: 24 },
+  center:           { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 16, padding: 32 },
   loadingText:      { fontSize: 14, color: '#888' },
-  emptyContainer:   { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 32, gap: 16 },
   emptyEmoji:       { fontSize: 56 },
   emptyTitle:       { fontSize: 20, fontWeight: '800', color: '#111', textAlign: 'center' },
   emptySub:         { fontSize: 14, color: '#888', textAlign: 'center', lineHeight: 22 },
@@ -240,7 +267,7 @@ const styles = StyleSheet.create({
   cvDate:           { fontSize: 10, color: '#aaa', marginTop: 4 },
   cvTemplate:       { fontSize: 10, color: '#888' },
   cvActions:        { flexDirection: 'column', padding: 12, gap: 8, alignItems: 'center' },
-  btnOuvrir:        { backgroundColor: '#534AB7', borderRadius: 8, paddingVertical: 6, paddingHorizontal: 12 },
+  btnOuvrir:        { backgroundColor: '#534AB7', borderRadius: 8, paddingVertical: 6, paddingHorizontal: 12, minWidth: 60, alignItems: 'center' },
   btnOuvrirText:    { color: '#fff', fontSize: 11, fontWeight: '600' },
   btnSupprimer:     { backgroundColor: '#fef2f2', borderRadius: 8, padding: 8 },
   btnSupprimerText: { fontSize: 16 },
