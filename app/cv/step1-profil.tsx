@@ -1,4 +1,4 @@
-import { View, ScrollView, StyleSheet, Animated } from 'react-native';
+import { View, ScrollView, StyleSheet, Animated, Platform } from 'react-native';
 import { router } from 'expo-router';
 import { useEffect, useRef } from 'react';
 import InputField from '../../components/InputField';
@@ -9,7 +9,7 @@ import { Colors } from '../../constants/colors';
 
 export default function Step1() {
   const {
-    prenom, nom, email,         // ← ajoutés
+    prenom, nom, email,
     titre, objectif, telephone, ville,
     setField
   } = useCVStore();
