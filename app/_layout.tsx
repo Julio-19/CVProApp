@@ -1,19 +1,7 @@
 import { Stack } from "expo-router";
-import { useEffect } from "react";
-import { Platform } from "react-native";
 
 export default function RootLayout() {
-  useEffect(() => {
-    if (Platform.OS === "web") {
-      if (
-        window.location.pathname === "/" ||
-        window.location.pathname === "/index.html"
-      ) {
-        window.location.href = "/onboarding";
-      }
-    }
-  }, []);
-
+  // ⚠️ Aucun useEffect ici — index.tsx gère le routing
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="index" />
