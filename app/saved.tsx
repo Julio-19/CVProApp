@@ -703,7 +703,7 @@ export default function SavedScreen() {
     await new Promise(r => setTimeout(r, 200));
     router.replace('/cv/step1-profil');
   }
-}
+}}
                 >
                   <Text style={styles.actionBtnIcon}>{'➕'}</Text>
                   <View style={styles.actionBtnInfo}>
