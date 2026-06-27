@@ -1,10 +1,7 @@
 import { Stack } from "expo-router";
-import { Platform } from "react-native";
 
 export default function RootLayout() {
-  // ⚠️ Suppression du useEffect qui causait la boucle PWA
-  // L'index.tsx gère déjà tout le routing correctement
-
+  // ⚠️ Aucun useEffect ici — index.tsx gère le routing
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="index" />
