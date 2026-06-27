@@ -676,7 +676,62 @@ export default function SavedScreen() {
                   </View>
                 </TouchableOpacity>
                 
-                
+                <TouchableOpacity
+                  style={[styles.actionBtn, styles.actionBtnDanger]}
+                  onPress={async () => {
+                    // Sur web : utiliser window.confirm au lieu de Alert.alert
+                    if (Platform.OS === 'web') {
+                      const confirme = window.confirm(
+                        'Voulez-vous créer un nouveau CV ? Le CV actuel sera perdu.'
+                      );
+                      if (!confirme) return;
+
+                      try {
+                        localStorage.setItem('cv-storage', JSON.stringify({
+                          state: {
+                            prenom: '', nom: '', email: '', telephone: '',
+                            ville: '', titre: '', objectif: '', photo: null,
+                            experiences: [], formations: [], competences: [],
+                            langues: [], loisirs: [], templateId: null,
+                            reseaux: [], certifications: [], projets: [],
+                          },
+                          version: 0,
+                        }));
+                      } catch(e) {}
+
+                      router.replace('/cv/step1-profil');
+                    } else {
+                      Alert.alert(
+                        'Nouveau CV',
+                        'Voulez-vous créer un nouveau CV ? Le CV actuel sera perdu.',
+                        [
+                          { text: 'Annuler', style: 'cancel' },
+                          {
+                            text: 'Nouveau CV',
+                            style: 'destructive',
+                            onPress: async () => {
+                              useCVStore.setState({
+                                prenom: '', nom: '', email: '', telephone: '',
+                                ville: '', titre: '', objectif: '', photo: null,
+                                experiences: [], formations: [], competences: [],
+                                langues: [], loisirs: [], templateId: null,
+                                reseaux: [], certifications: [], projets: [],
+                              });
+                              await new Promise(r => setTimeout(r, 200));
+                              router.replace('/cv/step1-profil');
+                            }
+                          },
+                        ]
+                      );
+                    }
+                  }}
+                >
+                  <Text style={styles.actionBtnIcon}>{'➕'}</Text>
+                  <View style={styles.actionBtnInfo}>
+                    <Text style={[styles.actionBtnTitle, { color: '#dc2626' }]}>Nouveau CV</Text>
+                    <Text style={styles.actionBtnSub}>Recommencer depuis zéro</Text>
+                  </View>
+                </TouchableOpacity>
 
                 <TouchableOpacity style={styles.actionBtn} onPress={() => router.push('/parametres')}>
                   <Text style={styles.actionBtnIcon}>{'⚙️'}</Text>
