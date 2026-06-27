@@ -688,39 +688,32 @@ export default function SavedScreen() {
                           text: 'Nouveau CV',
                           style: 'destructive',
                           onPress: async () => {
-                            // État vide explicite
-                            const etatVide = {
-                              prenom: '', nom: '', email: '', telephone: '',
-                              ville: '', titre: '', objectif: '', photo: null,
-                              experiences: [], formations: [], competences: [],
-                              langues: [], loisirs: [], templateId: null,
-                              reseaux: [], certifications: [], projets: [],
-                            };
-
-                            // 1. Écrire l'état vide dans localStorage AVANT reset
                             if (Platform.OS === 'web') {
+                              // Écrire état vide dans localStorage
                               try {
                                 localStorage.setItem('cv-storage', JSON.stringify({
-                                  state: etatVide,
+                                  state: {
+                                    prenom: '', nom: '', email: '', telephone: '',
+                                    ville: '', titre: '', objectif: '', photo: null,
+                                    experiences: [], formations: [], competences: [],
+                                    langues: [], loisirs: [], templateId: null,
+                                    reseaux: [], certifications: [], projets: [],
+                                  },
                                   version: 0,
                                 }));
                               } catch(e) {}
+                              // Recharger la page vers step1 — méthode la plus fiable sur web
+                              window.location.href = '/cv/step1-profil';
+                            } else {
+                              useCVStore.getState().reset();
+                              await new Promise(r => setTimeout(r, 300));
+                              router.replace('/cv/step1-profil');
                             }
-
-                            // 2. Mettre à jour le store directement
-                            useCVStore.setState(etatVide);
-
-                            // 3. Attendre
-                            await new Promise(r => setTimeout(r, 300));
-
-                            // 4. Naviguer
-                            router.replace('/cv/step1-profil');
                           }
                         },
                       ]
                     );
                   }}
-                  
                 >
                   <Text style={styles.actionBtnIcon}>{'➕'}</Text>
                   <View style={styles.actionBtnInfo}>
