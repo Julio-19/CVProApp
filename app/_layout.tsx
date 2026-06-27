@@ -1,20 +1,9 @@
 import { Stack } from "expo-router";
-import { useEffect } from "react";
 import { Platform } from "react-native";
 
 export default function RootLayout() {
-  useEffect(() => {
-    // Correction pour GitHub Pages sur web
-    if (Platform.OS === "web") {
-      // Rediriger si on est sur la racine sans /CVProApp/
-      if (
-        window.location.pathname === "/" ||
-        window.location.pathname === "/index.html"
-      ) {
-        window.location.href = "/onboarding";
-      }
-    }
-  }, []);
+  // ⚠️ Suppression du useEffect qui causait la boucle PWA
+  // L'index.tsx gère déjà tout le routing correctement
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
