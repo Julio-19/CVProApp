@@ -678,32 +678,42 @@ export default function SavedScreen() {
                 
                 <TouchableOpacity
                   style={[styles.actionBtn, styles.actionBtnDanger]}
-                  onPress: async () => {
-  // État vide
-  const etatVide = {
-    prenom: '', nom: '', email: '', telephone: '',
-    ville: '', titre: '', objectif: '', photo: null,
-    experiences: [], formations: [], competences: [],
-    langues: [], loisirs: [], templateId: null,
-    reseaux: [], certifications: [], projets: [],
-  };
-
-  if (Platform.OS === 'web') {
-    // Écrire état vide dans localStorage
-    try {
-      localStorage.setItem('cv-storage', JSON.stringify({
-        state: etatVide,
-        version: 0,
-      }));
-    } catch(e) {}
-    // Naviguer sans rechargement complet
-    router.replace('/cv/step1-profil');
-  } else {
-    useCVStore.setState(etatVide);
-    await new Promise(r => setTimeout(r, 200));
-    router.replace('/cv/step1-profil');
-  }
-}}
+                  onPress={() => {
+                    Alert.alert(
+                      'Nouveau CV',
+                      'Voulez-vous créer un nouveau CV ? Le CV actuel sera perdu.',
+                      [
+                        { text: 'Annuler', style: 'cancel' },
+                        {
+                          text: 'Nouveau CV',
+                          style: 'destructive',
+                          onPress: async () => {
+                            if (Platform.OS === 'web') {
+                              // Écrire état vide dans localStorage
+                              try {
+                                localStorage.setItem('cv-storage', JSON.stringify({
+                                  state: {
+                                    prenom: '', nom: '', email: '', telephone: '',
+                                    ville: '', titre: '', objectif: '', photo: null,
+                                    experiences: [], formations: [], competences: [],
+                                    langues: [], loisirs: [], templateId: null,
+                                    reseaux: [], certifications: [], projets: [],
+                                  },
+                                  version: 0,
+                                }));
+                              } catch(e) {}
+                              // Recharger la page vers step1 — méthode la plus fiable sur web
+                              window.location.href = '/cv/step1-profil';
+                            } else {
+                              useCVStore.getState().reset();
+                              await new Promise(r => setTimeout(r, 300));
+                              router.replace('/cv/step1-profil');
+                            }
+                          }
+                        },
+                      ]
+                    );
+                  }}
                 >
                   <Text style={styles.actionBtnIcon}>{'➕'}</Text>
                   <View style={styles.actionBtnInfo}>
