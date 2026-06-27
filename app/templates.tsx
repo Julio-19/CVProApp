@@ -2,7 +2,6 @@ import { View, Text, StyleSheet, TouchableOpacity, FlatList, Animated, Platform 
 import { router } from 'expo-router';
 import { useState, useEffect, useRef } from 'react';
 import { useCVStore } from '../store/cvStore';
-import Svg, { Rect, Circle } from 'react-native-svg';
 import { supabase } from '../config/supabase';
 
 type Template = {
