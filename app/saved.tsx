@@ -676,42 +676,8 @@ export default function SavedScreen() {
                   </View>
                 </TouchableOpacity>
                 
-                <TouchableOpacity
-                  style={[styles.actionBtn, styles.actionBtnDanger]}
-                  onPress: async () => {
-                    // État vide
-                    const etatVide = {
-                      prenom: '', nom: '', email: '', telephone: '',
-                      ville: '', titre: '', objectif: '', photo: null,
-                      experiences: [], formations: [], competences: [],
-                      langues: [], loisirs: [], templateId: null,
-                      reseaux: [], certifications: [], projets: [],
-                    };
-
-                    if (Platform.OS === 'web') {
-                      // Écrire état vide dans localStorage
-                      try {
-                        localStorage.setItem('cv-storage', JSON.stringify({
-                          state: etatVide,
-                          version: 0,
-                        }));
-                      } catch(e) {}
-                      // Naviguer sans rechargement complet
-                      router.replace('/cv/step1-profil');
-                    } else {
-                      useCVStore.setState(etatVide);
-                      await new Promise(r => setTimeout(r, 200));
-                      router.replace('/cv/step1-profil');
-                    }
-                  }
-                >
-                  <Text style={styles.actionBtnIcon}>{'➕'}</Text>
-                  <View style={styles.actionBtnInfo}>
-                    <Text style={[styles.actionBtnTitle, { color: '#dc2626' }]}>Nouveau CV</Text>
-                    <Text style={styles.actionBtnSub}>Recommencer depuis zéro</Text>
-                  </View>
-                </TouchableOpacity>
-
+                
+                
                 <TouchableOpacity style={styles.actionBtn} onPress={() => router.push('/parametres')}>
                   <Text style={styles.actionBtnIcon}>{'⚙️'}</Text>
                   <View style={styles.actionBtnInfo}>
