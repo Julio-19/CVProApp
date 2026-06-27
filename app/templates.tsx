@@ -173,23 +173,47 @@ const SIDEBAR_COLORS: Record<string, string> = {
 };
 
 const MiniatureSVG = ({ templateId, dejaAchete }: { templateId: string; dejaAchete: boolean }) => {
-  const w = 100, h = 130;
   const color = SIDEBAR_COLORS[templateId] ?? '#534AB7';
-  const sw = 35;
+
   return (
-    <Svg width={w} height={h}>
-      <Rect width={w} height={h} fill="#f8f8f8" />
-      <Rect width={sw} height={h} fill={color} />
-      <Circle cx={sw / 2} cy={20} r={11} fill="rgba(255,255,255,0.3)" />
-      {[36, 48, 60, 72, 84].map((y, i) => (
-        <Rect key={i} x={5} y={y} width={sw - 10} height={3} rx={1.5} fill="rgba(255,255,255,0.4)" />
-      ))}
-      {[15, 28, 42, 56, 70, 84, 98].map((y, i) => (
-        <Rect key={i} x={sw + 8} y={y} width={w - sw - 16} height={3} rx={1.5}
-          fill={color} opacity={i === 0 ? 0.8 : 0.15} />
-      ))}
-      {dejaAchete && <Rect width={w} height={h} fill="rgba(22,163,74,0.12)" />}
-    </Svg>
+    <View style={{ width: 100, height: 130, backgroundColor: '#f8f8f8', flexDirection: 'row' }}>
+      {/* Sidebar colorée */}
+      <View style={{ width: 35, height: 130, backgroundColor: color }}>
+        {/* Photo cercle */}
+        <View style={{
+          width: 22, height: 22, borderRadius: 11,
+          backgroundColor: 'rgba(255,255,255,0.3)',
+          marginTop: 9, marginLeft: 6,
+        }} />
+        {/* Lignes sidebar */}
+        {[36, 48, 60, 72, 84].map((top, i) => (
+          <View key={i} style={{
+            position: 'absolute', top, left: 5,
+            width: 25, height: 3, borderRadius: 1.5,
+            backgroundColor: 'rgba(255,255,255,0.4)',
+          }} />
+        ))}
+      </View>
+      {/* Contenu principal */}
+      <View style={{ flex: 1, paddingLeft: 8, paddingTop: 8 }}>
+        {[0, 13, 27, 41, 55, 69, 83].map((top, i) => (
+          <View key={i} style={{
+            height: 3, borderRadius: 1.5,
+            marginBottom: 10,
+            backgroundColor: color,
+            opacity: i === 0 ? 0.8 : 0.15,
+            width: i === 0 ? '80%' : '90%',
+          }} />
+        ))}
+      </View>
+      {/* Badge acheté */}
+      {dejaAchete && (
+        <View style={{
+          position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+          backgroundColor: 'rgba(22,163,74,0.12)',
+        }} />
+      )}
+    </View>
   );
 };
 
