@@ -365,17 +365,54 @@ export default function TemplatesScreen() {
       )}
 
       {filtre !== 'gratuits' && (filtre !== 'achetes' || achetes.length > 0) && (
-        <Animated.View style={[{ flex: 1 }, { opacity: fadeAnim }]}>
-          <FlatList
-            data={templatesFiltres}
-            keyExtractor={t => t.id}
-            numColumns={2}
-            renderItem={renderTemplate}
-            contentContainerStyle={styles.grid}
-            showsVerticalScrollIndicator={false}
-          />
-        </Animated.View>
-      )}
+  <Animated.View style={[{ flex: 1 }, { opacity: fadeAnim }]}>
+    <ScrollView
+      showsVerticalScrollIndicator={false}
+      contentContainerStyle={styles.grid}
+    >
+      <View style={styles.gridRow}>
+        {templatesFiltres.map((t) => {
+          const selectionne = t.id === templateActuel;
+          const dejaAchete  = achetes.includes(t.id);
+          return (
+            <TouchableOpacity
+              key={t.id}
+              style={[
+                styles.card,
+                selectionne && styles.cardSelected,
+                dejaAchete && styles.cardAchete,
+              ]}
+              onPress={() => handleChoisir(t)}
+              activeOpacity={0.85}
+            >
+              <View style={styles.preview}>
+                <MiniatureSVG templateId={t.id} dejaAchete={dejaAchete} />
+                {selectionne && (
+                  <View style={styles.selectedBadge}>
+                    <Text style={styles.selectedBadgeText}>✓</Text>
+                  </View>
+                )}
+                {dejaAchete ? (
+                  <View style={[styles.prixBadge, styles.acheteBadge]}>
+                    <Text style={styles.prixBadgeText}>✓ Acheté</Text>
+                  </View>
+                ) : (
+                  <View style={styles.prixBadge}>
+                    <Text style={styles.prixBadgeText}>{t.prix.toLocaleString()} XOF</Text>
+                  </View>
+                )}
+              </View>
+              <View style={styles.cardInfo}>
+                <Text style={styles.cardNom} numberOfLines={1}>{t.nom}</Text>
+                <Text style={styles.cardDesc} numberOfLines={1}>{t.description}</Text>
+              </View>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+    </ScrollView>
+  </Animated.View>
+)}
 
       {templateActuel && (
         <View style={styles.footer}>
