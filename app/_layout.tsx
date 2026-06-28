@@ -1,7 +1,20 @@
 import { Stack } from "expo-router";
+import { useEffect } from "react";
+import { Platform } from "react-native";
 
 export default function RootLayout() {
-  // ⚠️ Aucun useEffect ici — index.tsx gère le routing
+  useEffect(() => {
+    // Nettoyer les Service Workers pour éviter la page blanche
+    if (Platform.OS === 'web' && 'serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(registrations => {
+        registrations.forEach(sw => {
+          sw.unregister();
+          console.log('✅ SW nettoyé:', sw.scope);
+        });
+      });
+    }
+  }, []);
+
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="index" />
