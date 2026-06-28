@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, Animated, Platform } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Animated, Platform } from 'react-native';
 import { router } from 'expo-router';
 import { useState, useEffect, useRef } from 'react';
 import { useCVStore } from '../store/cvStore';
@@ -174,44 +174,21 @@ const SIDEBAR_COLORS: Record<string, string> = {
 
 const MiniatureSVG = ({ templateId, dejaAchete }: { templateId: string; dejaAchete: boolean }) => {
   const color = SIDEBAR_COLORS[templateId] ?? '#534AB7';
-
   return (
     <View style={{ width: 100, height: 130, backgroundColor: '#f8f8f8', flexDirection: 'row' }}>
-      {/* Sidebar colorée */}
       <View style={{ width: 35, height: 130, backgroundColor: color }}>
-        {/* Photo cercle */}
-        <View style={{
-          width: 22, height: 22, borderRadius: 11,
-          backgroundColor: 'rgba(255,255,255,0.3)',
-          marginTop: 9, marginLeft: 6,
-        }} />
-        {/* Lignes sidebar */}
+        <View style={{ width: 22, height: 22, borderRadius: 11, backgroundColor: 'rgba(255,255,255,0.3)', marginTop: 9, marginLeft: 6 }} />
         {[36, 48, 60, 72, 84].map((top, i) => (
-          <View key={i} style={{
-            position: 'absolute', top, left: 5,
-            width: 25, height: 3, borderRadius: 1.5,
-            backgroundColor: 'rgba(255,255,255,0.4)',
-          }} />
+          <View key={i} style={{ position: 'absolute', top, left: 5, width: 25, height: 3, borderRadius: 1.5, backgroundColor: 'rgba(255,255,255,0.4)' }} />
         ))}
       </View>
-      {/* Contenu principal */}
       <View style={{ flex: 1, paddingLeft: 8, paddingTop: 8 }}>
         {[0, 13, 27, 41, 55, 69, 83].map((top, i) => (
-          <View key={i} style={{
-            height: 3, borderRadius: 1.5,
-            marginBottom: 10,
-            backgroundColor: color,
-            opacity: i === 0 ? 0.8 : 0.15,
-            width: i === 0 ? '80%' : '90%',
-          }} />
+          <View key={i} style={{ height: 3, borderRadius: 1.5, marginBottom: 10, backgroundColor: color, opacity: i === 0 ? 0.8 : 0.15, width: i === 0 ? '80%' : '90%' }} />
         ))}
       </View>
-      {/* Badge acheté */}
       {dejaAchete && (
-        <View style={{
-          position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
-          backgroundColor: 'rgba(22,163,74,0.12)',
-        }} />
+        <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(22,163,74,0.12)' }} />
       )}
     </View>
   );
@@ -219,8 +196,8 @@ const MiniatureSVG = ({ templateId, dejaAchete }: { templateId: string; dejaAche
 
 export default function TemplatesScreen() {
   const { setTemplate, templateId: templateActuel } = useCVStore();
-  const [filtre, setFiltre]           = useState<'tous' | 'gratuits' | 'achetes'>('tous');
-  const [achetes, setAchetes]         = useState<string[]>([]);
+  const [filtre, setFiltre]     = useState<'tous' | 'gratuits' | 'achetes'>('tous');
+  const [achetes, setAchetes]   = useState<string[]>([]);
   const [loadingAchetes, setLoadingAchetes] = useState(true);
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
@@ -252,10 +229,8 @@ export default function TemplatesScreen() {
     return true;
   });
 
-  // ── Fix principal : setTemplate puis navigate avec délai ─────────────────
   const handleChoisir = (t: Template) => {
     if (achetes.includes(t.id)) {
-      // Sauvegarder le template dans le store ET localStorage
       setTemplate(t.id);
       if (Platform.OS === 'web') {
         try {
@@ -267,52 +242,16 @@ export default function TemplatesScreen() {
           }
         } catch(e) {}
       }
-      console.log('Template sélectionné:', t.id);
       setTimeout(() => router.replace('/saved'), 150);
     } else {
-      router.push({
-        pathname: '/paiement',
-        params: { templateId: t.id, prix: t.prix },
-      });
+      router.push({ pathname: '/paiement', params: { templateId: t.id, prix: t.prix } });
     }
-  };
-
-  const renderTemplate = ({ item: t }: { item: Template }) => {
-    const selectionne = t.id === templateActuel;
-    const dejaAchete  = achetes.includes(t.id);
-    return (
-      <TouchableOpacity
-        style={[styles.card, selectionne && styles.cardSelected, dejaAchete && styles.cardAchete]}
-        onPress={() => handleChoisir(t)}
-        activeOpacity={0.85}
-      >
-        <View style={styles.preview}>
-          <MiniatureSVG templateId={t.id} dejaAchete={dejaAchete} />
-          {selectionne && (
-            <View style={styles.selectedBadge}>
-              <Text style={styles.selectedBadgeText}>✓</Text>
-            </View>
-          )}
-          {dejaAchete ? (
-            <View style={[styles.prixBadge, styles.acheteBadge]}>
-              <Text style={styles.prixBadgeText}>✓ Acheté</Text>
-            </View>
-          ) : (
-            <View style={styles.prixBadge}>
-              <Text style={styles.prixBadgeText}>{t.prix.toLocaleString()} XOF</Text>
-            </View>
-          )}
-        </View>
-        <View style={styles.cardInfo}>
-          <Text style={styles.cardNom} numberOfLines={1}>{t.nom}</Text>
-          <Text style={styles.cardDesc} numberOfLines={1}>{t.description}</Text>
-        </View>
-      </TouchableOpacity>
-    );
   };
 
   return (
     <View style={styles.container}>
+
+      {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
           <Text style={styles.backText}>←</Text>
@@ -324,6 +263,7 @@ export default function TemplatesScreen() {
         <View style={{ width: 40 }} />
       </View>
 
+      {/* Filtres */}
       <View style={styles.filtres}>
         {([
           { key: 'tous',    label: 'Tous' },
@@ -342,6 +282,7 @@ export default function TemplatesScreen() {
         ))}
       </View>
 
+      {/* Aucun gratuit */}
       {filtre === 'gratuits' && (
         <View style={styles.emptyContainer}>
           <Text style={styles.emptyEmoji}>🔒</Text>
@@ -353,6 +294,7 @@ export default function TemplatesScreen() {
         </View>
       )}
 
+      {/* Aucun achat */}
       {filtre === 'achetes' && achetes.length === 0 && (
         <View style={styles.emptyContainer}>
           <Text style={styles.emptyEmoji}>🛍️</Text>
@@ -364,56 +306,58 @@ export default function TemplatesScreen() {
         </View>
       )}
 
+      {/* Grille des templates — ScrollView + flexWrap (pas FlatList) */}
       {filtre !== 'gratuits' && (filtre !== 'achetes' || achetes.length > 0) && (
-          <Animated.View style={[{ flex: 1 }, { opacity: fadeAnim }]}>
-            <ScrollView
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={styles.grid}
-            >
-              <View style={styles.gridRow}>
-                {templatesFiltres.map((t) => {
-                  const selectionne = t.id === templateActuel;
-                  const dejaAchete  = achetes.includes(t.id);
-                  return (
-                    <TouchableOpacity
-                      key={t.id}
-                      style={[
-                        styles.card,
-                        selectionne && styles.cardSelected,
-                        dejaAchete && styles.cardAchete,
-                      ]}
-                      onPress={() => handleChoisir(t)}
-                      activeOpacity={0.85}
-                    >
-                      <View style={styles.preview}>
-                        <MiniatureSVG templateId={t.id} dejaAchete={dejaAchete} />
-                        {selectionne && (
-                          <View style={styles.selectedBadge}>
-                            <Text style={styles.selectedBadgeText}>✓</Text>
-                          </View>
-                        )}
-                        {dejaAchete ? (
-                          <View style={[styles.prixBadge, styles.acheteBadge]}>
-                            <Text style={styles.prixBadgeText}>✓ Acheté</Text>
-                          </View>
-                        ) : (
-                          <View style={styles.prixBadge}>
-                            <Text style={styles.prixBadgeText}>{t.prix.toLocaleString()} XOF</Text>
-                          </View>
-                        )}
-                      </View>
-                      <View style={styles.cardInfo}>
-                        <Text style={styles.cardNom} numberOfLines={1}>{t.nom}</Text>
-                        <Text style={styles.cardDesc} numberOfLines={1}>{t.description}</Text>
-                      </View>
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
-            </ScrollView>
-          </Animated.View>
-        )}
+        <Animated.View style={[{ flex: 1 }, { opacity: fadeAnim }]}>
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.grid}
+          >
+            <View style={styles.gridRow}>
+              {templatesFiltres.map((t) => {
+                const selectionne = t.id === templateActuel;
+                const dejaAchete  = achetes.includes(t.id);
+                return (
+                  <TouchableOpacity
+                    key={t.id}
+                    style={[
+                      styles.card,
+                      selectionne && styles.cardSelected,
+                      dejaAchete && styles.cardAchete,
+                    ]}
+                    onPress={() => handleChoisir(t)}
+                    activeOpacity={0.85}
+                  >
+                    <View style={styles.preview}>
+                      <MiniatureSVG templateId={t.id} dejaAchete={dejaAchete} />
+                      {selectionne && (
+                        <View style={styles.selectedBadge}>
+                          <Text style={styles.selectedBadgeText}>✓</Text>
+                        </View>
+                      )}
+                      {dejaAchete ? (
+                        <View style={[styles.prixBadge, styles.acheteBadge]}>
+                          <Text style={styles.prixBadgeText}>✓ Acheté</Text>
+                        </View>
+                      ) : (
+                        <View style={styles.prixBadge}>
+                          <Text style={styles.prixBadgeText}>{t.prix.toLocaleString()} XOF</Text>
+                        </View>
+                      )}
+                    </View>
+                    <View style={styles.cardInfo}>
+                      <Text style={styles.cardNom} numberOfLines={1}>{t.nom}</Text>
+                      <Text style={styles.cardDesc} numberOfLines={1}>{t.description}</Text>
+                    </View>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </ScrollView>
+        </Animated.View>
+      )}
 
+      {/* Footer */}
       {templateActuel && (
         <View style={styles.footer}>
           <TouchableOpacity style={styles.continuerBtn} onPress={() => router.replace('/saved')}>
@@ -444,8 +388,9 @@ const styles = StyleSheet.create({
   emptySub:         { fontSize: 14, color: '#888', textAlign: 'center', lineHeight: 22 },
   emptyBtn:         { backgroundColor: '#534AB7', borderRadius: 16, paddingVertical: 14, paddingHorizontal: 28 },
   emptyBtnText:     { color: '#fff', fontSize: 14, fontWeight: '700' },
-  grid:             { padding: 10, paddingBottom: 24 },
-  card:             { flex: 1, margin: 5, backgroundColor: '#fff', borderRadius: 12, overflow: 'hidden', borderWidth: 2, borderColor: 'transparent', elevation: 2, shadowColor: '#000', shadowOpacity: 0.08, shadowOffset: { width: 0, height: 2 }, shadowRadius: 4 },
+  grid:             { padding: 5, paddingBottom: 24 },
+  gridRow:          { flexDirection: 'row', flexWrap: 'wrap' },
+  card:             { width: '48%', margin: '1%', backgroundColor: '#fff', borderRadius: 12, overflow: 'hidden', borderWidth: 2, borderColor: 'transparent', elevation: 2, shadowColor: '#000', shadowOpacity: 0.08, shadowOffset: { width: 0, height: 2 }, shadowRadius: 4 },
   cardSelected:     { borderColor: '#534AB7' },
   cardAchete:       { borderColor: '#16a34a' },
   preview:          { height: 130, backgroundColor: '#f8f8f8', alignItems: 'center', justifyContent: 'center', position: 'relative' },
