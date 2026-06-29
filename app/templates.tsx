@@ -352,7 +352,7 @@ export default function TemplatesScreen() {
               })}
             </View>
           </ScrollView>
-        </Animated.View>
+        </View>
       )}
 
       {/* Footer */}
