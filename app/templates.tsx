@@ -306,7 +306,7 @@ export default function TemplatesScreen() {
 
       {/* Grille des templates — ScrollView + flexWrap (pas FlatList) */}
       {filtre !== 'gratuits' && (filtre !== 'achetes' || achetes.length > 0) && (
-        
+        <View style={{ flex: 1 }}>
           <ScrollView
             showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.grid}
