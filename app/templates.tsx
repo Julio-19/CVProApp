@@ -202,12 +202,10 @@ export default function TemplatesScreen() {
   const fadeAnim = useRef(new Animated.Value(1)).current
 
   useEffect(() => {
-    chargerAchetes();
-    Animated.timing(fadeAnim, {
-      toValue: 1, duration: 400,
-      useNativeDriver: Platform.OS !== 'web',
-    }).start();
-  }, []);
+  chargerAchetes();
+  // Supprimer l'animation et forcer opacity = 1
+  fadeAnim.setValue(1);
+}, []);
 
   const chargerAchetes = async () => {
     try {
@@ -308,7 +306,7 @@ export default function TemplatesScreen() {
 
       {/* Grille des templates — ScrollView + flexWrap (pas FlatList) */}
       {filtre !== 'gratuits' && (filtre !== 'achetes' || achetes.length > 0) && (
-        <Animated.View style={[{ flex: 1 }, { opacity: fadeAnim }]}>
+        
           <ScrollView
             showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.grid}
