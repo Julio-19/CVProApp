@@ -16,7 +16,6 @@ import { notifCVSauvegarde, notifPDFGenere } from '../services/notificationServi
 
 const { width } = Dimensions.get('window');
 
-// ── Couleur du template ───────────────────────────────────────────────────────
 const getTemplateColor = (templateId: string): string => {
   const colors: Record<string, string> = {
     sidebar_bleu:   '#1a3a5c', gagnant:       '#1a3a5c', minimaliste:   '#111',
@@ -30,10 +29,18 @@ const getTemplateColor = (templateId: string): string => {
   return colors[templateId] ?? '#534AB7';
 };
 
+// ── Navigation vers templates (navigation dure pour éviter page blanche PWA) ──
+const allerAuxTemplates = () => {
+  if (Platform.OS === 'web') {
+    window.location.href = '/templates';
+  } else {
+    router.push('/templates');
+  }
+};
+
 const genererPDFWeb = async (html: string, nomCV: string = 'Mon_CV'): Promise<void> => {
   const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
-  // CSS forcé pour les couleurs de fond
   const forcedCSS = `
     <style id="force-print-colors">
       *, *::before, *::after {
@@ -60,11 +67,9 @@ const genererPDFWeb = async (html: string, nomCV: string = 'Mon_CV'): Promise<vo
         throw new Error('html2pdf non disponible');
       }
 
-      // ── Créer une page dédiée au CV dans un blob ────────────────────────
       const blob = new Blob([htmlFinal], { type: 'text/html;charset=utf-8' });
       const blobUrl = URL.createObjectURL(blob);
 
-      // Ouvrir dans un iframe caché
       const iframe = document.createElement('iframe');
       iframe.id = 'cv-render-iframe';
       iframe.src = blobUrl;
@@ -80,13 +85,11 @@ const genererPDFWeb = async (html: string, nomCV: string = 'Mon_CV'): Promise<vo
       `;
       document.body.appendChild(iframe);
 
-      // Attendre le chargement complet de l'iframe
       await new Promise<void>((resolve) => {
         iframe.onload = () => resolve();
-        setTimeout(resolve, 3000); // timeout de sécurité
+        setTimeout(resolve, 3000);
       });
 
-      // Attendre rendu des styles
       await new Promise(resolve => setTimeout(resolve, 1000));
 
       const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
@@ -116,13 +119,11 @@ const genererPDFWeb = async (html: string, nomCV: string = 'Mon_CV'): Promise<vo
         },
       };
 
-      // Capturer depuis le body de l'iframe
       await (window as any).html2pdf()
         .set(opt)
         .from(iframeDoc.documentElement)
         .save();
 
-      // Nettoyer
       URL.revokeObjectURL(blobUrl);
       const el = document.getElementById('cv-render-iframe');
       if (el) document.body.removeChild(el);
@@ -138,11 +139,9 @@ const genererPDFWeb = async (html: string, nomCV: string = 'Mon_CV'): Promise<vo
     } catch (error: any) {
       console.error('Erreur html2pdf:', error);
 
-      // Nettoyer
       const el = document.getElementById('cv-render-iframe');
       if (el) try { document.body.removeChild(el); } catch(e) {}
 
-      // Fallback : télécharger HTML
       const blob = new Blob([htmlFinal], { type: 'text/html;charset=utf-8' });
       const blobUrl = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -168,7 +167,6 @@ const genererPDFWeb = async (html: string, nomCV: string = 'Mon_CV'): Promise<vo
     }
 
   } else {
-    // Sur PC : nouvel onglet avec impression auto
     const htmlPC = htmlFinal.replace('</head>', `
       <style>
         @media print {
@@ -265,17 +263,15 @@ export default function SavedScreen() {
     return Math.round(((filled + extras) / 12) * 100);
   };
 
-  const score    = getCompletionScore();
+  const score      = getCompletionScore();
   const nomComplet = [cv.prenom, cv.nom].filter(Boolean).join(' ') || '—';
   const templateNom = (cv.templateId ?? 'sidebar_bleu')
     .replace(/_/g, ' ')
     .replace(/\b\w/g, l => l.toUpperCase());
 
-  // ── Handlers ──────────────────────────────────────────────────────────────
   const handleGenerate = async () => {
     try {
       setLoading(true);
-
       console.log('=== GÉNÉRATION PDF ===');
       console.log('TEMPLATE ID:', cv.templateId);
       console.log('PRENOM:', cv.prenom);
@@ -298,7 +294,6 @@ export default function SavedScreen() {
         await notifPDFGenere(`${cv.prenom ?? ''} ${cv.nom ?? ''}`);
         setActiveTab('actions');
       }
-
     } catch (err: any) {
       console.error('Erreur génération:', err);
       Alert.alert('Erreur', 'Impossible de générer le PDF : ' + err.message);
@@ -309,7 +304,6 @@ export default function SavedScreen() {
 
   const handleDownload = async () => {
     if (!pdfUri) return;
-
     if (Platform.OS === 'web') {
       const photoData  = await getPhotoData();
       const templateId = cv.templateId ?? 'sidebar_bleu';
@@ -318,7 +312,6 @@ export default function SavedScreen() {
       await genererPDFWeb(html, nomCV);
       return;
     }
-
     try {
       await Sharing.shareAsync(pdfUri, {
         mimeType: 'application/pdf',
@@ -337,7 +330,6 @@ export default function SavedScreen() {
       await genererPDFWeb(html, nomCV);
       return;
     }
-
     try {
       const photoData  = await getPhotoData();
       const templateId = cv.templateId ?? 'sidebar_bleu';
@@ -488,7 +480,11 @@ export default function SavedScreen() {
                 <View style={styles.templateInfo}>
                   <Text style={styles.templateNom}>{templateNom}</Text>
                   <Text style={styles.templateDesc}>Template sélectionné</Text>
-                  <TouchableOpacity style={styles.changeTemplateBtn} onPress={() => router.push('/templates')}>
+                  {/* ✅ FIX - Bouton Changer → navigation dure */}
+                  <TouchableOpacity
+                    style={styles.changeTemplateBtn}
+                    onPress={allerAuxTemplates}
+                  >
                     <Text style={styles.changeTemplateTxt}>Changer →</Text>
                   </TouchableOpacity>
                 </View>
@@ -564,7 +560,6 @@ export default function SavedScreen() {
                 </View>
               </View>
 
-              {/* Instruction mobile PWA */}
               {Platform.OS === 'web' && pdfUri && (
                 <View style={styles.instructionCard}>
                   <Text style={styles.instructionTitle}>📱 Comment obtenir le PDF coloré ?</Text>
@@ -668,24 +663,24 @@ export default function SavedScreen() {
                     <Text style={styles.actionBtnSub}>Nom, titre, contact...</Text>
                   </View>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.actionBtn} onPress={() => router.push('/templates')}>
+
+                {/* ✅ FIX - Bouton Changer de template → navigation dure */}
+                <TouchableOpacity style={styles.actionBtn} onPress={allerAuxTemplates}>
                   <Text style={styles.actionBtnIcon}>{'🎨'}</Text>
                   <View style={styles.actionBtnInfo}>
-                  <Text style={styles.actionBtnTitle}>Changer de template</Text>
-                  <Text style={styles.actionBtnSub}>150 designs disponibles</Text>
+                    <Text style={styles.actionBtnTitle}>Changer de template</Text>
+                    <Text style={styles.actionBtnSub}>150 designs disponibles</Text>
                   </View>
                 </TouchableOpacity>
-                
+
                 <TouchableOpacity
                   style={[styles.actionBtn, styles.actionBtnDanger]}
                   onPress={async () => {
-                    // Sur web : utiliser window.confirm au lieu de Alert.alert
                     if (Platform.OS === 'web') {
                       const confirme = window.confirm(
                         'Voulez-vous créer un nouveau CV ? Le CV actuel sera perdu.'
                       );
                       if (!confirme) return;
-
                       try {
                         localStorage.setItem('cv-storage', JSON.stringify({
                           state: {
@@ -698,7 +693,6 @@ export default function SavedScreen() {
                           version: 0,
                         }));
                       } catch(e) {}
-
                       router.replace('/cv/step1-profil');
                     } else {
                       Alert.alert(
