@@ -4,13 +4,27 @@ import { Platform } from "react-native";
 
 export default function RootLayout() {
   useEffect(() => {
-    // Nettoyer les Service Workers pour éviter la page blanche
     if (Platform.OS === 'web' && 'serviceWorker' in navigator) {
-      navigator.serviceWorker.getRegistrations().then(registrations => {
-        registrations.forEach(sw => {
-          sw.unregister();
-          console.log('✅ SW nettoyé:', sw.scope);
+      // 1. Supprimer tous les anciens caches
+      caches.keys().then(keys => {
+        keys.forEach(key => {
+          caches.delete(key);
+          console.log('Cache supprimé:', key);
         });
+      });
+
+      // 2. Enregistrer notre nouveau SW sans cache
+      navigator.serviceWorker.register('/sw.js', { updateViaCache: 'none' })
+        .then(reg => {
+          console.log('✅ SW enregistré');
+          // Forcer la mise à jour immédiate
+          reg.update();
+        })
+        .catch(err => console.log('SW erreur:', err));
+
+      // 3. Quand un nouveau SW est disponible, recharger automatiquement
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        console.log('🔄 Nouveau SW actif');
       });
     }
   }, []);
