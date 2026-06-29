@@ -4,29 +4,25 @@ import { Platform } from "react-native";
 
 export default function RootLayout() {
   useEffect(() => {
-    if (Platform.OS === 'web' && 'serviceWorker' in navigator) {
-      // 1. Supprimer tous les anciens caches
-      caches.keys().then(keys => {
-        keys.forEach(key => {
-          caches.delete(key);
-          console.log('Cache supprimé:', key);
-        });
-      });
+    if (Platform.OS !== 'web') return;
 
-      // 2. Enregistrer notre nouveau SW sans cache
-      navigator.serviceWorker.register('/sw.js', { updateViaCache: 'none' })
-        .then(reg => {
-          console.log('✅ SW enregistré');
-          // Forcer la mise à jour immédiate
-          reg.update();
-        })
-        .catch(err => console.log('SW erreur:', err));
+    let lastHidden = 0;
 
-      // 3. Quand un nouveau SW est disponible, recharger automatiquement
-      navigator.serviceWorker.addEventListener('controllerchange', () => {
-        console.log('🔄 Nouveau SW actif');
-      });
-    }
+    const handleVisibility = () => {
+      if (document.visibilityState === 'hidden') {
+        lastHidden = Date.now();
+      } else if (document.visibilityState === 'visible') {
+        const hiddenDuration = Date.now() - lastHidden;
+        // Si l'app était en arrière-plan plus de 5 minutes → recharger
+        if (lastHidden > 0 && hiddenDuration > 5 * 60 * 1000) {
+          console.log('🔄 Rechargement après arrière-plan');
+          window.location.reload();
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
   }, []);
 
   return (
