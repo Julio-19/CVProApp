@@ -199,7 +199,7 @@ export default function TemplatesScreen() {
   const [filtre, setFiltre]     = useState<'tous' | 'gratuits' | 'achetes'>('tous');
   const [achetes, setAchetes]   = useState<string[]>([]);
   const [loadingAchetes, setLoadingAchetes] = useState(true);
-  const fadeAnim = useRef(new Animated.Value(0)).current;
+  
 
   useEffect(() => {
     chargerAchetes();
