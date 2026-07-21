@@ -1,6 +1,6 @@
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Animated, Platform } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Platform } from 'react-native';
 import { router } from 'expo-router';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useCVStore } from '../store/cvStore';
 import { supabase } from '../config/supabase';
 
@@ -172,6 +172,7 @@ const SIDEBAR_COLORS: Record<string, string> = {
   navy_pro: '#1e3a6e', vert_nature: '#1e3422', brun_elegant: '#2a2520',
 };
 
+// ── Miniature simple sans SVG ─────────────────────────────────────────────────
 const MiniatureSVG = ({ templateId, dejaAchete }: { templateId: string; dejaAchete: boolean }) => {
   const color = SIDEBAR_COLORS[templateId] ?? '#534AB7';
   return (
@@ -183,7 +184,7 @@ const MiniatureSVG = ({ templateId, dejaAchete }: { templateId: string; dejaAche
         ))}
       </View>
       <View style={{ flex: 1, paddingLeft: 8, paddingTop: 8 }}>
-        {[0, 13, 27, 41, 55, 69, 83].map((top, i) => (
+        {[0, 13, 27, 41, 55, 69, 83].map((_, i) => (
           <View key={i} style={{ height: 3, borderRadius: 1.5, marginBottom: 10, backgroundColor: color, opacity: i === 0 ? 0.8 : 0.15, width: i === 0 ? '80%' : '90%' }} />
         ))}
       </View>
@@ -194,18 +195,17 @@ const MiniatureSVG = ({ templateId, dejaAchete }: { templateId: string; dejaAche
   );
 };
 
+const PAGE_SIZE = 20; // ── Nombre de templates par page ──────────────────────
+
 export default function TemplatesScreen() {
   const { setTemplate, templateId: templateActuel } = useCVStore();
-  const [filtre, setFiltre]     = useState<'tous' | 'gratuits' | 'achetes'>('tous');
-  const [achetes, setAchetes]   = useState<string[]>([]);
-  const [loadingAchetes, setLoadingAchetes] = useState(true);
-  const fadeAnim = useRef(new Animated.Value(1)).current
+  const [filtre, setFiltre]   = useState<'tous' | 'gratuits' | 'achetes'>('tous');
+  const [achetes, setAchetes] = useState<string[]>([]);
+  const [page, setPage]       = useState(PAGE_SIZE); // ← 20 au départ
 
   useEffect(() => {
-  chargerAchetes();
-  // Supprimer l'animation et forcer opacity = 1
-  fadeAnim.setValue(1);
-}, []);
+    chargerAchetes();
+  }, []);
 
   const chargerAchetes = async () => {
     try {
@@ -216,9 +216,7 @@ export default function TemplatesScreen() {
         .select('template_id')
         .eq('user_id', user.id);
       setAchetes((data ?? []).map((r: any) => r.template_id));
-    } finally {
-      setLoadingAchetes(false);
-    }
+    } catch(e) {}
   };
 
   const templatesFiltres = TEMPLATES.filter(t => {
@@ -226,6 +224,16 @@ export default function TemplatesScreen() {
     if (filtre === 'achetes')  return achetes.includes(t.id);
     return true;
   });
+
+  // ── Seulement les N premiers templates ────────────────────────────────────
+  const templatesVisibles = templatesFiltres.slice(0, page);
+  const aEncore = page < templatesFiltres.length;
+  const resteCount = templatesFiltres.length - page;
+
+  const changerFiltre = (key: 'tous' | 'gratuits' | 'achetes') => {
+    setFiltre(key);
+    setPage(PAGE_SIZE); // ← Réinitialiser la pagination
+  };
 
   const handleChoisir = (t: Template) => {
     if (achetes.includes(t.id)) {
@@ -271,7 +279,7 @@ export default function TemplatesScreen() {
           <TouchableOpacity
             key={f.key}
             style={[styles.filtreBtn, filtre === f.key && styles.filtreBtnActive]}
-            onPress={() => setFiltre(f.key)}
+            onPress={() => changerFiltre(f.key)}
           >
             <Text style={[styles.filtreTxt, filtre === f.key && styles.filtreTxtActive]}>
               {f.label}
@@ -286,7 +294,7 @@ export default function TemplatesScreen() {
           <Text style={styles.emptyEmoji}>🔒</Text>
           <Text style={styles.emptyTitle}>Aucun template gratuit</Text>
           <Text style={styles.emptySub}>Tous nos templates sont premium.{'\n'}Prix à partir de 1 000 XOF seulement.</Text>
-          <TouchableOpacity style={styles.emptyBtn} onPress={() => setFiltre('tous')}>
+          <TouchableOpacity style={styles.emptyBtn} onPress={() => changerFiltre('tous')}>
             <Text style={styles.emptyBtnText}>Voir tous les templates →</Text>
           </TouchableOpacity>
         </View>
@@ -298,21 +306,27 @@ export default function TemplatesScreen() {
           <Text style={styles.emptyEmoji}>🛍️</Text>
           <Text style={styles.emptyTitle}>Aucun achat pour l'instant</Text>
           <Text style={styles.emptySub}>Achetez un template pour le retrouver ici.</Text>
-          <TouchableOpacity style={styles.emptyBtn} onPress={() => setFiltre('tous')}>
+          <TouchableOpacity style={styles.emptyBtn} onPress={() => changerFiltre('tous')}>
             <Text style={styles.emptyBtnText}>Parcourir les templates →</Text>
           </TouchableOpacity>
         </View>
       )}
 
-      {/* Grille des templates — ScrollView + flexWrap (pas FlatList) */}
+      {/* Grille paginée — seulement PAGE_SIZE templates à la fois */}
       {filtre !== 'gratuits' && (filtre !== 'achetes' || achetes.length > 0) && (
         <View style={{ flex: 1 }}>
           <ScrollView
             showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.grid}
           >
+            {/* Compteur */}
+            <Text style={styles.compteur}>
+              {templatesVisibles.length} / {templatesFiltres.length} templates
+            </Text>
+
+            {/* Grille en 2 colonnes */}
             <View style={styles.gridRow}>
-              {templatesFiltres.map((t) => {
+              {templatesVisibles.map((t) => {
                 const selectionne = t.id === templateActuel;
                 const dejaAchete  = achetes.includes(t.id);
                 return (
@@ -351,6 +365,18 @@ export default function TemplatesScreen() {
                 );
               })}
             </View>
+
+            {/* Bouton "Voir plus" */}
+            {aEncore && (
+              <TouchableOpacity
+                style={styles.loadMoreBtn}
+                onPress={() => setPage(p => p + PAGE_SIZE)}
+              >
+                <Text style={styles.loadMoreTxt}>
+                  Voir {Math.min(PAGE_SIZE, resteCount)} de plus ({resteCount} restants)
+                </Text>
+              </TouchableOpacity>
+            )}
           </ScrollView>
         </View>
       )}
@@ -387,6 +413,7 @@ const styles = StyleSheet.create({
   emptyBtn:         { backgroundColor: '#534AB7', borderRadius: 16, paddingVertical: 14, paddingHorizontal: 28 },
   emptyBtnText:     { color: '#fff', fontSize: 14, fontWeight: '700' },
   grid:             { padding: 5, paddingBottom: 24 },
+  compteur:         { fontSize: 11, color: '#aaa', textAlign: 'center', marginBottom: 8 },
   gridRow:          { flexDirection: 'row', flexWrap: 'wrap' },
   card:             { width: '48%', margin: '1%', backgroundColor: '#fff', borderRadius: 12, overflow: 'hidden', borderWidth: 2, borderColor: 'transparent', elevation: 2, shadowColor: '#000', shadowOpacity: 0.08, shadowOffset: { width: 0, height: 2 }, shadowRadius: 4 },
   cardSelected:     { borderColor: '#534AB7' },
@@ -400,6 +427,8 @@ const styles = StyleSheet.create({
   cardInfo:         { padding: 8 },
   cardNom:          { fontSize: 12, fontWeight: '600', color: '#1a1a1a' },
   cardDesc:         { fontSize: 10, color: '#888', marginTop: 2 },
+  loadMoreBtn:      { backgroundColor: '#534AB71A', borderRadius: 12, paddingVertical: 14, alignItems: 'center', marginTop: 8, marginHorizontal: 5, marginBottom: 16 },
+  loadMoreTxt:      { color: '#534AB7', fontSize: 14, fontWeight: '600' },
   footer:           { padding: 16, backgroundColor: '#fff', borderTopWidth: 1, borderTopColor: '#eee' },
   continuerBtn:     { backgroundColor: '#534AB7', borderRadius: 12, paddingVertical: 14, alignItems: 'center' },
   continuerTxt:     { color: '#fff', fontSize: 16, fontWeight: '600' },
